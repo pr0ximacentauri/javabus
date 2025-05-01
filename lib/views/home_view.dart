@@ -166,38 +166,74 @@ class _HomeContentState extends State<HomeContent> {
             ),
             Container(
               height: 200,
-              width: 350,
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: ListView(
                 scrollDirection: Axis.horizontal,
-                shrinkWrap: true,
+                physics: BouncingScrollPhysics(),
                 children: [
-                  Card(
-                    color: Colors.brown,
-                    child: Column(
-                      children: [
-                        Image.network(
-                          'https://picsum.photos/id/11/300/150',
-                          fit: BoxFit.cover,
+                  Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Column(
+                          children: [
+                            Image.asset(
+                              'assets/borobudur-temple.webp',
+                              width: 300,
+                              height: 130,
+                              fit: BoxFit.cover,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                'Yogyakarta',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
                         ),
-                        Text('Yogyakarta')
-                      ],
+                      ),
                     ),
                   ),
-                  Card(
-                    color: Colors.blue,
-                    child: Column(
-                      children: [
-                        Image.network(
-                          'https://picsum.photos/id/12/300/150',
-                          fit: BoxFit.cover,
+                  Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Column(
+                          children: [
+                            Image.asset(
+                              'assets/ijen.jpg',
+                              width: 300,
+                              height: 130,
+                              fit: BoxFit.cover,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                'Banyuwangi',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
                         ),
-                        Text('Banyuwangi')
-                      ],
+                      ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
+
           ],
         ),
       ),

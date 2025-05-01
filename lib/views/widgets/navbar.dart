@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:javabus/views/account_view.dart';
-import 'package:javabus/views/history_view.dart';
+import 'package:javabus/views/help_center_view.dart';
 import 'package:javabus/views/home_view.dart';
 import 'package:javabus/views/ticket_view.dart';
 
@@ -16,8 +16,8 @@ class _NavbarState extends State<Navbar> {
   
   final List<Widget> _pages = [
     HomeContent(),
-    HistoryView(),
     TicketContent(),
+    HelpCenterContent(),
     AccountContent(),
   ];
 
@@ -30,9 +30,9 @@ class _NavbarState extends State<Navbar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blueGrey,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Java Bus'),
+        title: const Text('Java Bus', style: TextStyle(fontWeight: FontWeight.bold),),
         backgroundColor: Colors.amber,
       ),
       body: AnimatedSwitcher(
@@ -53,16 +53,16 @@ class _NavbarState extends State<Navbar> {
             label: 'Beranda',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.history),
-            label: 'Riwayat',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.airplane_ticket_sharp),
             label: 'Tiketku',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle),
-            label: 'Akun',
+            icon: Icon(Icons.help_center),
+            label: 'Bantuan',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Pengaturan',
           ),
         ],
       ),
