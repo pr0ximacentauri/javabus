@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:javabus/views/widgets/navbar.dart';
 
-class HomeView extends StatelessWidget {
-  const HomeView({super.key});
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
   
   @override
   Widget build(BuildContext context) {

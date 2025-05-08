@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:javabus/views/widgets/navbar.dart';
 
-class HelpCenterView extends StatelessWidget {
-  const HelpCenterView({super.key});
+class HelpCenterScreen extends StatelessWidget {
+  const HelpCenterScreen({super.key});
 
   @override
 

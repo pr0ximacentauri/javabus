@@ -1,24 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:javabus/views/screens/account_screen.dart';
-import 'package:javabus/views/screens/help_center_screen.dart';
-import 'package:javabus/views/screens/home_screen.dart';
-import 'package:javabus/views/screens/ticket_screen.dart';
+import 'package:javabus/views/screens/admin/admin_home_screen.dart';
 
-class Navbar extends StatefulWidget {
-  const Navbar({super.key});
+
+class AdminNavbar extends StatefulWidget {
+  const AdminNavbar({super.key});
 
   @override
-  State<Navbar> createState() => _NavbarState();
+  State<AdminNavbar> createState() => _AdminNavbarState();
 }
 
-class _NavbarState extends State<Navbar> {
+class _AdminNavbarState extends State<AdminNavbar> {
   int _selectedIndex = 0;
   
   final List<Widget> _pages = [
-    HomeContent(),
-    TicketContent(),
-    HelpCenterContent(),
-    AccountContent(),
+    AdminHomeScreen(),
   ];
 
   void _onItemTapped(int index){
@@ -32,8 +27,8 @@ class _NavbarState extends State<Navbar> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Java Bus', style: TextStyle(fontWeight: FontWeight.bold),),
-        backgroundColor: Colors.amber,
+        title: const Text('Admin Java Bus', style: TextStyle(fontWeight: FontWeight.bold),),
+        backgroundColor: const Color.fromARGB(255, 206, 145, 1),
       ),
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
@@ -43,7 +38,7 @@ class _NavbarState extends State<Navbar> {
         type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        backgroundColor: Colors.amber,
+        backgroundColor: const Color.fromARGB(255, 206, 145, 1),
         selectedItemColor: Colors.white,
         unselectedItemColor: Colors.black,
         showUnselectedLabels: true,
@@ -53,16 +48,12 @@ class _NavbarState extends State<Navbar> {
             label: 'Beranda',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.airplane_ticket_sharp),
-            label: 'Tiketku',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.notifications),
             label: 'Notifikasi',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Pengaturan',
+            icon: Icon(Icons.account_circle_rounded),
+            label: 'Akun',
           ),
         ],
       ),

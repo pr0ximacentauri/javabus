@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:javabus/views/widgets/navbar.dart';
 
-class TicketView extends StatelessWidget {
-  const TicketView({super.key});
+class TicketScreen extends StatelessWidget {
+  const TicketScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
