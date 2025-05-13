@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:javabus/views/screens/account_screen.dart';
+import 'package:javabus/views/screens/main/account_screen.dart';
 import 'package:javabus/views/screens/help_center_screen.dart';
-import 'package:javabus/views/screens/home_screen.dart';
-import 'package:javabus/views/screens/ticket_screen.dart';
+import 'package:javabus/views/screens/main/home_screen.dart';
+import 'package:javabus/views/screens/main/notification_screen.dart';
+import 'package:javabus/views/screens/main/ticket_screen.dart';
 
 class Navbar extends StatefulWidget {
   const Navbar({super.key});
@@ -17,7 +18,7 @@ class _NavbarState extends State<Navbar> {
   final List<Widget> _pages = [
     HomeContent(),
     TicketContent(),
-    HelpCenterContent(),
+    NotificationContent(),
     AccountContent(),
   ];
 

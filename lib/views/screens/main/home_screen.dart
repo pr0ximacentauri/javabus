@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:javabus/viewmodels/route_view_model.dart';
+import 'package:javabus/views/screens/route_selection_screen.dart';
 import 'package:javabus/views/widgets/navbar.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
   
   @override
   Widget build(BuildContext context) {
-    return const Navbar();
+    return Navbar();
   }
 }
 
@@ -19,19 +22,11 @@ class HomeContent extends StatefulWidget {
 
 
 class _HomeContentState extends State<HomeContent> {
-  String fromLocation = 'Jember';
-  String toLocation = 'Surabaya';
-
-  void swapLocations() {
-    setState(() {
-      final temp = fromLocation;
-      fromLocation = toLocation;
-      toLocation = temp;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
+    final routeVM = Provider.of<RouteViewModel>(context);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.orangeAccent,
@@ -73,15 +68,35 @@ class _HomeContentState extends State<HomeContent> {
                         locationButton(
                           icon: Icons.directions_bus,
                           label: "Asal",
-                          value: fromLocation,
-                          onTap: () {
+                          value: routeVM.selectedOrigin?.name ?? 'Pilih Kota Asal',
+                          onTap: () async{
+                            await routeVM.loadOrigins();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => RouteSelectionScreen(isOriginSelection: true),
+                              ),
+                            );
                           },
                         ),
                         locationButton(
                           icon: Icons.location_on,
                           label: "Tujuan",
-                          value: toLocation,
-                          onTap: () {
+                          value: routeVM.selectedDestination?.name ?? 'Pilih Kota Tujuan',
+                          onTap: () async{
+                            if(routeVM.selectedOrigin == null){
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Pilih kota asal terlebih dahulu!'))
+                              );
+                              return;
+                            }
+                            await routeVM.loadDestinations(routeVM.selectedOrigin!.id);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => RouteSelectionScreen(isOriginSelection: false),
+                              ),
+                            );
                           },
                         ),
                         locationButton(
@@ -97,7 +112,14 @@ class _HomeContentState extends State<HomeContent> {
                       right: 16,
                       top: 46,
                       child: GestureDetector(
-                        onTap: swapLocations,
+                        onTap: () async{
+                          bool success = await routeVM.swapRoute();
+                          if(!success && routeVM.msg != null){
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(routeVM.msg!))
+                            );
+                          }
+                        },
                         child: Container(
                           decoration: BoxDecoration(
                             color: Colors.grey.shade300,
@@ -121,8 +143,7 @@ class _HomeContentState extends State<HomeContent> {
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 152, vertical: 14),
               ),
-              onPressed: () {
-              },
+              onPressed: () {},
               icon: const Icon(Icons.search, color: Colors.black,),
               label: const Text("Cari bus", style: TextStyle(color: Colors.black),),
             ),

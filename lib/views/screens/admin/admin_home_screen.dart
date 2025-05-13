@@ -6,7 +6,7 @@ class AdminHomeScreen extends StatelessWidget {
   const AdminHomeScreen({super.key});
 
   void _openSwagger() async {
-    const url = 'https://praktikum-paa.vercel.app/api-docs/';
+    const url = 'https://localhost:32771/api/Route';
     if (await canLaunchUrl(Uri.parse(url))) {
       await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
     } else {

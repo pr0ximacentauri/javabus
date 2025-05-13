@@ -1,17 +1,22 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:device_preview/device_preview.dart';
-import 'package:javabus/views/screens/admin/admin_home_screen.dart';
-import 'package:javabus/views/screens/auth/login_screen.dart';
-import 'package:javabus/views/screens/home_screen.dart';
-import 'package:javabus/views/widgets/admin_navbar.dart';
+import 'package:javabus/viewmodels/route_view_model.dart';
+import 'package:javabus/views/screens/main/home_screen.dart';
+import 'package:javabus/views/widgets/navbar.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   // WidgetsFlutterBinding.ensureInitialized();
   runApp(
     DevicePreview(
       enabled: !kReleaseMode,
-      builder: (context) => const JavaBusApp(),
+      builder: (context) => MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => RouteViewModel()),
+        ],
+        child: const JavaBusApp(),
+      ),
     ),
   );
 }
@@ -33,7 +38,7 @@ class JavaBusApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.amber),
         useMaterial3: true,
       ),
-      home: const AdminNavbar(),
+      home: const Navbar(),
       // initialRoute: '/',
       // routes: {
       //   '/page': (context) => const BottomNavbar(), 
