@@ -7,11 +7,16 @@ class RouteViewModel extends ChangeNotifier {
 
   List<City> origins = [];
   List<City> destinations = [];
-
   City? selectedOrigin;
   City? selectedDestination;
+  DateTime? selectedDate;
 
   String? msg;
+
+  Future<int?> getRouteId() async {
+    if (selectedOrigin == null || selectedDestination == null) return null;
+    return await _service.getId(selectedOrigin!.id, selectedDestination!.id);
+  }
 
   Future<void> loadOrigins() async {
     origins = await _service.getOrigins();
@@ -60,7 +65,6 @@ class RouteViewModel extends ChangeNotifier {
     return false;
   }
 
-  // Coba cek apakah rute terbalik tersedia
   bool exists = await _service.checkRoute(
       selectedDestination!.id,
       selectedOrigin!.id,

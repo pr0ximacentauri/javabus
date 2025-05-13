@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:javabus/viewmodels/route_view_model.dart';
+import 'package:javabus/viewmodels/schedule_view_model.dart';
+import 'package:javabus/views/screens/bus_schedule_screen.dart';
 import 'package:javabus/views/screens/route_selection_screen.dart';
 import 'package:javabus/views/widgets/navbar.dart';
 import 'package:provider/provider.dart';
@@ -102,15 +105,26 @@ class _HomeContentState extends State<HomeContent> {
                         locationButton(
                           icon: Icons.date_range,
                           label: "Tanggal Keberangkatan",
-                          value: "Kam 1-Mei",
-                          onTap: () {
+                          value: routeVM.selectedDate != null 
+                                 ? "${routeVM.selectedDate!.day}-${routeVM.selectedDate!.month}-${routeVM.selectedDate!.year}"
+                                 : 'Pilih Tanggal Keberangkatan',
+                          onTap: () async{
+                             final selected = await showDatePicker(
+                              context: context, 
+                              firstDate: DateTime.now(), 
+                              lastDate: DateTime.now().add(const Duration( days: 30)),
+                            );
+                            if (selected != null) {
+                              routeVM.selectedDate = selected;
+                              routeVM.notifyListeners();
+                            }
                           },
                         ),
                       ],
                     ),
                     Positioned(
                       right: 16,
-                      top: 46,
+                      top: 46,  
                       child: GestureDetector(
                         onTap: () async{
                           bool success = await routeVM.swapRoute();
@@ -143,7 +157,33 @@ class _HomeContentState extends State<HomeContent> {
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 152, vertical: 14),
               ),
-              onPressed: () {},
+              onPressed: () async{
+                if(routeVM.selectedOrigin == null || routeVM.selectedDestination == null || routeVM.selectedDate == null){
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Mohon lengkapi data!'))
+                  );
+                  return;
+                }
+                final routeId = await routeVM.getRouteId();
+                final formattedDate = DateFormat('yyyy-MM-dd').format(routeVM.selectedDate!);
+                
+                if (routeId == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Rute tidak ditemukan!')),
+                  );
+                  return;
+                }
+
+                Navigator.push(
+                  context, 
+                  MaterialPageRoute(
+                    builder: (_) => ChangeNotifierProvider(
+                      create: (_) => ScheduleViewModel()..getSchedulesByRouteAndDate(routeId!, formattedDate!),
+                      child: const BusScheduleScreen(),
+                    ),
+                  )
+                );
+              },
               icon: const Icon(Icons.search, color: Colors.black,),
               label: const Text("Cari bus", style: TextStyle(color: Colors.black),),
             ),
