@@ -1,11 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:javabus/views/screens/auth/register_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:javabus/viewmodels/auth_view_model.dart';
+import 'register_screen.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool staySignedIn = false;
+
+  @override
   Widget build(BuildContext context) {
+    final authVM = Provider.of<AuthViewModel>(context);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
       body: Padding(
@@ -14,41 +27,45 @@ class LoginScreen extends StatelessWidget {
           child: SingleChildScrollView(
             child: Column(
               children: [
+                // Logo and Title
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Image.asset('assets/big_bus.png', height: 40),
-                    // const SizedBox(width: 8),
-                    Text(
+                    Image.asset('assets/javabus-logo.png', height: 40),
+                    const SizedBox(width: 8),
+                    const Text(
                       'JavaBus',
                       style: TextStyle(
                         fontSize: 36,
                         fontWeight: FontWeight.bold,
-                        color: const Color.fromARGB(255, 206, 145, 1),
+                        color: Color.fromARGB(255, 206, 145, 1),
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 16,),
-                Text(
+                const SizedBox(height: 16),
+                const Text(
                   'Selamat Datang',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: const Color.fromARGB(255, 206, 145, 1),
+                    color: Color.fromARGB(255, 206, 145, 1),
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(
+                const Text(
                   'Ayo mulai perjalanan serumu !',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: const Color.fromARGB(255, 96, 67, 0),
+                    color: Color.fromARGB(255, 96, 67, 0),
                   ),
                 ),
                 const SizedBox(height: 32),
+
+                // Username
                 TextField(
+                  controller: _usernameController,
                   decoration: InputDecoration(
                     hintText: 'Username',
                     prefixIcon: const Icon(Icons.person_outline),
@@ -60,7 +77,10 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
+
+                // Password
                 TextField(
+                  controller: _passwordController,
                   obscureText: true,
                   decoration: InputDecoration(
                     hintText: 'Password',
@@ -72,8 +92,25 @@ class LoginScreen extends StatelessWidget {
                     fillColor: Colors.white,
                   ),
                 ),
+
+                // Stay signed in checkbox
+                Row(
+                  children: [
+                    Checkbox(
+                      value: staySignedIn,
+                      onChanged: (value) {
+                        setState(() {
+                          staySignedIn = value ?? false;
+                        });
+                      },
+                    ),
+                    const Text("Tetap masuk"),
+                  ],
+                ),
+
                 const SizedBox(height: 12),
 
+                // Register button
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -94,10 +131,30 @@ class LoginScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+
+                // Login button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: authVM.isLoading
+                        ? null
+                        : () async {
+                            final success = await authVM.login(
+                              _usernameController.text,
+                              _passwordController.text,
+                              staySignedIn,
+                            );
+
+                            if (success && mounted) {
+                              Navigator.pushReplacementNamed(context, '/home');
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(authVM.errorMessage ?? 'Login gagal'),
+                                ),
+                              );
+                            }
+                          },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 206, 145, 1),
                       foregroundColor: Colors.white,
@@ -106,12 +163,15 @@ class LoginScreen extends StatelessWidget {
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                    child: const Text('MASUK'),
+                    child: authVM.isLoading
+                        ? const CircularProgressIndicator()
+                        : const Text('MASUK'),
                   ),
                 ),
+
                 const SizedBox(height: 24),
-                Row(
-                  children: const [
+                const Row(
+                  children: [
                     Expanded(child: Divider()),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 12),
@@ -121,10 +181,12 @@ class LoginScreen extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 24),
+
+                // Google and Apple buttons (dummy)
                 OutlinedButton.icon(
                   onPressed: () {},
                   icon: const Icon(Icons.g_mobiledata, color: Colors.black),
-                  label: const Text('Lanjutkan dengan google'),
+                  label: const Text('Lanjutkan dengan Google'),
                   style: OutlinedButton.styleFrom(
                     backgroundColor: Colors.grey[200],
                     minimumSize: const Size(double.infinity, 50),
@@ -137,7 +199,7 @@ class LoginScreen extends StatelessWidget {
                 OutlinedButton.icon(
                   onPressed: () {},
                   icon: const Icon(Icons.apple, color: Colors.black),
-                  label: const Text('Lanjutkan dengan apple'),
+                  label: const Text('Lanjutkan dengan Apple'),
                   style: OutlinedButton.styleFrom(
                     backgroundColor: Colors.grey[200],
                     minimumSize: const Size(double.infinity, 50),

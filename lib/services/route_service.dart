@@ -2,33 +2,41 @@ import 'package:flutter/material.dart';
 import 'package:javabus/models/route.dart';
 import 'package:javabus/models/city.dart';
 import 'package:http/http.dart' as http;
+import 'package:javabus/const/api_url.dart' as url;
 import 'dart:convert';
 
 class RouteService {
-  final String apiUrl = 'https://localhost:32771/api/Route';
+  final String apiUrl = '${url.baseUrl}/Route';
 
   Future<int?> getId(int originId, int destinationId) async {
-    final url = Uri.parse('$apiUrl/by-city?originId=$originId&destinationId=$destinationId');
-    final response = await http.get(url);
+    final response = await http.get(Uri.parse('$apiUrl/by-city?originId=$originId&destinationId=$destinationId'));
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data['routeId'];
-    } else {
-      debugPrint("Gagal mendapatkan ID rute: ${response.body}");
-      return null;
+    try{
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['routeId'];
+      } else {
+        debugPrint("Gagal mendapatkan ID rute: ${response.body}");
+        return null;
+      }
+    }catch(e){
+      throw Exception(e.toString());
     }
   }
 
   Future<List<City>> getOrigins() async {
   final response = await http.get(Uri.parse('$apiUrl/origins'));
 
-  if (response.statusCode == 200) {
-    final List<dynamic> data = jsonDecode(response.body);
-    return data.map<City>((json) => City.fromJson(json)).toList();
-  } else {
-    final error = jsonDecode(response.body);
-    throw Exception(error['message']);
+  try{
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.map<City>((json) => City.fromJson(json)).toList();
+    } else {
+      final error = jsonDecode(response.body);
+      throw Exception(error['message']);
+    }
+  }catch(e){
+    throw Exception(e.toString());
   }
 }
 
@@ -70,10 +78,14 @@ class RouteService {
       body: jsonEncode(route.toJson()),
     );
 
-    if (response.statusCode == 201) {
-      return RouteModel.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Gagal menambahkan rute');
+    try{
+      if (response.statusCode == 201) {
+        return RouteModel.fromJson(json.decode(response.body));
+      } else {
+        throw Exception('Gagal menambahkan rute');
+      }
+    }catch(e){
+      throw Exception(e.toString());
     }
   }
 }

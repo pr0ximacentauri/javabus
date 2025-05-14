@@ -17,7 +17,6 @@ class AdminHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // HAPUS AppBar dari sini karena AdminNavbar sudah punya AppBar
       backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.all(16.0),

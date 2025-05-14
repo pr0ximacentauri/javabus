@@ -18,8 +18,8 @@ class Booking {
       id: json['id'],
       bookingDate: DateTime.parse(json['booking_date']),
       status: json['status'],
-      userId: json['user_id'],
-      scheduleId: json['schedule_id'],
+      userId: json['userId'],
+      scheduleId: json['scheduleId'],
     );
   }
 }
