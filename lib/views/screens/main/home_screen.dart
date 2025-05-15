@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:javabus/viewmodels/auth_view_model.dart';
 import 'package:javabus/viewmodels/route_view_model.dart';
 import 'package:javabus/viewmodels/schedule_view_model.dart';
 import 'package:javabus/views/screens/bus_schedule_screen.dart';
@@ -29,6 +30,7 @@ class _HomeContentState extends State<HomeContent> {
   @override
   Widget build(BuildContext context) {
     final routeVM = Provider.of<RouteViewModel>(context);
+    final authVM = Provider.of<AuthViewModel>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -42,8 +44,8 @@ class _HomeContentState extends State<HomeContent> {
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text('Selamat Datang, User!', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+          children: [
+            Text('Selamat Datang, ${authVM.user?.username}!', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
           ],
         ),
         actions: [

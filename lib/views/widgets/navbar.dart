@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:javabus/viewmodels/auth_view_model.dart';
 import 'package:javabus/views/screens/main/account_screen.dart';
 import 'package:javabus/views/screens/main/home_screen.dart';
 import 'package:javabus/views/screens/main/notification_screen.dart';
 import 'package:javabus/views/screens/main/ticket_screen.dart';
+import 'package:provider/provider.dart';
 
 class Navbar extends StatefulWidget {
   const Navbar({super.key});
@@ -12,6 +14,12 @@ class Navbar extends StatefulWidget {
 }
 
 class _NavbarState extends State<Navbar> {
+  void initState() {
+    super.initState();
+    // Panggil loadUserFromSession saat Navbar pertama kali dibuka
+    final authVM = Provider.of<AuthViewModel>(context, listen: false);
+    authVM.loadUserFromSession();
+  }
   int _selectedIndex = 0;
   
   final List<Widget> _pages = [

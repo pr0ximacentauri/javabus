@@ -16,7 +16,7 @@ class Booking {
   factory Booking.fromJson(Map<String, dynamic> json) {
     return Booking(
       id: json['id'],
-      bookingDate: DateTime.parse(json['booking_date']),
+      bookingDate: DateTime.parse(json['bookingDate']),
       status: json['status'],
       userId: json['userId'],
       scheduleId: json['scheduleId'],

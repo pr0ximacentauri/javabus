@@ -16,8 +16,8 @@ class RegisterScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Image.asset('assets/big_bus.png', height: 40),
-                    // const SizedBox(width: 8),
+                    Image.asset('assets/javabus-logo.png', height: 40),
+                    const SizedBox(width: 8),
                     const Text(
                       'JavaBus',
                       style: TextStyle(

@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
 import 'package:javabus/const/api_url.dart' as url;
 import 'package:javabus/models/user.dart';
@@ -21,10 +20,10 @@ class AuthService{
 
     try{
       if(response.statusCode == 200){
-        final body = jsonDecode(response.body);
+        final data = jsonDecode(response.body);
         return{
-          'token': body['token'],
-          'user': User.fromJson(body['user']),
+          'token': data['token'],
+          'user': User.fromJson(data['user']),
         }; 
       }else{
         throw Exception(jsonDecode(response.body)['message']);
@@ -34,7 +33,7 @@ class AuthService{
     }
   }
 
-  Future<Map<String, dynamic>> login(String username, String password) async{
+  Future<String> login(String username, String password) async{
     final response = await http.post(Uri.parse('$apiUrl/login'), 
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'username': username, 'password': password})
@@ -42,13 +41,12 @@ class AuthService{
 
     try{
       if(response.statusCode == 200){
-        final body = jsonDecode(response.body);
-        return{
-          'token': body['token'],
-          'user': User.fromJson(body['user']),
-        }; 
+        final data = jsonDecode(response.body);
+        final token = data['token'];
+        if (token == null) throw Exception('Token tidak ditemukan');
+        return token; 
       }else{
-        throw Exception(jsonDecode(response.body)['message']);
+        throw Exception(jsonDecode(response.body)['message']) ?? 'Login gagal';
       }
     }catch(e){
       throw Exception(e.toString());

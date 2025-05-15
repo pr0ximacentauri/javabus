@@ -27,7 +27,6 @@ class _LoginScreenState extends State<LoginScreen> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                // Logo and Title
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -78,7 +77,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Password
                 TextField(
                   controller: _passwordController,
                   obscureText: true,
@@ -93,7 +91,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
 
-                // Stay signed in checkbox
                 Row(
                   children: [
                     Checkbox(
@@ -117,12 +114,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const Text("Belum Punya Akun?"),
                     TextButton(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const RegisterScreen(),
-                          ),
-                        );
+                        Navigator.pushReplacementNamed(context, '/register');
                       },
                       child: const Text(
                         'Daftar',
@@ -150,7 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text(authVM.errorMessage ?? 'Login gagal'),
+                                  content: Text('Login gagal'),
                                 ),
                               );
                             }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:javabus/viewmodels/auth_view_model.dart';
 import 'package:javabus/views/widgets/navbar.dart';
+import 'package:provider/provider.dart';
 
 class AccountScreen extends StatelessWidget {
   const AccountScreen({super.key});
@@ -15,7 +17,8 @@ class AccountContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-  return Scaffold(
+    final authVM = Provider.of<AuthViewModel>(context);
+    return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -33,14 +36,23 @@ class AccountContent extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'User',
+                  '${authVM.user?.fullName}',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-
             const Divider(thickness: 1, color: Colors.grey),
+           
+            ListTile(
+              leading: const Icon(Icons.mode_edit),
+              title: const Text('Edit Profil'),
+              onTap: () {
+                
+              },
+            ),
+            const Divider(thickness: 1, color: Colors.grey),
+            
             ListTile(
               leading: const Icon(Icons.account_circle_sharp),
               title: const Text('Ubah Password'),
@@ -50,14 +62,6 @@ class AccountContent extends StatelessWidget {
             ),
             const Divider(thickness: 1, color: Colors.grey),
             
-            ListTile(
-              leading: const Icon(Icons.notifications),
-              title: const Text('Notifikasi'),
-              onTap: () {
-                
-              },
-            ),
-            const Divider(thickness: 1, color: Colors.grey),
 
             ListTile(
               leading: const Icon(Icons.contact_support),
@@ -104,8 +108,8 @@ class AccountContent extends StatelessWidget {
                 );
 
                 if (confirmLogout == true){
-                  // await authVM.logout();  
-                  // Navigator.pushReplacementNamed(context, '/login');
+                  await authVM.logout();  
+                  Navigator.pushReplacementNamed(context, '/login');
                 }
               },
             ),
