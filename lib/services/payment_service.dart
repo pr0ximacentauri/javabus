@@ -1,25 +1,32 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:javabus/const/api_url.dart' as url;
-import 'package:javabus/models/payment_request.dart';
 
 class PaymentService {
-  final String apiUrl = '${url.baseUrl}/Payment';
+  Future<String> createSnapPayment({
+    required int grossAmount,
+    required int bookingId,
+  }) async {
+    final String apiUrl = '${url.baseUrl}/Payment';
 
-  Future<String> createPayment(PaymentRequest request) async {
+    final body = {
+      "grossAmount": grossAmount,
+      "bookingId": bookingId,
+    };
+
     final response = await http.post(
-      Uri.parse('$apiUrl/create'),
+      Uri.parse('$apiUrl/snap'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(request.toJson()),
+      body: jsonEncode(body),
     );
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data['payment_url'];
+      final json = jsonDecode(response.body);
+      print('✅ URL didapat dari backend: ${json['payment_url']}');
+      return json['payment_url'];
     } else {
-      final error = jsonDecode(response.body);
-      throw Exception(error['message'] ?? 'Gagal membuat pembayaran');
+      final json = jsonDecode(response.body);
+      throw Exception('Gagal: ${json['message']}');
     }
   }
-  
 }

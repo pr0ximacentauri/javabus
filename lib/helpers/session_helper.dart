@@ -32,6 +32,12 @@ class SessionHelper {
     }
   }
 
+  static Future<void> updateUser(User user) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_userKey, jsonEncode(user.toJson()));
+  }
+
+
   static Future<bool> isLoggedIn() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_tokenKey) != null && prefs.getBool(_staySignedKey) == true;

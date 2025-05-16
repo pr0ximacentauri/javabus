@@ -27,6 +27,7 @@ class User {
           : int.tryParse(json['roleId'].toString()) ?? 2,
     );
   }
+
   Map<String, dynamic> toJson() => {
     'id_user': id,
     'username': username,

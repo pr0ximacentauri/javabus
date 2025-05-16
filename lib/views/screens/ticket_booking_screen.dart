@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:javabus/models/bus.dart';
 import 'package:javabus/viewmodels/auth_view_model.dart';
+import 'package:javabus/viewmodels/booking_view_model.dart';
 import 'package:javabus/viewmodels/payment_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -72,35 +73,66 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
             const Spacer(),
 
             ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size.fromHeight(50),
-              ),
-              onPressed: () async{
-                final userVM = Provider.of<AuthViewModel>(context, listen: false);
+              onPressed: () async {
+                final authVM = Provider.of<AuthViewModel>(context, listen: false);
+                final bookingVM = Provider.of<BookingViewModel>(context, listen: false);
                 final paymentVM = Provider.of<PaymentViewModel>(context, listen: false);
 
-                int userId = userVM.user!.id;
-                int scheduleId = widget.scheduleId;
-                int grossAmount = (_selectedTickets * widget.ticketPrice).toInt();
-                await paymentVM.createPaymentWithMidtrans(userId, scheduleId, grossAmount);
+                final userId = authVM.user?.id;
+                final scheduleId = widget.scheduleId;
+                final totalHarga = (_selectedTickets * widget.ticketPrice).toInt();
 
-                if(paymentVM.errorMsg != null){
+                if (userId == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error: ${paymentVM.errorMsg}')),
+                    const SnackBar(content: Text('User belum login')),
                   );
-                }else if(paymentVM.paymentUrl != null){
-                  final url = Uri.parse(paymentVM.paymentUrl!);
+                  return;
+                }
+
+                print('🎯 Tombol diklik');
+                print('👤 User ID: $userId');
+                print('📆 Schedule ID: $scheduleId');
+                print('💰 Total Harga: $totalHarga');
+
+                // Step 1: Buat booking terlebih dahulu
+                await bookingVM.createBooking(userId, scheduleId);
+
+                final booking = bookingVM.newBooking;
+                if (booking == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Gagal membuat booking: ${bookingVM.error}')),
+                  );
+                  return;
+                }
+
+                final bookingId = booking.id;
+                print('📄 Booking berhasil. ID: $bookingId');
+
+                // Step 2: Lanjut ke pembayaran
+                await paymentVM.createPayment(
+                  grossAmount: totalHarga,
+                  bookingId: bookingId,
+                );
+
+                final paymentUrl = paymentVM.paymentUrl;
+                if (paymentUrl != null) {
+                  final url = Uri.parse(paymentUrl);
                   if (await canLaunchUrl(url)) {
                     await launchUrl(url, mode: LaunchMode.externalApplication);
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Tidak bisa membuka URL pembayaran')),
+                      const SnackBar(content: Text('Tidak bisa membuka halaman pembayaran')),
                     );
                   }
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Gagal membuat pembayaran: ${paymentVM.errorMsg}')),
+                  );
                 }
               },
               child: const Text("Lanjut ke Pembayaran"),
             )
+
           ],
         )
       )

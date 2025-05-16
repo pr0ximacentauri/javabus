@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:javabus/helpers/session_helper.dart';
 import 'package:javabus/viewmodels/auth_view_model.dart';
+import 'package:javabus/viewmodels/booking_view_model.dart';
 import 'package:javabus/viewmodels/bus_view_model.dart';
 import 'package:javabus/viewmodels/payment_view_model.dart';
 import 'package:javabus/viewmodels/route_view_model.dart';
@@ -23,6 +24,7 @@ void main() async{
           ChangeNotifierProvider(create: (_) => AuthViewModel()),
           ChangeNotifierProvider(create: (_) => BusViewModel()),
           ChangeNotifierProvider(create: (_) => PaymentViewModel()),
+          ChangeNotifierProvider(create: (_) => BookingViewModel()),
         ],
         child: JavaBusApp(isLoggedIn : isLoggedIn),
       ),

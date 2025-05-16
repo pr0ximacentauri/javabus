@@ -4,6 +4,7 @@ import 'package:javabus/viewmodels/auth_view_model.dart';
 import 'package:javabus/viewmodels/route_view_model.dart';
 import 'package:javabus/viewmodels/schedule_view_model.dart';
 import 'package:javabus/views/screens/bus_schedule_screen.dart';
+import 'package:javabus/views/screens/help_center_screen.dart';
 import 'package:javabus/views/screens/route_selection_screen.dart';
 import 'package:javabus/views/widgets/navbar.dart';
 import 'package:provider/provider.dart';
@@ -218,7 +219,14 @@ class _HomeContentState extends State<HomeContent> {
                   icon: Icons.help,
                   label: 'Bantuan',
                   color: Colors.purple,
-                  onTap: () => print('Bantuan tapped'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const HelpCenterScreen(),
+                      )
+                    );
+                  },
                 ),
               ],
             ),

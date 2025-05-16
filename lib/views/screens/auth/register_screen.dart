@@ -120,7 +120,7 @@ class RegisterScreen extends StatelessWidget {
                     const Text("Sudah punya akun?"),
                     TextButton(
                       onPressed: () {
-                        Navigator.pop(context);
+                        Navigator.pushReplacementNamed(context, '/login');
                       },
                       child: const Text(
                         'Masuk',

@@ -52,4 +52,32 @@ class AuthService{
       throw Exception(e.toString());
     }
   }
+
+  Future<bool> updateUser(User user) async{
+    final response = await http.put(Uri.parse('$apiUrl/update/${user.id}'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(user.toJson()),
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      print('Error: ${response.body}');
+      return false;
+    }
+  }
+
+  Future<bool> updatePassword({required int userId, required String oldPassword, required String newPassword}) async{
+    final response = await http.put(Uri.parse('$apiUrl/update-password/$userId'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'oldPassword': oldPassword, 'newPassword': newPassword}),
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      print('Error: ${response.body}');
+      return false;
+    }
+  }
 }

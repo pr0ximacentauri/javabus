@@ -9,17 +9,32 @@ class ScheduleService {
   Future<List<Schedule>> getSchedules(int routeId, String date) async {
     final response = await http.get(Uri.parse('$apiUrl/search?routeId=$routeId&date=$date'));
 
-    try{
-      if(response.statusCode == 200){
+    try {
+      if (response.statusCode == 200) {
         final List jsonData = jsonDecode(response.body);
         return jsonData.map<Schedule>((json) => Schedule.fromJson(json)).toList();
-      }else{
+      } else {
         final error = jsonDecode(response.body);
         throw Exception(error['message']);
       }
-    }catch(e){
+    } catch (e) {
       throw Exception(e.toString());
     }
   }
-  
+
+  Future<Schedule> getScheduleById(int id) async {
+    final response = await http.get(Uri.parse('$apiUrl/$id'));
+
+    try {
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        return Schedule.fromJson(jsonData);
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['message']);
+      }
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
 }

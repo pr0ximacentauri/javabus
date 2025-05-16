@@ -26,7 +26,7 @@ class BusScheduleScreen extends StatelessWidget {
               height: 80,
               width: 80,
               child: Image.asset(
-                'assets/ijen.jpg',
+                'assets/javabus-logo.png',
                 fit: BoxFit.contain,
               ),
             ),

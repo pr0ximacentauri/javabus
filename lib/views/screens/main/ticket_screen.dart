@@ -1,172 +1,117 @@
 import 'package:flutter/material.dart';
-import 'package:javabus/views/widgets/navbar.dart';
-
-class TicketScreen extends StatelessWidget {
-  const TicketScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Navbar();
-  }
-}
+import 'package:javabus/viewmodels/auth_view_model.dart';
+import 'package:javabus/viewmodels/booking_view_model.dart';
+import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 class TicketContent extends StatefulWidget {
-  const TicketContent({super.key});
+  final int? selectedBookingId;
+  const TicketContent({super.key, this.selectedBookingId});
 
   @override
   State<TicketContent> createState() => _TicketContentState();
 }
 
 class _TicketContentState extends State<TicketContent> {
-bool isTiketSelected = true;
+  bool isTiketSelected = true;
+
+  @override
+  void initState() {
+    super.initState();
+    final userId = Provider.of<AuthViewModel>(context, listen: false).user!.id;
+    Provider.of<BookingViewModel>(context, listen: false).fetchBookingsWithSchedules(userId);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, String>> tiketData = [
-      {
-        'from': 'Bandung',
-        'to': 'Jakarta',
-        'date': '3 Mei 2025',
-        'time': '08:30 WIB',
-        'bus': 'Java Express'
-      },
-    ];
-
-    final List<Map<String, String>> riwayatData = [
-      {
-        'from': 'Surabaya',
-        'to': 'Malang',
-        'date': '10 April 2025',
-        'time': '12:00 WIB',
-        'bus': 'Bromo Trans'
-      },
-    ];
-
-    final selectedData = isTiketSelected ? tiketData : riwayatData;
+    final bookingVM = Provider.of<BookingViewModel>(context);
+    final List<BookingWithSchedule> bookingsWithSchedules = bookingVM.bookingsWithSchedules;
+    final filtered = bookingsWithSchedules.where((bws) =>
+      isTiketSelected ? bws.booking.status == 'Belum Digunakan' : bws.booking.status != 'Belum Digunakan'
+    ).toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Tiket Perjalanan'),
-        backgroundColor: Colors.white,
-      ),
-      body: Column(
+      appBar: AppBar(title: const Text('Tiket Perjalanan'), backgroundColor: Colors.white),
+      body: bookingVM.isLoading 
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
         children: [
           const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => setState(() => isTiketSelected = true),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 250),
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: isTiketSelected ? Colors.orangeAccent : Colors.transparent,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: Text(
-                          'Tiket',
-                          style: TextStyle(
-                            color: isTiketSelected ? Colors.white : Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => setState(() => isTiketSelected = false),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 250),
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: !isTiketSelected ? Colors.orangeAccent : Colors.transparent,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: Text(
-                          'Riwayat',
-                          style: TextStyle(
-                            color: !isTiketSelected ? Colors.white : Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          _buildFilterToggle(),
           const SizedBox(height: 16),
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: selectedData.length,
-              itemBuilder: (context, index) {
-                final item = selectedData[index];
-                return Card(
-                  elevation: 4,
-                  margin: const EdgeInsets.only(bottom: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${item['from']} → ${item['to']}',
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
-                            const SizedBox(width: 6),
-                            Text(item['date']!, style: const TextStyle(fontSize: 14)),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        Row(
-                          children: [
-                            const Icon(Icons.access_time, size: 16, color: Colors.grey),
-                            const SizedBox(width: 6),
-                            Text(item['time']!, style: const TextStyle(fontSize: 14)),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        Row(
-                          children: [
-                            const Icon(Icons.directions_bus, size: 16, color: Colors.grey),
-                            const SizedBox(width: 6),
-                            Text(item['bus']!, style: const TextStyle(fontSize: 14)),
-                          ],
-                        ),
-                        if (!isTiketSelected) ...[
-                          const SizedBox(height: 6),
-                          const Divider(),
-                          const Text(
-                            'Status: Selesai',
-                            style: TextStyle(color: Colors.green),
+            child: filtered.isEmpty
+                ? const Center(child: Text("Tidak ada data"))
+                : ListView.builder(
+                    itemCount: filtered.length,
+                    itemBuilder: (context, index) {
+                      final bws = filtered[index];
+                      final booking = bws.booking;
+                      final schedule = bws.schedule;
+
+                      return Card(
+                        margin: const EdgeInsets.all(12),
+                        child: ListTile(
+                          title: Text('Booking ID: ${booking.id}'),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Status: ${booking.status}'),
+                              Text('Tanggal Keberangkatan: ${DateFormat('dd MMM yyyy, HH:mm').format(schedule.departureTime)}'),
+                              Text('Harga Tiket: Rp ${schedule.ticketPrice}'),
+                              // Jika ada informasi route, bisa ditampilkan (misal asal - tujuan)
+                              // Text('Rute: ${schedule.route.origin} - ${schedule.route.destination}'),
+                            ],
                           ),
-                        ]
-                      ],
-                    ),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFilterToggle() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Row(
+          children: [
+            _buildTab('Tiket', true),
+            _buildTab('Riwayat', false),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTab(String label, bool selected) {
+    final isSelected = selected == isTiketSelected;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => isTiketSelected = selected),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.orangeAccent : Colors.transparent,
+            borderRadius: BorderRadius.circular(30),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: isSelected ? Colors.white : Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
       ),
     );
   }
