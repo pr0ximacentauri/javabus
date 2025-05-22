@@ -22,9 +22,9 @@ class User {
       fullName: json['full_name'],
       email: json['email'],
       password: json['password'],
-      roleId: json['roleId'] is int
-          ? json['roleId']
-          : int.tryParse(json['roleId'].toString()) ?? 2,
+      roleId: json['role_id'] is int
+          ? json['role_id']
+          : int.tryParse(json['role_id'].toString()) ?? 2,
     );
   }
 
@@ -34,6 +34,6 @@ class User {
     'full_name': fullName,
     'email': email,
     'password': password,
-    'roleId': roleId,
+    'role_id': roleId,
   };
 }

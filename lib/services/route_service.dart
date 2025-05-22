@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:javabus/models/route.dart';
+import 'package:javabus/models/bus_route.dart';
 import 'package:javabus/models/city.dart';
 import 'package:http/http.dart' as http;
 import 'package:javabus/const/api_url.dart' as url;
@@ -20,72 +20,56 @@ class RouteService {
         return null;
       }
     }catch(e){
-      throw Exception(e.toString());
+      return null;
     }
   }
 
-  Future<List<City>> getOrigins() async {
+  Future<List<City>?> getOrigins() async {
   final response = await http.get(Uri.parse('$apiUrl/origins'));
 
-  try{
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map<City>((json) => City.fromJson(json)).toList();
-    } else {
-      final error = jsonDecode(response.body);
-      throw Exception(error['message']);
-    }
-  }catch(e){
-    throw Exception(e.toString());
+  if (response.statusCode == 200) {
+    final List<dynamic> data = jsonDecode(response.body);
+    return data.map<City>((json) => City.fromJson(json)).toList();
+  } else {
+    final error = jsonDecode(response.body);
+    return null;
   }
 }
 
 
-  Future<List<City>> getDestinations(int originId) async{
+  Future<List<City>?> getDestinations(int originId) async{
     final response = await http.get(Uri.parse('$apiUrl/destinations/$originId'));
 
-    try{
-      if(response.statusCode == 200){
-        final List<dynamic> data = json.decode(response.body);
-        return data.map<City>((json) => City.fromJson(json)).toList();
-      }else{
-        throw Exception(json.decode(response.body)['message']);
-      }
-    }catch(e){
-      throw Exception(e.toString());
+    if(response.statusCode == 200){
+      final List<dynamic> data = json.decode(response.body);
+      return data.map<City>((json) => City.fromJson(json)).toList();
+    }else{
+      return null;
     }
   }
 
   Future<bool> checkRoute(int originId, int destinationId) async{
     final response = await http.get(Uri.parse('$apiUrl/by-city?originId=$originId&destinationId=$destinationId'));
     
-    try{
-      if(response.statusCode == 200){
-        return true;
-      }else{
-        return false;
-      }
-    }catch(e){
-      throw Exception(e.toString());
+    if(response.statusCode == 200){
+      return true;
+    }else{
+      return false;
     }
   }
 
   // untuk admin
-  Future<RouteModel> createRoute(RouteModel route) async {
+  Future<BusRoute?> createRoute(BusRoute route) async {
     final response = await http.post(
       Uri.parse(apiUrl),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(route.toJson()),
     );
 
-    try{
-      if (response.statusCode == 201) {
-        return RouteModel.fromJson(json.decode(response.body));
-      } else {
-        throw Exception('Gagal menambahkan rute');
-      }
-    }catch(e){
-      throw Exception(e.toString());
+    if (response.statusCode == 201) {
+      return BusRoute.fromJson(json.decode(response.body));
+    } else {
+      return null;
     }
   }
 }

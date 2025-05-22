@@ -6,35 +6,27 @@ import 'package:javabus/models/schedule.dart';
 class ScheduleService {
   final String apiUrl = '${url.baseUrl}/Schedule';
 
-  Future<List<Schedule>> getSchedules(int routeId, String date) async {
+  Future<List<Schedule>?> getSchedules(int routeId, String date) async {
     final response = await http.get(Uri.parse('$apiUrl/search?routeId=$routeId&date=$date'));
 
-    try {
-      if (response.statusCode == 200) {
-        final List jsonData = jsonDecode(response.body);
-        return jsonData.map<Schedule>((json) => Schedule.fromJson(json)).toList();
-      } else {
-        final error = jsonDecode(response.body);
-        throw Exception(error['message']);
-      }
-    } catch (e) {
-      throw Exception(e.toString());
+    if (response.statusCode == 200) {
+      final List jsonData = jsonDecode(response.body);
+      return jsonData.map<Schedule>((json) => Schedule.fromJson(json)).toList();
+    } else {
+      final error = jsonDecode(response.body);
+      return null;
     }
   }
 
-  Future<Schedule> getScheduleById(int id) async {
+  Future<Schedule?> getScheduleById(int id) async {
     final response = await http.get(Uri.parse('$apiUrl/$id'));
 
-    try {
-      if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body);
-        return Schedule.fromJson(jsonData);
-      } else {
-        final error = jsonDecode(response.body);
-        throw Exception(error['message']);
-      }
-    } catch (e) {
-      throw Exception(e.toString());
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body);
+      return Schedule.fromJson(jsonData);
+    } else {
+      final error = jsonDecode(response.body);
+      return null;
     }
   }
 }

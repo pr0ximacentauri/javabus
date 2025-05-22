@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:javabus/models/bus.dart';
 import 'package:javabus/services/bus_service.dart';
 
-class BusViewModel extends ChangeNotifier{
+class BusViewModel extends ChangeNotifier {
   final BusService _service = BusService();
 
   List<Bus> buses = [];
@@ -13,21 +13,24 @@ class BusViewModel extends ChangeNotifier{
     isLoading = true;
     notifyListeners();
 
-    try {
-      buses = await _service.getBuses();
+    final result = await _service.getBuses();
+    if (result != null) {
+      buses = result;
       errorMsg = null;
-    } catch (e) {
-      errorMsg = e.toString();
+    } else {
+      errorMsg = 'Gagal memuat data bus.';
     }
+
     isLoading = false;
     notifyListeners();
   }
 
-  Future<Bus> getBusById(int id) async {
-    try{
-      return await _service.getById(id);
-    }catch(e){
-      throw Exception(e.toString());
+  Future<Bus?> getBusById(int id) async {
+    final bus = await _service.getById(id);
+    if (bus == null) {
+      errorMsg = 'Bus dengan ID $id tidak ditemukan.';
+      notifyListeners();
     }
+    return bus;
   }
 }

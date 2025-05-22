@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:javabus/const/api_url.dart' as url;
 
 class PaymentService {
-  Future<String> createSnapPayment({
+  Future<String?> createSnapPayment({
     required int grossAmount,
     required int bookingId,
   }) async {
@@ -25,8 +25,7 @@ class PaymentService {
       print('✅ URL didapat dari backend: ${json['payment_url']}');
       return json['payment_url'];
     } else {
-      final json = jsonDecode(response.body);
-      throw Exception('Gagal: ${json['message']}');
+      return null;
     }
   }
 }

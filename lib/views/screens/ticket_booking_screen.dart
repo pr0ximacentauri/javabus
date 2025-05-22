@@ -3,8 +3,8 @@ import 'package:javabus/models/bus.dart';
 import 'package:javabus/viewmodels/auth_view_model.dart';
 import 'package:javabus/viewmodels/booking_view_model.dart';
 import 'package:javabus/viewmodels/payment_view_model.dart';
+import 'package:javabus/views/widgets/payment_webview.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class TicketBookingScreen extends StatefulWidget {
   final Bus bus;
@@ -80,7 +80,7 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
 
                 final userId = authVM.user?.id;
                 final scheduleId = widget.scheduleId;
-                final totalHarga = (_selectedTickets * widget.ticketPrice).toInt();
+                final totalPrice = (_selectedTickets * widget.ticketPrice).toInt();
 
                 if (userId == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -89,12 +89,18 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                   return;
                 }
 
-                print('🎯 Tombol diklik');
-                print('👤 User ID: $userId');
-                print('📆 Schedule ID: $scheduleId');
-                print('💰 Total Harga: $totalHarga');
+                if (bookingVM.hasBookingForSchedule(userId, scheduleId)) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Tiket ini sudah dipesan')),
+                  );
+                  return;
+                }
 
-                // Step 1: Buat booking terlebih dahulu
+                // print('🎯 Tombol diklik');
+                // print('👤 User ID: $userId');
+                // print('📆 Schedule ID: $scheduleId');
+                // print('💰 Total Harga: $totalPrice');
+
                 await bookingVM.createBooking(userId, scheduleId);
 
                 final booking = bookingVM.newBooking;
@@ -108,22 +114,28 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                 final bookingId = booking.id;
                 print('📄 Booking berhasil. ID: $bookingId');
 
-                // Step 2: Lanjut ke pembayaran
                 await paymentVM.createPayment(
-                  grossAmount: totalHarga,
+                  grossAmount: totalPrice,
                   bookingId: bookingId,
                 );
 
                 final paymentUrl = paymentVM.paymentUrl;
                 if (paymentUrl != null) {
-                  final url = Uri.parse(paymentUrl);
-                  if (await canLaunchUrl(url)) {
-                    await launchUrl(url, mode: LaunchMode.externalApplication);
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Tidak bisa membuka halaman pembayaran')),
-                    );
-                  }
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PaymentWebView(url: paymentUrl),
+                    ),
+                  );
+
+                  await bookingVM.updateBookingStatus(booking.id, 'belum digunakan');
+
+                  final userId = Provider.of<AuthViewModel>(context, listen: false).user!.id;
+                  await bookingVM.fetchBookingsWithSchedules(userId);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Pembayaran selesai, status tiket diperbarui.')),
+                  );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Gagal membuat pembayaran: ${paymentVM.errorMsg}')),

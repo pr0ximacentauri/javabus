@@ -5,8 +5,8 @@ import 'package:javabus/services/route_service.dart';
 class RouteViewModel extends ChangeNotifier {
   final RouteService _service = RouteService();
 
-  List<City> origins = [];
-  List<City> destinations = [];
+  List<City>? origins = [];
+  List<City>? destinations = [];
   City? selectedOrigin;
   City? selectedDestination;
   DateTime? selectedDate;
@@ -22,6 +22,7 @@ class RouteViewModel extends ChangeNotifier {
     origins = await _service.getOrigins();
     notifyListeners();
   }
+
 
   Future<void> loadDestinations(int originId) async {
     destinations = await _service.getDestinations(originId);

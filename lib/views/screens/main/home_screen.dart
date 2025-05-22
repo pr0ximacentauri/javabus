@@ -210,6 +210,12 @@ class _HomeContentState extends State<HomeContent> {
                   onTap: () => print('Terminal tapped'),
                 ),
                 _buildCircleButton(
+                  icon: Icons.map_outlined,
+                  label: 'Terminal Terdekat',
+                  color: Colors.cyan,
+                  onTap: () => print('terminal terdekat tapped'),
+                ),
+                _buildCircleButton(
                   icon: Icons.directions_bus_outlined,
                   label: 'Daftar Bus',
                   color: Colors.green,

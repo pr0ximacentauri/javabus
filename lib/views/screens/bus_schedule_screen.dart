@@ -17,9 +17,9 @@ class BusScheduleScreen extends StatelessWidget {
           : scheduleVM.msg != null
               ? Center(child: Text("Terjadi kesalahan: ${scheduleVM.msg ?? 'Tidak diketahui'}"))
               : ListView.builder(
-        itemCount: scheduleVM.schedules.length,
+        itemCount: scheduleVM.schedules!.length,
         itemBuilder: (context, index) {
-          final schedule = scheduleVM.schedules[index];
+          final schedule = scheduleVM.schedules![index];
           
           return ListTile(
             leading: SizedBox(
@@ -39,7 +39,7 @@ class BusScheduleScreen extends StatelessWidget {
                   context, 
                   MaterialPageRoute(
                     builder: (_) => TicketBookingScreen(
-                      bus: bus,
+                      bus: bus!,
                       departureTime: schedule.departureTime,
                       scheduleId: schedule.id,
                       ticketPrice: schedule.ticketPrice

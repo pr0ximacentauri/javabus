@@ -25,37 +25,69 @@ class BookingViewModel extends ChangeNotifier {
   bool isLoading = false;
 
   Future<void> createBooking(int userId, int scheduleId) async {
-    try {
-      newBooking = await _bookingService.createBooking(userId, scheduleId);
+    final result = await _bookingService.createBooking(userId, scheduleId);
+    if (result != null) {
+      newBooking = result;
       error = null;
-      notifyListeners();
-    } catch (e) {
-      error = e.toString();
+    } else {
       newBooking = null;
-      notifyListeners();
+      error = 'Gagal membuat booking.';
     }
+    notifyListeners();
   }
 
   Future<void> fetchBookingsWithSchedules(int userId) async {
     isLoading = true;
     notifyListeners();
 
-    try {
-      final bookings = await _bookingService.getBookingsByUser(userId);
-      bookingsWithSchedules = [];
+    final bookings = await _bookingService.getBookingsByUser(userId);
+    bookingsWithSchedules = [];
 
+    if (bookings != null) {
       for (var booking in bookings) {
         final schedule = await _scheduleService.getScheduleById(booking.scheduleId);
-        bookingsWithSchedules.add(BookingWithSchedule(booking: booking, schedule: schedule));
+        if (schedule != null) {
+          bookingsWithSchedules.add(BookingWithSchedule(
+            booking: booking,
+            schedule: schedule,
+          ));
+        }
       }
-
       error = null;
-    } catch (e) {
-      error = e.toString();
-      bookingsWithSchedules = [];
-    } finally {
-      isLoading = false;
+    } else {
+      error = 'Gagal memuat data booking.';
+    }
+
+    isLoading = false;
+    notifyListeners();
+  }
+
+  bool hasBookingForSchedule(int userId, int scheduleId) {
+    return bookingsWithSchedules.any((bws) =>
+        bws.booking.userId == userId &&
+        bws.booking.scheduleId == scheduleId);
+  }
+
+
+  Future<bool> updateBookingStatus(int bookingId, String status) async {
+    final success = await _bookingService.updateBookingStatus(bookingId, status);
+    if (success) {
+      final index = bookingsWithSchedules.indexWhere((bws) => bws.booking.id == bookingId);
+      if (index != -1) {
+        final oldBws = bookingsWithSchedules[index];
+        final updatedBooking = oldBws.booking.copyWith(status: status);
+        bookingsWithSchedules[index] = BookingWithSchedule(
+          booking: updatedBooking,
+          schedule: oldBws.schedule,
+        );
+        notifyListeners();
+      }
+      error = null;
+      return true;
+    } else {
+      error = 'Gagal memperbarui status booking.';
       notifyListeners();
+      return false;
     }
   }
 }

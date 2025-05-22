@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:javabus/viewmodels/auth_view_model.dart';
-import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -53,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 4),
                 const Text(
-                  'Ayo mulai perjalanan serumu !',
+                  'Ayo mulai perjalanan serumu!',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -124,29 +123,53 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
 
-                // Login button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: authVM.isLoading
-                        ? null
-                        : () async {
-                            final success = await authVM.login(
-                              _usernameController.text,
-                              _passwordController.text,
-                              staySignedIn,
-                            );
+                      ? null
+                      : () async {
+                          final username = _usernameController.text;
+                          final password = _passwordController.text;
 
-                            if (success && mounted) {
-                              Navigator.pushReplacementNamed(context, '/home');
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Login gagal'),
-                                ),
-                              );
-                            }
-                          },
+                          if (username.isEmpty || password.isEmpty) {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Peringatan'),
+                                content: const Text('Username dan password tidak boleh kosong.'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.of(context).pop(),
+                                    child: const Text('Ok'),
+                                  ),
+                                ],
+                              ),
+                            );
+                            return;
+                          }
+
+                          final success = await authVM.login(username, password, staySignedIn);
+
+                          if (success && mounted) {
+                            Navigator.pushReplacementNamed(context, '/home');
+                          } else {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Login Gagal'),
+                                content: const Text('Username atau password salah.'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.of(context).pop(),
+                                    child: const Text('Ok'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+                        },
+
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 206, 145, 1),
                       foregroundColor: Colors.white,
@@ -157,7 +180,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     child: authVM.isLoading
                         ? const CircularProgressIndicator()
-                        : const Text('MASUK'),
+                        : const Text('Masuk'),
                   ),
                 ),
 

@@ -1,16 +1,16 @@
-class RouteModel {
+class BusRoute {
   final int id;
   final int originCityId;
   final int destinationCityId;
 
-  RouteModel({
+  BusRoute({
     required this.id,
     required this.originCityId,
     required this.destinationCityId,
   });
 
-  factory RouteModel.fromJson(Map<String, dynamic> json) {
-    return RouteModel(
+  factory BusRoute.fromJson(Map<String, dynamic> json) {
+    return BusRoute(
       id: json['id'],
       originCityId: json['origin_city_id'],
       destinationCityId: json['destination_city_id'],

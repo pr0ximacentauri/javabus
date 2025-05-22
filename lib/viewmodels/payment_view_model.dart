@@ -9,18 +9,17 @@ class PaymentViewModel extends ChangeNotifier {
     required int grossAmount,
     required int bookingId,
   }) async {
-    print('📡 Memanggil createPayment di ViewModel');
     try {
       errorMsg = null;
       paymentUrl = await PaymentService().createSnapPayment(
         grossAmount: grossAmount,
         bookingId: bookingId,
       );
-      print('✅ Payment URL didapat: $paymentUrl');
+      print('Payment URL didapat: $paymentUrl');
       notifyListeners();
     } catch (e) {
       errorMsg = e.toString();
-      print('❌ Error di ViewModel: $errorMsg');
+      print('Error di ViewModel: $errorMsg');
       notifyListeners();
     }
   }

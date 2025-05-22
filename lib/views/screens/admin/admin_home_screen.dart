@@ -1,12 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:javabus/views/widgets/admin_navbar.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AdminHomeScreen extends StatelessWidget {
   const AdminHomeScreen({super.key});
 
+  @override
+  Widget build(BuildContext context) {
+    return AdminNavbar();
+  }
+}
+
+class AdminHomeContent extends StatelessWidget {
+  const AdminHomeContent({super.key});
+
   void _openSwagger() async {
-    const url = 'https://localhost:32771/api/Route';
+    const url = 'https://localhost:32769/swagger';
     if (await canLaunchUrl(Uri.parse(url))) {
       await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
     } else {

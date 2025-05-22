@@ -17,7 +17,7 @@ class City {
     return City(
       id: json['id'],
       name: json['name'],
-      provinceId: json['provinceId'],
+      provinceId: json['province_id'],
       province: json['province'] != null
           ? Province.fromJson(json['province'])
           : null, 

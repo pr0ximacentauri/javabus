@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:javabus/views/screens/admin/admin_account_screen.dart';
 import 'package:javabus/views/screens/admin/admin_home_screen.dart';
 
 
@@ -13,7 +14,8 @@ class _AdminNavbarState extends State<AdminNavbar> {
   int _selectedIndex = 0;
   
   final List<Widget> _pages = [
-    AdminHomeScreen(),
+    AdminHomeContent(),
+    AdminAccountContent(),
   ];
 
   void _onItemTapped(int index){
@@ -46,10 +48,6 @@ class _AdminNavbarState extends State<AdminNavbar> {
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Beranda',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: 'Notifikasi',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.account_circle_rounded),

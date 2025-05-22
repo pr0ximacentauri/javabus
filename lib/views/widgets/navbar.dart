@@ -16,7 +16,6 @@ class Navbar extends StatefulWidget {
 class _NavbarState extends State<Navbar> {
   void initState() {
     super.initState();
-    // Panggil loadUserFromSession saat Navbar pertama kali dibuka
     final authVM = Provider.of<AuthViewModel>(context, listen: false);
     authVM.loadUserFromSession();
   }

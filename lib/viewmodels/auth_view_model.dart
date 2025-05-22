@@ -19,6 +19,12 @@ class AuthViewModel extends ChangeNotifier {
 
     try {
       final token = await _service.login(username, password);
+        if (token == null) {
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+      
       Map<String, dynamic> payload = Jwt.parseJwt(token);
       final user = User(
         id: int.parse(payload['sub']),
@@ -39,7 +45,7 @@ class AuthViewModel extends ChangeNotifier {
     } catch (e) {
       _isLoading = false;
       notifyListeners();
-      rethrow;
+      return false;
     }
   }
 
