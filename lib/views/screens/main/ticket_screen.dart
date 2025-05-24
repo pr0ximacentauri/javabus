@@ -5,7 +5,6 @@ import 'package:javabus/viewmodels/payment_view_model.dart';
 import 'package:javabus/views/widgets/payment_webview.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class TicketContent extends StatefulWidget {
   final int? selectedBookingId;
@@ -69,7 +68,7 @@ class _TicketContentState extends State<TicketContent> {
 
                               final totalHarga = schedule.ticketPrice;
 
-                              await paymentVM.createPayment(
+                              await paymentVM.addPayment(
                                 grossAmount: totalHarga,
                                 bookingId: booking.id,
                               );

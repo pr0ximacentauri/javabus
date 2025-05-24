@@ -31,7 +31,6 @@ class RouteService {
     final List<dynamic> data = jsonDecode(response.body);
     return data.map<City>((json) => City.fromJson(json)).toList();
   } else {
-    final error = jsonDecode(response.body);
     return null;
   }
 }

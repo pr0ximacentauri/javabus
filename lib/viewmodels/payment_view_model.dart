@@ -5,7 +5,7 @@ class PaymentViewModel extends ChangeNotifier {
   String? paymentUrl;
   String? errorMsg;
 
-  Future<void> createPayment({
+  Future<void> addPayment({
     required int grossAmount,
     required int bookingId,
   }) async {

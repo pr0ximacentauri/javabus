@@ -119,7 +119,7 @@ class _HomeContentState extends State<HomeContent> {
                             );
                             if (selected != null) {
                               routeVM.selectedDate = selected;
-                              routeVM.notifyListeners();
+                              // routeVM.notifyListeners();
                             }
                           },
                         ),
@@ -181,7 +181,7 @@ class _HomeContentState extends State<HomeContent> {
                   context, 
                   MaterialPageRoute(
                     builder: (_) => ChangeNotifierProvider(
-                      create: (_) => ScheduleViewModel()..getSchedulesByRouteAndDate(routeId!, formattedDate!),
+                      create: (_) => ScheduleViewModel()..getSchedulesByRouteAndDate(routeId, formattedDate),
                       child: const BusScheduleScreen(),
                     ),
                   )

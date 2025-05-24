@@ -24,7 +24,7 @@ class BookingViewModel extends ChangeNotifier {
   List<BookingWithSchedule> bookingsWithSchedules = [];
   bool isLoading = false;
 
-  Future<void> createBooking(int userId, int scheduleId) async {
+  Future<void> addBooking(int userId, int scheduleId) async {
     final result = await _bookingService.createBooking(userId, scheduleId);
     if (result != null) {
       newBooking = result;

@@ -3,6 +3,7 @@ import 'package:javabus/models/bus.dart';
 import 'package:javabus/viewmodels/auth_view_model.dart';
 import 'package:javabus/viewmodels/booking_view_model.dart';
 import 'package:javabus/viewmodels/payment_view_model.dart';
+import 'package:javabus/viewmodels/seat_selection_view_model.dart';
 import 'package:javabus/views/widgets/payment_webview.dart';
 import 'package:provider/provider.dart';
 
@@ -11,6 +12,7 @@ class TicketBookingScreen extends StatefulWidget {
   final DateTime departureTime;
   final int scheduleId;
   final int ticketPrice;
+
   const TicketBookingScreen({super.key, required this.bus, required this.departureTime, required this.scheduleId, required this.ticketPrice});
 
   @override
@@ -18,33 +20,17 @@ class TicketBookingScreen extends StatefulWidget {
 }
 
 class _TicketBookingScreenState extends State<TicketBookingScreen> {
-  int _selectedTickets = 1;
-  late int _availableSeats;
+  List<int> selectedSeatIds = [];
 
   @override
    void initState() {
     super.initState();
-    _availableSeats = widget.bus.totalSeat;
-  }
-  void _increaseTicket() {
-    if (_selectedTickets < _availableSeats) {
-      setState(() {
-        _selectedTickets++;
-      });
-    }
-  }
-
-  void _decreaseTicket() {
-    if (_selectedTickets > 1) {
-      setState(() {
-        _selectedTickets--;
-      });
-    }
+    final seatVM = Provider.of<SeatSelectionViewModel>(context, listen: false);
+    seatVM.LoadBusSeats(widget.bus.id, widget.scheduleId); 
   }
 
   @override
   Widget build(BuildContext context) {
-    final remainingSeats = _availableSeats - _selectedTickets;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Pemesanan Tiket')),
@@ -55,36 +41,79 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
           children: [
             Text("Bus: ${widget.bus.name}", style: const TextStyle(fontSize: 18)),
             Text("Kelas: ${widget.bus.busClass}", style: const TextStyle(fontSize: 16)),
-            Text("Keberangkatan: ${widget.departureTime.toLocal()}",
-                style: const TextStyle(fontSize: 16)),
+            Text("Keberangkatan: ${widget.departureTime.toLocal()}", style: const TextStyle(fontSize: 16)),
             SizedBox(height: 20),
 
-            Text("Jumlah tiket:", style: const TextStyle(fontSize: 16)),
-            Row(
-              children: [
-                IconButton(onPressed: _decreaseTicket, icon: const Icon(Icons.remove)),
-                Text(_selectedTickets.toString(), style: const TextStyle(fontSize: 18)),
-                IconButton(onPressed: _increaseTicket, icon: const Icon(Icons.add)),
-              ],
+            Text("Pilih Kursi", style: const TextStyle(fontSize: 16)),
+            
+            Expanded(
+              child: Consumer<SeatSelectionViewModel>(
+                builder: (context, seatVM, child) {
+                  final seats = seatVM.allBusSeats;
+                  if (seats == null || seats.isEmpty) {
+                      return const Center(child: CircularProgressIndicator());
+                  }
+
+                  return SingleChildScrollView(
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: seats.map((seat){
+                        final isBooked = seatVM.isSeatBooked(seat.id);
+                        final isSelected = selectedSeatIds.contains(seat.id);
+
+                        return GestureDetector(
+                          onTap: isBooked ? null : () {
+                            setState(() {
+                              if (isSelected) {
+                                selectedSeatIds.remove(seat.id);
+                              } else {
+                                selectedSeatIds.add(seat.id);
+                              }
+                            });
+                          },
+                          child: Container(
+                            width: 50,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: isBooked ? Colors.grey : isSelected ? Colors.green : Colors.blue,
+                              border: Border.all(color: Colors.black),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(seat.seatNumber.toString()),
+                          ),
+                        );
+                      }).toList(),
+                    )
+                  );
+                }
+              )
             ),
             SizedBox(height: 10),
-            Text("Sisa kursi setelah dipesan: $remainingSeats", style: const TextStyle(fontSize: 14, color: Colors.grey)),
+            Text("Total: ${selectedSeatIds.length} tiket (Rp ${selectedSeatIds.length * widget.ticketPrice})", style: const TextStyle(fontSize: 16)),
 
-            const Spacer(),
-
+            SizedBox(height: 10),
             ElevatedButton(
               onPressed: () async {
                 final authVM = Provider.of<AuthViewModel>(context, listen: false);
                 final bookingVM = Provider.of<BookingViewModel>(context, listen: false);
                 final paymentVM = Provider.of<PaymentViewModel>(context, listen: false);
+                final seatVM = Provider.of<SeatSelectionViewModel>(context, listen: false);
 
                 final userId = authVM.user?.id;
                 final scheduleId = widget.scheduleId;
-                final totalPrice = (_selectedTickets * widget.ticketPrice).toInt();
 
                 if (userId == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('User belum login')),
+                  );
+                  return;
+                }
+
+                if(selectedSeatIds.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Pilih minimal satu kursi')),
                   );
                   return;
                 }
@@ -101,8 +130,8 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                 // print('📆 Schedule ID: $scheduleId');
                 // print('💰 Total Harga: $totalPrice');
 
-                await bookingVM.createBooking(userId, scheduleId);
-
+                await bookingVM.addBooking(userId, scheduleId);
+                
                 final booking = bookingVM.newBooking;
                 if (booking == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -114,7 +143,17 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                 final bookingId = booking.id;
                 print('📄 Booking berhasil. ID: $bookingId');
 
-                await paymentVM.createPayment(
+                for (final seatId in selectedSeatIds) {
+                  await seatVM.addSeatBooking(
+                    scheduleId,
+                    seatId,
+                    bookingId,
+                  );
+                }
+
+                final totalPrice = selectedSeatIds.length * widget.ticketPrice;
+
+                await paymentVM.addPayment(
                   grossAmount: totalPrice,
                   bookingId: bookingId,
                 );
@@ -129,12 +168,11 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                   );
 
                   await bookingVM.updateBookingStatus(booking.id, 'belum digunakan');
-
-                  final userId = Provider.of<AuthViewModel>(context, listen: false).user!.id;
                   await bookingVM.fetchBookingsWithSchedules(userId);
+                  await seatVM.LoadBusSeats(widget.bus.id, widget.scheduleId);
 
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Pembayaran selesai, status tiket diperbarui.')),
+                    const SnackBar(content: Text('Pembayaran selesai, kursi berhasil dipesan')),
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(

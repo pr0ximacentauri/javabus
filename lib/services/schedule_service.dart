@@ -6,6 +6,7 @@ import 'package:javabus/models/schedule.dart';
 class ScheduleService {
   final String apiUrl = '${url.baseUrl}/Schedule';
 
+
   Future<List<Schedule>?> getSchedules(int routeId, String date) async {
     final response = await http.get(Uri.parse('$apiUrl/search?routeId=$routeId&date=$date'));
 
@@ -13,7 +14,6 @@ class ScheduleService {
       final List jsonData = jsonDecode(response.body);
       return jsonData.map<Schedule>((json) => Schedule.fromJson(json)).toList();
     } else {
-      final error = jsonDecode(response.body);
       return null;
     }
   }
@@ -25,7 +25,6 @@ class ScheduleService {
       final jsonData = jsonDecode(response.body);
       return Schedule.fromJson(jsonData);
     } else {
-      final error = jsonDecode(response.body);
       return null;
     }
   }
