@@ -7,7 +7,7 @@ class SeatBookingService{
   final String apiUrl = '${url.baseUrl}/SeatBooking';
 
   Future<List<SeatBooking>?> getSeatBookingSchedules(int scheduleId) async {
-    final response = await http.get(Uri.parse('$apiUrl'));
+    final response = await http.get(Uri.parse(apiUrl));
 
     if (response.statusCode == 200) {
       final List data = jsonDecode(response.body);

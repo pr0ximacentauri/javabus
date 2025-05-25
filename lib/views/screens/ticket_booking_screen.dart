@@ -4,6 +4,7 @@ import 'package:javabus/viewmodels/auth_view_model.dart';
 import 'package:javabus/viewmodels/booking_view_model.dart';
 import 'package:javabus/viewmodels/payment_view_model.dart';
 import 'package:javabus/viewmodels/seat_selection_view_model.dart';
+import 'package:javabus/viewmodels/ticket_view_model.dart';
 import 'package:javabus/views/widgets/payment_webview.dart';
 import 'package:provider/provider.dart';
 
@@ -100,6 +101,7 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                 final bookingVM = Provider.of<BookingViewModel>(context, listen: false);
                 final paymentVM = Provider.of<PaymentViewModel>(context, listen: false);
                 final seatVM = Provider.of<SeatSelectionViewModel>(context, listen: false);
+                final ticketVM = Provider.of<TicketViewModel>(context, listen: false);
 
                 final userId = authVM.user?.id;
                 final scheduleId = widget.scheduleId;
@@ -160,6 +162,14 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
 
                 final paymentUrl = paymentVM.paymentUrl;
                 if (paymentUrl != null) {
+                  final snapshotSuccess = await ticketVM.createSnapshot(bookingId);
+                  if(snapshotSuccess){
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(ticketVM.Msg ?? 'Gagal membuat tiket'))
+                    );
+                    return;
+                  }
+                  
                   Navigator.push(
                     context,
                     MaterialPageRoute(

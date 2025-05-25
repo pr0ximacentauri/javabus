@@ -3,10 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:javabus/const/api_url.dart' as url;
 
 class PaymentService {
-  Future<String?> createSnapPayment({
-    required int grossAmount,
-    required int bookingId,
-  }) async {
+  Future<String?> createSnapPayment({required int grossAmount, required int bookingId}) async {
     final String apiUrl = '${url.baseUrl}/Payment';
 
     final body = {

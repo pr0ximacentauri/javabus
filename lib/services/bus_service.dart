@@ -7,7 +7,7 @@ class BusService {
   final String apiUrl = '${url.baseUrl}/Bus';
 
   Future<List<Bus>?> getBuses() async {
-    final response = await http.get(Uri.parse('$apiUrl'));
+    final response = await http.get(Uri.parse(apiUrl));
 
     if (response.statusCode == 200) {
       final List data = jsonDecode(response.body);
