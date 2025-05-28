@@ -6,6 +6,7 @@ import 'package:javabus/viewmodels/schedule_view_model.dart';
 import 'package:javabus/views/screens/bus_schedule_screen.dart';
 import 'package:javabus/views/screens/help_center_screen.dart';
 import 'package:javabus/views/screens/route_selection_screen.dart';
+import 'package:javabus/views/screens/terminal_map_screen.dart';
 import 'package:javabus/views/widgets/navbar.dart';
 import 'package:provider/provider.dart';
 
@@ -35,7 +36,7 @@ class _HomeContentState extends State<HomeContent> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.orangeAccent,
+        backgroundColor: Colors.amber,
         elevation: 0,
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -46,12 +47,12 @@ class _HomeContentState extends State<HomeContent> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Selamat Datang, ${authVM.user?.username}!', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+            Text('Selamat Datang, ${authVM.user?.username}!', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
           ],
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_none, color: Colors.white),
+            icon: const Icon(Icons.notifications_none, color: Colors.black),
             onPressed: () {
             },
           ),
@@ -119,7 +120,7 @@ class _HomeContentState extends State<HomeContent> {
                             );
                             if (selected != null) {
                               routeVM.selectedDate = selected;
-                              // routeVM.notifyListeners();
+                              routeVM.notifyListeners();
                             }
                           },
                         ),
@@ -192,49 +193,53 @@ class _HomeContentState extends State<HomeContent> {
             ),
 
             SizedBox(height: 20),
-            GridView.count(
-              physics: NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              crossAxisCount: 4,
-              children: [
-                _buildCircleButton(
-                  icon: Icons.calendar_month,
-                  label: 'Jadwal Bus',
-                  color: Colors.yellow.shade900,
-                  onTap: () => print('Jadwal tapped'),
-                ),
-                _buildCircleButton(
-                  icon: Icons.map,
-                  label: 'Terminal Bus',
-                  color: Colors.blue,
-                  onTap: () => print('Terminal tapped'),
-                ),
-                _buildCircleButton(
-                  icon: Icons.map_outlined,
-                  label: 'Terminal Terdekat',
-                  color: Colors.cyan,
-                  onTap: () => print('terminal terdekat tapped'),
-                ),
-                _buildCircleButton(
-                  icon: Icons.directions_bus_outlined,
-                  label: 'Daftar Bus',
-                  color: Colors.green,
-                  onTap: () => print('Daftar tapped'),
-                ),
-                _buildCircleButton(
-                  icon: Icons.help,
-                  label: 'Bantuan',
-                  color: Colors.purple,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const HelpCenterScreen(),
-                      )
-                    );
-                  },
-                ),
-              ],
+            SizedBox(
+              height: 120, 
+              child: GridView.count(
+                crossAxisCount: 1,
+                scrollDirection: Axis.horizontal,
+                childAspectRatio: 1,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                children: [
+                  _buildCircleButton(
+                    icon: Icons.calendar_month,
+                    label: 'Jadwal Bus',
+                    color: Colors.yellow.shade900,
+                    onTap: () => print('Jadwal tapped'),
+                  ),
+                  _buildCircleButton(
+                    icon: Icons.map,
+                    label: 'Terminal Bus',
+                    color: Colors.blue,
+                    onTap: () => print('Terminal tapped'),
+                  ),
+                  _buildCircleButton(
+                    icon: Icons.map_outlined,
+                    label: 'Terminal Terdekat',
+                    color: Colors.cyan,
+                    onTap: () => print('terminal terdekat tapped'),
+                  ),
+                  _buildCircleButton(
+                    icon: Icons.directions_bus_outlined,
+                    label: 'Daftar Bus',
+                    color: Colors.green,
+                    onTap: () => print('Daftar tapped'),
+                  ),
+                  _buildCircleButton(
+                    icon: Icons.help,
+                    label: 'Bantuan',
+                    color: Colors.purple,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const HelpCenterScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
             SizedBox(height: 10),
             Padding(

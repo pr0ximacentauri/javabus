@@ -50,8 +50,8 @@ class _NavbarState extends State<Navbar> {
         type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        backgroundColor: Colors.amber,
-        selectedItemColor: Colors.white,
+        backgroundColor: Colors.white,
+        selectedItemColor: Colors.amber,
         unselectedItemColor: Colors.black,
         showUnselectedLabels: true,
         items: const [

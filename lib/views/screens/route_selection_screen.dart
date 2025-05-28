@@ -76,7 +76,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                               } else {
                                 routeVM.selectedDestination = city;
                               }
-                              // routeVM.notifyListeners();
+                              routeVM.notifyListeners();
                               Navigator.pop(context);
                             },
                           );

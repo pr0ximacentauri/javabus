@@ -6,7 +6,7 @@ import 'package:javabus/const/api_url.dart' as url;
 import 'dart:convert';
 
 class RouteService {
-  final String apiUrl = '${url.baseUrl}/Route';
+  final String apiUrl = '${url.baseUrl}/BusRoute';
 
   Future<int?> getId(int originId, int destinationId) async {
     final response = await http.get(Uri.parse('$apiUrl/by-city?originId=$originId&destinationId=$destinationId'));

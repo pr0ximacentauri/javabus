@@ -126,10 +126,12 @@ class AuthViewModel extends ChangeNotifier {
     switch (role) {
       case 'admin':
         return 1;
-      case 'user':
+      case 'sub-admin':
         return 2;
+      case 'customer':
+        return 3;
       default:
-        return 2;
+        return 3;
     }
   }
 }

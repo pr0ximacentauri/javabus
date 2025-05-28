@@ -15,8 +15,8 @@ class Booking {
     return Booking(
       id: json['id'],
       status: json['status'],
-      userId: json['user_id'],
-      scheduleId: json['schedule_id'],
+      userId: json['userId'],
+      scheduleId: json['scheduleId'],
     );
   }
 
@@ -24,8 +24,8 @@ class Booking {
     return {
       'id': id,
       'status': status,
-      'user_id': userId,
-      'schedule_id': scheduleId,
+      'userId': userId,
+      'scheduleId': scheduleId,
     };
   }
 

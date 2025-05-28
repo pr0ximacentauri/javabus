@@ -15,8 +15,8 @@ class Bus {
     return Bus(
       id: json['id'], 
       name: json['name'],
-      busClass: json['bus_class'],
-      totalSeat: json['total_seat']
+      busClass: json['busClass'],
+      totalSeat: json['totalSeat']
     );
   }
 }

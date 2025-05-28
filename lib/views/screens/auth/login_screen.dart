@@ -152,7 +152,19 @@ class _LoginScreenState extends State<LoginScreen> {
                           final success = await authVM.login(username, password, staySignedIn);
 
                           if (success && mounted) {
-                            Navigator.pushReplacementNamed(context, '/home');
+                            final user = context.read<AuthViewModel>().user!;
+                            switch (user.roleId) {
+                              case 1:
+                                Navigator.pushReplacementNamed(context, '/admin');
+                                break;
+                              case 2:
+                                Navigator.pushReplacementNamed(context, '/subadmin');
+                                break;
+                              case 3:
+                              default:
+                                Navigator.pushReplacementNamed(context, '/home');
+                                break;
+                            }
                           } else {
                             showDialog(
                               context: context,

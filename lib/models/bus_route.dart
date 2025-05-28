@@ -12,15 +12,15 @@ class BusRoute {
   factory BusRoute.fromJson(Map<String, dynamic> json) {
     return BusRoute(
       id: json['id'],
-      originCityId: json['origin_city_id'],
-      destinationCityId: json['destination_city_id'],
+      originCityId: json['originCityId'],
+      destinationCityId: json['destinationCityId'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'origin_city_id': originCityId,
-      'destination_city_id': destinationCityId,
+      'originCityId': originCityId,
+      'destinationCityId': destinationCityId,
     };
   }
 }

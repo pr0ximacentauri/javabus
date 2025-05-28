@@ -16,10 +16,10 @@ class Schedule {
   factory Schedule.fromJson(Map<String, dynamic> json) {
     return Schedule(
       id: json['id'],
-      departureTime: DateTime.parse(json['departure_time']),
-      ticketPrice: json['ticket_price'],
-      busId: json['bus_id'],
-      routeId: json['route_id'],
+      departureTime: DateTime.parse(json['departureTime']),
+      ticketPrice: json['ticketPrice'],
+      busId: json['busId'],
+      routeId: json['routeId'],
     );
   }
 }

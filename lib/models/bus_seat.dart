@@ -12,8 +12,8 @@ class BusSeat {
   factory BusSeat.fromJson(Map<String, dynamic> json) {
     return BusSeat(
       id: json['id'],
-      seatNumber: json['seat_number'],
-      busId: json['bus_id'],
+      seatNumber: json['seatNumber'],
+      busId: json['busId'],
     );
   }
 }

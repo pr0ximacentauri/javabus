@@ -46,6 +46,9 @@ dependencies:
   jwt_decode: ^0.3.1
   webview_flutter: ^4.12.0
   qr_flutter: ^4.1.0
+  flutter_map: ^8.1.1
+  latlong2: ^0.9.1
+  geolocator: ^10.0.0
 
 flutter_launcher_icons:
   android: true

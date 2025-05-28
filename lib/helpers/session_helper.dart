@@ -38,9 +38,10 @@ class SessionHelper {
   }
 
 
+
   static Future<bool> isLoggedIn() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_tokenKey) != null && prefs.getBool(_staySignedKey) == true;
+    return prefs.getString(_tokenKey) != null;
   }
 
   static Future<void> logout() async {

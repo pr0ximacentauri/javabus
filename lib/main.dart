@@ -4,23 +4,32 @@ import 'package:flutter/material.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:javabus/helpers/session_helper.dart';
 import 'package:javabus/models/user.dart';
+import 'package:javabus/services/bus_seat_service.dart';
+import 'package:javabus/services/seat_booking_service.dart';
 import 'package:javabus/viewmodels/auth_view_model.dart';
 import 'package:javabus/viewmodels/booking_view_model.dart';
 import 'package:javabus/viewmodels/bus_view_model.dart';
 import 'package:javabus/viewmodels/payment_view_model.dart';
 import 'package:javabus/viewmodels/route_view_model.dart';
 import 'package:javabus/viewmodels/schedule_view_model.dart';
+import 'package:javabus/viewmodels/seat_selection_view_model.dart';
+import 'package:javabus/viewmodels/ticket_view_model.dart';
+import 'package:javabus/views/screens/admin/admin_home_screen.dart';
 import 'package:javabus/views/screens/auth/login_screen.dart';
 import 'package:javabus/views/screens/auth/register_screen.dart';
+import 'package:javabus/views/screens/main/home_screen.dart';
 import 'package:javabus/views/screens/sub_admin/sub_admin_screen.dart';
 import 'package:javabus/views/widgets/admin_navbar.dart';
 import 'package:javabus/views/widgets/navbar.dart';
 import 'package:provider/provider.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final isLoggedIn = await SessionHelper.isLoggedIn();
   final user = isLoggedIn ? await SessionHelper.getUser() : null;
+  final seatService = BusSeatService();
+  final seatBookingService = SeatBookingService();
+
   runApp(
     DevicePreview(
       enabled: !kReleaseMode,
@@ -32,6 +41,8 @@ void main() async{
           ChangeNotifierProvider(create: (_) => PaymentViewModel()),
           ChangeNotifierProvider(create: (_) => BookingViewModel()),
           ChangeNotifierProvider(create: (_) => ScheduleViewModel()),
+          ChangeNotifierProvider(create: (_) => SeatSelectionViewModel(seatService, seatBookingService)),
+          ChangeNotifierProvider(create: (_) => TicketViewModel()),
         ],
         child: JavaBusApp(user: user),
       ),
@@ -52,17 +63,17 @@ class JavaBusApp extends StatelessWidget {
     } else {
       switch (user!.roleId) {
         case 1:
-          homeWidget = const AdminNavbar();
+          homeWidget = const AdminHomeScreen();
           break;
         case 2:
           homeWidget = const SubAdminScreen();
           break;
         case 3:
-      default:
-          homeWidget = const Navbar();
+        default:
+          homeWidget = const HomeScreen();
+          break;
       }
     }
-
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -85,4 +96,3 @@ class JavaBusApp extends StatelessWidget {
     );
   }
 }
-

@@ -17,23 +17,23 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['id_user'],
+      id: json['id'],
       username: json['username'],
-      fullName: json['full_name'],
+      fullName: json['fullName'],
       email: json['email'],
       password: json['password'],
-      roleId: json['role_id'] is int
-          ? json['role_id']
-          : int.tryParse(json['role_id'].toString()) ?? 2,
+      roleId: json['roleId'] is int
+          ? json['roleId']
+          : int.tryParse(json['roleId'].toString()),
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'id_user': id,
+    'id': id,
     'username': username,
-    'full_name': fullName,
+    'fullName': fullName,
     'email': email,
     'password': password,
-    'role_id': roleId,
+    'roleId': roleId,
   };
 }

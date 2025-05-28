@@ -45,5 +45,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+    <string>Aplikasi ini membutuhkan akses lokasi Anda untuk menampilkan posisi Anda di peta.</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>Aplikasi ini membutuhkan akses lokasi Anda untuk menampilkan posisi Anda di peta.</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>Aplikasi ini membutuhkan akses lokasi Anda untuk menampilkan posisi Anda di peta.</string>
 </dict>
 </plist>
