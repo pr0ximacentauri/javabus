@@ -6,7 +6,7 @@ import 'package:javabus/viewmodels/schedule_view_model.dart';
 import 'package:javabus/views/screens/bus_schedule_screen.dart';
 import 'package:javabus/views/screens/help_center_screen.dart';
 import 'package:javabus/views/screens/route_selection_screen.dart';
-import 'package:javabus/views/screens/terminal_map_screen.dart';
+import 'package:javabus/views/screens/terminal_bus_screen.dart';
 import 'package:javabus/views/widgets/navbar.dart';
 import 'package:provider/provider.dart';
 
@@ -211,7 +211,14 @@ class _HomeContentState extends State<HomeContent> {
                     icon: Icons.map,
                     label: 'Terminal Bus',
                     color: Colors.blue,
-                    onTap: () => print('Terminal tapped'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const TerminalBusContent(),
+                        ),
+                      );
+                    },
                   ),
                   _buildCircleButton(
                     icon: Icons.map_outlined,
@@ -233,7 +240,7 @@ class _HomeContentState extends State<HomeContent> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const HelpCenterScreen(),
+                          builder: (_) => const HelpCenterContent(),
                         ),
                       );
                     },

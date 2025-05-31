@@ -13,12 +13,13 @@ import 'package:javabus/viewmodels/payment_view_model.dart';
 import 'package:javabus/viewmodels/route_view_model.dart';
 import 'package:javabus/viewmodels/schedule_view_model.dart';
 import 'package:javabus/viewmodels/seat_selection_view_model.dart';
+import 'package:javabus/viewmodels/terminal_view_model.dart';
 import 'package:javabus/viewmodels/ticket_view_model.dart';
 import 'package:javabus/views/screens/admin/admin_home_screen.dart';
 import 'package:javabus/views/screens/auth/login_screen.dart';
 import 'package:javabus/views/screens/auth/register_screen.dart';
 import 'package:javabus/views/screens/main/home_screen.dart';
-import 'package:javabus/views/screens/sub_admin/sub_admin_screen.dart';
+import 'package:javabus/views/screens/conductor/conductor_screen.dart';
 import 'package:javabus/views/widgets/admin_navbar.dart';
 import 'package:javabus/views/widgets/navbar.dart';
 import 'package:provider/provider.dart';
@@ -43,6 +44,7 @@ void main() async {
           ChangeNotifierProvider(create: (_) => ScheduleViewModel()),
           ChangeNotifierProvider(create: (_) => SeatSelectionViewModel(seatService, seatBookingService)),
           ChangeNotifierProvider(create: (_) => TicketViewModel()),
+          ChangeNotifierProvider(create: (_) => TerminalViewModel()),
         ],
         child: JavaBusApp(user: user),
       ),
@@ -66,7 +68,7 @@ class JavaBusApp extends StatelessWidget {
           homeWidget = const AdminHomeScreen();
           break;
         case 2:
-          homeWidget = const SubAdminScreen();
+          homeWidget = const ConductorScreen();
           break;
         case 3:
         default:
@@ -91,7 +93,7 @@ class JavaBusApp extends StatelessWidget {
         '/register': (context) => const RegisterScreen(),
         '/home': (context) => const Navbar(),
         '/admin': (context) => const AdminNavbar(),
-        '/subadmin': (context) => const SubAdminScreen(),
+        '/subadmin': (context) => const ConductorScreen(),
       },
     );
   }
