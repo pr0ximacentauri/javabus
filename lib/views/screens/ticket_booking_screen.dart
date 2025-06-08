@@ -51,7 +51,7 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
               child: Consumer<SeatSelectionViewModel>(
                 builder: (context, seatVM, child) {
                   final seats = seatVM.allBusSeats;
-                  if (seats == null || seats.isEmpty) {
+                  if (seats.isEmpty) {
                       return const Center(child: CircularProgressIndicator());
                   }
 

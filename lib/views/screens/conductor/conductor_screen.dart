@@ -58,15 +58,12 @@ class _ConductorScreenState extends State<ConductorScreen> {
   void _onQRViewCreated(QRViewController controller) {
     this.controller = controller;
     controller.scannedDataStream.listen((scanData) {
-      controller.pauseCamera(); // pause untuk mencegah scan ulang
+      controller.pauseCamera();
       setState(() {
         scannedResult = scanData.code;
       });
 
-      // TODO: Panggil API untuk update status tiket berdasarkan hasil QR
-
-      // Setelah selesai proses, bisa resume kamera jika perlu
-      // controller.resumeCamera();
+      controller.resumeCamera();
     });
   }
 

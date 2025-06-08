@@ -1,6 +1,6 @@
 class BusSeat {
   final int id;
-  final int seatNumber;
+  final String seatNumber;
   final int busId;
 
   BusSeat({

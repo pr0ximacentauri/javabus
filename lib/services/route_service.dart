@@ -8,6 +8,17 @@ import 'dart:convert';
 class RouteService {
   final String apiUrl = '${url.baseUrl}/BusRoute';
 
+  Future<List<BusRoute>?> getRoutes() async {
+    final response = await http.get(Uri.parse(apiUrl));
+
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+      return data.map((json) => BusRoute.fromJson(json)).toList();
+    } else {
+      return null;
+    }
+  }
+
   Future<int?> getId(int originId, int destinationId) async {
     final response = await http.get(Uri.parse('$apiUrl/by-city?originId=$originId&destinationId=$destinationId'));
 
@@ -57,18 +68,44 @@ class RouteService {
     }
   }
 
-  // untuk admin
-  Future<BusRoute?> createRoute(BusRoute route) async {
+  Future<bool> createRoute(int originCityId, int destinationCityId) async {
     final response = await http.post(
-      Uri.parse(apiUrl),
+      Uri.parse('${apiUrl}/bulk'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(route.toJson()),
+      body: jsonEncode([
+        {
+          'originCityId': originCityId,
+          'destinationCityId': destinationCityId
+        }
+      ]),
     );
 
-    if (response.statusCode == 201) {
-      return BusRoute.fromJson(json.decode(response.body));
-    } else {
-      return null;
-    }
+    return response.statusCode == 200;
+  }
+
+  Future<bool> updateRoute(int id, int originCityId, int destinationCityId) async {
+    final response = await http.put(
+      Uri.parse('$apiUrl/bulk'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode([
+        {
+          'id': id,
+          'originCityId': originCityId,
+          'destinationCityId': destinationCityId
+        }
+      ]),
+    );
+    return response.statusCode == 200;
+  }
+
+
+  Future<bool> deleteRoute(int id) async {
+    final response = await http.delete(
+      Uri.parse('$apiUrl/$id'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode([id]),
+    );
+
+    return response.statusCode == 200;
   }
 }

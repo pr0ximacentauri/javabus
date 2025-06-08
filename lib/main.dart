@@ -16,6 +16,9 @@ import 'package:javabus/viewmodels/seat_selection_view_model.dart';
 import 'package:javabus/viewmodels/terminal_view_model.dart';
 import 'package:javabus/viewmodels/ticket_view_model.dart';
 import 'package:javabus/views/screens/admin/admin_home_screen.dart';
+import 'package:javabus/views/screens/admin/crud_bus/bus_list_screen.dart';
+import 'package:javabus/views/screens/admin/crud_bus_route/bus_route_list_screen.dart';
+import 'package:javabus/views/screens/admin/crud_bus_seat/bus_seat_list_screen.dart';
 import 'package:javabus/views/screens/auth/login_screen.dart';
 import 'package:javabus/views/screens/auth/register_screen.dart';
 import 'package:javabus/views/screens/main/home_screen.dart';
@@ -94,6 +97,10 @@ class JavaBusApp extends StatelessWidget {
         '/home': (context) => const Navbar(),
         '/admin': (context) => const AdminNavbar(),
         '/subadmin': (context) => const ConductorScreen(),
+        '/admin/bus': (context) => BusListScreen(),
+        '/admin/bus-route': (context) => const BusRouteListScreen(),
+        '/admin/bus-seat': (context) => const BusSeatListScreen(),
+
       },
     );
   }

@@ -27,4 +27,48 @@ class BusService {
       return null;
     }
   }
+
+  Future<bool> createBus(String name, String busClass, int totalSeat) async {
+    final response = await http.post(
+      Uri.parse('$apiUrl/bulk'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode([
+        {
+          'name': name,
+          'busClass': busClass,
+          'totalSeat': totalSeat
+        }
+      ]),
+    );
+
+    return response.statusCode == 200;
+  }
+
+  Future<bool> updateBus(int id, String name, String busClass, int totalSeat) async {
+    final response = await http.put(
+      Uri.parse('$apiUrl/bulk'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode([
+        {
+          'id': id,
+          'name': name,
+          'busClass': busClass,
+          'totalSeat': totalSeat
+        }
+      ]),
+    );
+
+    return response.statusCode == 200;
+  }
+
+  Future<bool> deleteBus(int id) async {
+    final response = await http.delete(
+      Uri.parse('$apiUrl/$id'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode([id]),
+    );
+
+    return response.statusCode == 200;
+  }
+
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:javabus/views/widgets/admin_navbar.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class AdminHomeScreen extends StatelessWidget {
   const AdminHomeScreen({super.key});
@@ -15,115 +14,123 @@ class AdminHomeScreen extends StatelessWidget {
 class AdminHomeContent extends StatelessWidget {
   const AdminHomeContent({super.key});
 
-  void _openSwagger() async {
-    const url = 'https://localhost:32769/swagger';
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-    } else {
-      throw 'Could not launch $url';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final List<_CrudItem> crudItems = [
+      _CrudItem(
+        title: 'Data Booking Tiket',
+        icon: LucideIcons.bookOpenCheck,
+        route: '/admin/booking',
+        color: Colors.indigo,
+      ),
+      _CrudItem(
+        title: 'Data Rute Bus',
+        icon: LucideIcons.map,
+        route: '/admin/bus-route',
+        color: Colors.orange,
+      ),
+      _CrudItem(
+        title: 'Data Kursi Bus',
+        icon: LucideIcons.sofa,
+        route: '/admin/bus-seat',
+        color: Colors.green,
+      ),
+      _CrudItem(
+        title: 'Data Bus',
+        icon: LucideIcons.bus,
+        route: '/admin/bus',
+        color: Colors.blue,
+      ),
+      _CrudItem(
+        title: 'Data Kota',
+        icon: LucideIcons.mapPin,
+        route: '/admin/city',
+        color: Colors.purple,
+      ),
+      _CrudItem(
+        title: 'Data Jadwal Bus',
+        icon: LucideIcons.calendarDays,
+        route: '/admin/schedule',
+        color: Colors.teal,
+      ),
+      _CrudItem(
+        title: 'Data Tiket Penumpang',
+        icon: LucideIcons.ticket,
+        route: '/admin/ticket',
+        color: Colors.redAccent,
+      ),
+      _CrudItem(
+        title: 'Data Pengguna',
+        icon: LucideIcons.users,
+        route: '/admin/user',
+        color: Colors.brown,
+      ),
+    ];
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text('Dashboard Admin - Navigasi CRUD'),
+      ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Ringkasan Hari Ini',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              physics: const NeverScrollableScrollPhysics(),
-              children: const [
-                _DashboardCard(
-                  icon: LucideIcons.ticket,
-                  title: 'Tiket Terjual',
-                  value: '120',
-                  color: Colors.blue,
+        padding: const EdgeInsets.all(16),
+        child: GridView.builder(
+          itemCount: crudItems.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 4 / 3,
+          ),
+          itemBuilder: (context, index) {
+            final item = crudItems[index];
+            return GestureDetector(
+              onTap: () {
+                Navigator.pushNamed(context, item.route);
+              },
+              child: Card(
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                _DashboardCard(
-                  icon: LucideIcons.creditCard,
-                  title: 'Pendapatan',
-                  value: 'Rp 4.200.000',
-                  color: Colors.green,
+                color: item.color.withOpacity(0.1),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(item.icon, size: 36, color: item.color),
+                      const SizedBox(height: 12),
+                      Text(
+                        item.title,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: item.color,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
                 ),
-                _DashboardCard(
-                  icon: LucideIcons.users,
-                  title: 'User Aktif',
-                  value: '87',
-                  color: Colors.orange,
-                ),
-                _DashboardCard(
-                  icon: LucideIcons.bus,
-                  title: 'Keberangkatan',
-                  value: '6',
-                  color: Colors.purple,
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            Center(
-              child: ElevatedButton.icon(
-                onPressed: _openSwagger,
-                icon: const Icon(Icons.link),
-                label: const Text('Ubah Data API'),
               ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
   }
 }
 
-class _DashboardCard extends StatelessWidget {
-  final IconData icon;
+class _CrudItem {
   final String title;
-  final String value;
+  final IconData icon;
+  final String route;
   final Color color;
 
-  const _DashboardCard({
-    required this.icon,
+  const _CrudItem({
     required this.title,
-    required this.value,
+    required this.icon,
+    required this.route,
     required this.color,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 28, color: color),
-          const SizedBox(height: 12),
-          Text(
-            title,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color),
-          ),
-        ],
-      ),
-    );
-  }
+  });
 }
