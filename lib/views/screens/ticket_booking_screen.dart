@@ -14,7 +14,13 @@ class TicketBookingScreen extends StatefulWidget {
   final int scheduleId;
   final int ticketPrice;
 
-  const TicketBookingScreen({super.key, required this.bus, required this.departureTime, required this.scheduleId, required this.ticketPrice});
+  const TicketBookingScreen({
+    super.key,
+    required this.bus,
+    required this.departureTime,
+    required this.scheduleId,
+    required this.ticketPrice,
+  });
 
   @override
   State<TicketBookingScreen> createState() => _TicketBookingScreenState();
@@ -24,77 +30,75 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
   List<int> selectedSeatIds = [];
 
   @override
-   void initState() {
+  void initState() {
     super.initState();
     final seatVM = Provider.of<SeatSelectionViewModel>(context, listen: false);
-    seatVM.LoadBusSeats(widget.bus.id, widget.scheduleId); 
+    seatVM.LoadBusSeats(widget.bus.id, widget.scheduleId);
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(title: const Text('Pemesanan Tiket')),
       body: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("Bus: ${widget.bus.name}", style: const TextStyle(fontSize: 18)),
             Text("Kelas: ${widget.bus.busClass}", style: const TextStyle(fontSize: 16)),
             Text("Keberangkatan: ${widget.departureTime.toLocal()}", style: const TextStyle(fontSize: 16)),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
+            const Text("Pilih Kursi", style: TextStyle(fontSize: 16)),
 
-            Text("Pilih Kursi", style: const TextStyle(fontSize: 16)),
-            
             Expanded(
               child: Consumer<SeatSelectionViewModel>(
                 builder: (context, seatVM, child) {
                   final seats = seatVM.allBusSeats;
                   if (seats.isEmpty) {
-                      return const Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  final groupedSeats = <String, List<dynamic>>{};
+                  for (final seat in seats) {
+                    final rowLabel = seat.seatNumber.substring(0, 1);
+                    groupedSeats.putIfAbsent(rowLabel, () => []).add(seat);
                   }
 
                   return SingleChildScrollView(
-                    child: Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: seats.map((seat){
-                        final isBooked = seatVM.isSeatBooked(seat.id);
-                        final isSelected = selectedSeatIds.contains(seat.id);
+                    child: Column(
+                      children: groupedSeats.entries.map((entry) {
+                        final rowSeats = entry.value;
+                        rowSeats.sort((a, b) => a.seatNumber.compareTo(b.seatNumber));
 
-                        return GestureDetector(
-                          onTap: isBooked ? null : () {
-                            setState(() {
-                              if (isSelected) {
-                                selectedSeatIds.remove(seat.id);
-                              } else {
-                                selectedSeatIds.add(seat.id);
-                              }
-                            });
-                          },
-                          child: Container(
-                            width: 50,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: isBooked ? Colors.grey : isSelected ? Colors.green : Colors.blue,
-                              border: Border.all(color: Colors.black),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(seat.seatNumber.toString()),
+                        final leftSeats = rowSeats.sublist(0, rowSeats.length ~/ 2);
+                        final rightSeats = rowSeats.sublist(rowSeats.length ~/ 2);
+
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ...leftSeats.map((seat) => _buildSeatWidget(seat)),
+                              const SizedBox(width: 32), // Lorong
+                              ...rightSeats.map((seat) => _buildSeatWidget(seat)),
+                            ],
                           ),
                         );
                       }).toList(),
-                    )
+                    ),
                   );
-                }
-              )
+                },
+              ),
             ),
-            SizedBox(height: 10),
-            Text("Total: ${selectedSeatIds.length} tiket (Rp ${selectedSeatIds.length * widget.ticketPrice})", style: const TextStyle(fontSize: 16)),
 
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
+            Text(
+              "Total: ${selectedSeatIds.length} tiket (Rp ${selectedSeatIds.length * widget.ticketPrice})",
+              style: const TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 10),
+
             ElevatedButton(
               onPressed: () async {
                 final authVM = Provider.of<AuthViewModel>(context, listen: false);
@@ -113,7 +117,7 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                   return;
                 }
 
-                if(selectedSeatIds.isEmpty) {
+                if (selectedSeatIds.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Pilih minimal satu kursi')),
                   );
@@ -127,14 +131,9 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                   return;
                 }
 
-                // print('🎯 Tombol diklik');
-                // print('👤 User ID: $userId');
-                // print('📆 Schedule ID: $scheduleId');
-                // print('💰 Total Harga: $totalPrice');
-
                 await bookingVM.addBooking(userId, scheduleId);
-                
                 final booking = bookingVM.newBooking;
+
                 if (booking == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Gagal membuat booking: ${bookingVM.error}')),
@@ -143,33 +142,24 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                 }
 
                 final bookingId = booking.id;
-                print('📄 Booking berhasil. ID: $bookingId');
 
                 for (final seatId in selectedSeatIds) {
-                  await seatVM.addSeatBooking(
-                    scheduleId,
-                    seatId,
-                    bookingId,
-                  );
+                  await seatVM.addSeatBooking(scheduleId, seatId, bookingId);
                 }
 
                 final totalPrice = selectedSeatIds.length * widget.ticketPrice;
-
-                await paymentVM.addPayment(
-                  grossAmount: totalPrice,
-                  bookingId: bookingId,
-                );
+                await paymentVM.addPayment(grossAmount: totalPrice, bookingId: bookingId);
 
                 final paymentUrl = paymentVM.paymentUrl;
                 if (paymentUrl != null) {
                   final snapshotSuccess = await ticketVM.createSnapshot(bookingId);
-                  if(snapshotSuccess){
+                  if (snapshotSuccess) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(ticketVM.Msg ?? 'Gagal membuat tiket'))
+                      SnackBar(content: Text(ticketVM.Msg ?? 'Gagal membuat tiket')),
                     );
                     return;
                   }
-                  
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -192,10 +182,45 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
               },
               child: const Text("Lanjut ke Pembayaran"),
             )
-
           ],
-        )
-      )
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSeatWidget(seat) {
+    final seatVM = Provider.of<SeatSelectionViewModel>(context, listen: false);
+    final isBooked = seatVM.isSeatBooked(seat.id);
+    final isSelected = selectedSeatIds.contains(seat.id);
+
+    return GestureDetector(
+      onTap: isBooked
+          ? null
+          : () {
+              setState(() {
+                if (isSelected) {
+                  selectedSeatIds.remove(seat.id);
+                } else {
+                  selectedSeatIds.add(seat.id);
+                }
+              });
+            },
+      child: Container(
+        width: 50,
+        height: 50,
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        decoration: BoxDecoration(
+          color: isBooked
+              ? Colors.grey
+              : isSelected
+                  ? Colors.green
+                  : Colors.blue,
+          border: Border.all(color: Colors.black),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        alignment: Alignment.center,
+        child: Text(seat.seatNumber),
+      ),
     );
   }
 }

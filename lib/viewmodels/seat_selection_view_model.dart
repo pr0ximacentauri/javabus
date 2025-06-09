@@ -16,12 +16,15 @@ class SeatSelectionViewModel extends ChangeNotifier{
 
   SeatSelectionViewModel(this._seatService, this._seatBookingService);
 
-  Future<void> LoadBusSeats(int busId, int scheduleId) async{
-    allBusSeats = (await _seatService.getBusSeatsByBus(busId))!;
+  Future<void> LoadBusSeats(int busId, int scheduleId) async {
+    final seats = await _seatService.getBusSeatsByBus(busId);
+    allBusSeats = seats ?? [];
     final bookings = await _seatBookingService.getSeatBookingSchedules(scheduleId);
-    bookedSeats = bookings!.map((e) => e.seatId).toList();
-    notifyListeners();    
+    bookedSeats = bookings?.map((e) => e.seatId).toList() ?? [];
+
+    notifyListeners();
   }
+
 
   bool isSeatBooked(int seatId){
     return bookedSeats.contains(seatId);

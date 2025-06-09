@@ -18,11 +18,14 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
   @override
   void initState() {
     super.initState();
-    final cityVM = Provider.of<CityViewModel>(context, listen: false);
-    if (cityVM.cities.isEmpty) {
-      cityVM.fetchCities();
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final cityVM = Provider.of<CityViewModel>(context, listen: false);
+      if (cityVM.cities.isEmpty) {
+        cityVM.fetchCities();
+      }
+    });
   }
+
 
   @override
   Widget build(BuildContext context) {
