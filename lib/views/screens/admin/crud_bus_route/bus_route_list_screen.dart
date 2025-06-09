@@ -29,11 +29,11 @@ class _BusRouteListScreenState extends State<BusRouteListScreen> {
     Navigator.push(context, MaterialPageRoute(builder: (context) => BusRouteUpdateScreen(busRoute: busRoute)));
   }
 
-  void _deleteBus(int id) async {
+  void _delete(int id) async {
     final routeVM = Provider.of<RouteViewModel>(context, listen: false);
     final success = await routeVM.deleteBusRoute(id);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(success ? 'Bus dihapus' : 'Gagal hapus bus')),
+      SnackBar(content: Text(success ? 'Rute bus dihapus' : 'Gagal hapus rute bus')),
     );
   }
 
@@ -43,7 +43,7 @@ class _BusRouteListScreenState extends State<BusRouteListScreen> {
       builder: (context, routeVM, _) {
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Data Bus'),
+            title: const Text('Data Rute Bus'),
             actions: [
               IconButton(
                 icon: const Icon(Icons.add),
@@ -60,14 +60,14 @@ class _BusRouteListScreenState extends State<BusRouteListScreen> {
                       itemBuilder: (context, index) {
                         final route = routeVM.busRoutes[index];
                         return ListTile(
-                          title: Text('${route.originCityId} (${route.destinationCityId})'),
+                          title: Text('ID Asal: ${route.originCityId} - ID Tujuan: ${route.destinationCityId}'),
                           subtitle: Text('ID: ${route.id}'),
                           trailing: PopupMenuButton<String>(
                             onSelected: (value) {
                               if (value == 'edit') {
                                 _navigateToUpdate(route);
                               } else if (value == 'delete') {
-                                _deleteBus(route.id);
+                                _delete(route.id);
                               }
                             },
                             itemBuilder: (context) => [

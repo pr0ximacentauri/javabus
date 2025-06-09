@@ -50,7 +50,7 @@ class _BusRouteCreateScreenState extends State<BusRouteCreateScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Tambah Bus')),
+      appBar: AppBar(title: const Text('Tambah Rute Bus')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(

@@ -29,11 +29,11 @@ class _BusListScreenState extends State<BusSeatListScreen> {
     Navigator.push(context, MaterialPageRoute(builder: (context) => BusSeatUpdateScreen(seat: seat)));
   }
 
-  void _deleteBus(int id) async {
+  void _delete(int id) async {
     final seatVM = Provider.of<SeatSelectionViewModel>(context, listen: false);
     final success = await seatVM.deleteBusSeat(id);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(success ? 'Bus dihapus' : 'Gagal hapus bus')),
+      SnackBar(content: Text(success ? 'Kursi bus dihapus' : 'Gagal hapus kursi bus')),
     );
   }
 
@@ -60,14 +60,14 @@ class _BusListScreenState extends State<BusSeatListScreen> {
                       itemBuilder: (context, index) {
                         final seat = seatVM.allBusSeats[index];
                         return ListTile(
-                          title: Text('${seat.seatNumber} (${seat.busId})'),
+                          title: Text('Nomor Kursi: ${seat.seatNumber}, ID Bus: ${seat.busId}'),
                           subtitle: Text('ID: ${seat.id}'),
                           trailing: PopupMenuButton<String>(
                             onSelected: (value) {
                               if (value == 'edit') {
                                 _navigateToUpdate(seat);
                               } else if (value == 'delete') {
-                                _deleteBus(seat.id);
+                                _delete(seat.id);
                               }
                             },
                             itemBuilder: (context) => [

@@ -29,7 +29,7 @@ class _BusListScreenState extends State<BusListScreen> {
     Navigator.push(context, MaterialPageRoute(builder: (context) => BusUpdateScreen(bus: bus)));
   }
 
-  void _deleteBus(int id) async {
+  void _delete(int id) async {
     final busVM = Provider.of<BusViewModel>(context, listen: false);
     final success = await busVM.deleteBus(id);
     ScaffoldMessenger.of(context).showSnackBar(
@@ -67,7 +67,7 @@ class _BusListScreenState extends State<BusListScreen> {
                               if (value == 'edit') {
                                 _navigateToUpdate(bus);
                               } else if (value == 'delete') {
-                                _deleteBus(bus.id);
+                                _delete(bus.id);
                               }
                             },
                             itemBuilder: (context) => [

@@ -7,6 +7,7 @@ import 'dart:convert';
 
 class RouteService {
   final String apiUrl = '${url.baseUrl}/BusRoute';
+  final String apiCityUrl = '${url.baseUrl}/City';
 
   Future<List<BusRoute>?> getRoutes() async {
     final response = await http.get(Uri.parse(apiUrl));

@@ -37,11 +37,13 @@ class BusViewModel extends ChangeNotifier {
 
   Future<bool> createBus(String name, String busClass, int totalSeat) async {
     final result = await _service.createBus(name, busClass, totalSeat);
-    if (result) {
+    if (result != null) {
+      newBus = result;
       await fetchBuses();
       return true;
     } else {
       msg = 'Gagal menambahkan bus';
+      newBus = null;
       notifyListeners();
       return false;
     }
@@ -49,24 +51,27 @@ class BusViewModel extends ChangeNotifier {
 
   Future<bool> updateBus(int id, String name, String busClass, int totalSeat) async {
     final result = await _service.updateBus(id, name, busClass, totalSeat);
-    if (result) {
+    if (result != null) {
+      newBus = result;
       await fetchBuses();
       return true;
     } else {
       msg = 'Gagal memperbarui bus';
+      newBus = null;
       notifyListeners();
       return false;
     }
   }
 
-
   Future<bool> deleteBus(int id) async {
     final result = await _service.deleteBus(id);
-    if (result) {
+    if (result != null) {
+      newBus = result;
       await fetchBuses();
       return true;
     } else {
       msg = 'Gagal menghapus bus';
+      newBus = null;
       notifyListeners();
       return false;
     }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:javabus/models/city.dart';
 import 'package:provider/provider.dart';
 import 'package:javabus/viewmodels/route_view_model.dart';
+import 'package:javabus/viewmodels/city_view_model.dart';
 
 class RouteSelectionScreen extends StatefulWidget {
   final bool isOriginSelection;
@@ -15,27 +16,25 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
   String _searchQuery = '';
 
   @override
+  void initState() {
+    super.initState();
+    final cityVM = Provider.of<CityViewModel>(context, listen: false);
+    if (cityVM.cities.isEmpty) {
+      cityVM.fetchCities();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final cityVM = Provider.of<CityViewModel>(context);
     final routeVM = Provider.of<RouteViewModel>(context);
-    final List<City>? allCities = widget.isOriginSelection
-        ? routeVM.origins
-        : routeVM.destinations;
 
-    
-    final filteredCities = allCities?.where((city) {
-      final cityName = city.name.toLowerCase();
-      final provinceName = city.province?.name.toLowerCase() ?? '';
-      return cityName.contains(_searchQuery.toLowerCase()) ||
-          provinceName.contains(_searchQuery.toLowerCase());
-    }).toList();
+    final filteredCities = cityVM.searchCities(_searchQuery);
 
-   
     final provinceGroups = <String, List<City>>{};
-    for (var city in filteredCities ?? []) {
+    for (var city in filteredCities) {
       final provinceName = _capitalize(city.province?.name ?? 'Tanpa Provinsi');
-      if (!provinceGroups.containsKey(provinceName)) {
-        provinceGroups[provinceName] = [];
-      }
+      provinceGroups.putIfAbsent(provinceName, () => []);
       provinceGroups[provinceName]!.add(city);
     }
 
@@ -60,30 +59,32 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
             ),
           ),
           Expanded(
-            child: provinceGroups.isEmpty
-                ? const Center(child: Text('Data tidak ditemukan'))
-                : ListView(
-                    children: provinceGroups.entries.map((entry) {
-                      return ExpansionTile(
-                        title: Text(entry.key),
-                        children: entry.value.map((city) {
-                          return ListTile(
-                            title: Text(_capitalize(city.name)),
-                            onTap: () {
-                              if (widget.isOriginSelection) {
-                                routeVM.selectedOrigin = city;
-                                routeVM.selectedDestination = null;
-                              } else {
-                                routeVM.selectedDestination = city;
-                              }
-                              routeVM.notifyListeners();
-                              Navigator.pop(context);
-                            },
+            child: cityVM.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : provinceGroups.isEmpty
+                    ? const Center(child: Text('Data tidak ditemukan'))
+                    : ListView(
+                        children: provinceGroups.entries.map((entry) {
+                          return ExpansionTile(
+                            title: Text(entry.key),
+                            children: entry.value.map((city) {
+                              return ListTile(
+                                title: Text(_capitalize(city.name)),
+                                onTap: () {
+                                  if (widget.isOriginSelection) {
+                                    routeVM.selectedOrigin = city;
+                                    routeVM.selectedDestination = null;
+                                  } else {
+                                    routeVM.selectedDestination = city;
+                                  }
+                                  routeVM.notifyListeners();
+                                  Navigator.pop(context);
+                                },
+                              );
+                            }).toList(),
                           );
                         }).toList(),
-                      );
-                    }).toList(),
-                  ),
+                      ),
           ),
         ],
       ),

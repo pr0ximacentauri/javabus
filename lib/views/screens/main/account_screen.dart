@@ -36,7 +36,7 @@ class AccountContent extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '${authVM.user?.fullName}',
+                  '${_capitalize(authVM.user?.fullName)}',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ],
@@ -117,5 +117,12 @@ class AccountContent extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String? _capitalize(String? text) {
+    return text?.split(' ').map((word) {
+      if (word.isEmpty) return '';
+      return word[0].toUpperCase() + word.substring(1).toLowerCase();
+    }).join(' ');
   }
 }

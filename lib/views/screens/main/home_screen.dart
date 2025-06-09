@@ -75,7 +75,7 @@ class _HomeContentState extends State<HomeContent> {
                         locationButton(
                           icon: Icons.directions_bus,
                           label: "Asal",
-                          value: routeVM.selectedOrigin?.name ?? 'Pilih Kota Asal',
+                          value: _capitalize(routeVM.selectedOrigin?.name ?? 'Pilih Kota Asal'),
                           onTap: () async{
                             await routeVM.loadOrigins();
                             Navigator.push(
@@ -89,7 +89,7 @@ class _HomeContentState extends State<HomeContent> {
                         locationButton(
                           icon: Icons.location_on,
                           label: "Tujuan",
-                          value: routeVM.selectedDestination?.name ?? 'Pilih Kota Tujuan',
+                          value: _capitalize(routeVM.selectedDestination?.name ?? 'Pilih Kota Tujuan'),
                           onTap: () async{
                             if(routeVM.selectedOrigin == null){
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -248,80 +248,7 @@ class _HomeContentState extends State<HomeContent> {
                 ],
               ),
             ),
-            SizedBox(height: 10),
-            Padding(
-              padding: EdgeInsets.all(5),
-              child: Text('Rekomendasi Tempat', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            ),
-            Container(
-              height: 200,
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                physics: BouncingScrollPhysics(),
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 12),
-                    child: Card(
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: Column(
-                          children: [
-                            Image.asset(
-                              'assets/borobudur-temple.webp',
-                              width: 300,
-                              height: 130,
-                              fit: BoxFit.cover,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                'Yogyakarta',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 12),
-                    child: Card(
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: Column(
-                          children: [
-                            Image.asset(
-                              'assets/ijen.jpg',
-                              width: 300,
-                              height: 130,
-                              fit: BoxFit.cover,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                'Banyuwangi',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+           
 
           ],
         ),
@@ -381,5 +308,12 @@ class _HomeContentState extends State<HomeContent> {
         ],
       ),
     );
+  }
+
+  String _capitalize(String text) {
+    return text.split(' ').map((word) {
+      if (word.isEmpty) return '';
+      return word[0].toUpperCase() + word.substring(1).toLowerCase();
+    }).join(' ');
   }
 }

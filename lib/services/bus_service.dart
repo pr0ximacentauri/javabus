@@ -28,47 +28,60 @@ class BusService {
     }
   }
 
-  Future<bool> createBus(String name, String busClass, int totalSeat) async {
+  Future<Bus?> createBus(String name, String busClass, int totalSeat) async {
     final response = await http.post(
-      Uri.parse('$apiUrl/bulk'),
+      Uri.parse('$apiUrl'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode([
+      body: jsonEncode(
         {
           'name': name,
           'busClass': busClass,
           'totalSeat': totalSeat
         }
-      ]),
+      ),
     );
 
-    return response.statusCode == 200;
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final data = jsonDecode(response.body);
+      return Bus.fromJson(data);
+    } else {
+      return null;
+    }
   }
 
-  Future<bool> updateBus(int id, String name, String busClass, int totalSeat) async {
+  Future<Bus?> updateBus(int id, String name, String busClass, int totalSeat) async {
     final response = await http.put(
-      Uri.parse('$apiUrl/bulk'),
+      Uri.parse('$apiUrl/$id'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode([
+      body: jsonEncode(
         {
-          'id': id,
           'name': name,
           'busClass': busClass,
           'totalSeat': totalSeat
         }
-      ]),
+      ),
     );
 
-    return response.statusCode == 200;
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final data = jsonDecode(response.body);
+      return Bus.fromJson(data);
+    } else {
+      return null;
+    }
   }
 
-  Future<bool> deleteBus(int id) async {
+  Future<Bus?> deleteBus(int id) async {
     final response = await http.delete(
       Uri.parse('$apiUrl/$id'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode([id]),
     );
 
-    return response.statusCode == 200;
-  }
-
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+        return Bus.fromJson(data);
+      } else {
+        return null;
+      }
+    }
 }

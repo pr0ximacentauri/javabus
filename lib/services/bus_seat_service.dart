@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:javabus/models/bus_seat.dart';
 
 class BusSeatService {
-  final String apiUrl = '${url.baseUrl}/BusSeats';
+  final String apiUrl = '${url.baseUrl}/BusSeat';
 
   Future<List<BusSeat>?> getBusSeats() async {
     final response = await http.get(Uri.parse(apiUrl));
@@ -31,14 +31,14 @@ class BusSeatService {
 
   Future<bool> createBusSeat(String seatNumber, int busId) async {
     final response = await http.post(
-      Uri.parse('$apiUrl/bulk'),
+      Uri.parse('$apiUrl'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode([
+      body: jsonEncode(
         {
           'seatNumber': seatNumber,
           'busId': busId
         }
-      ]),
+      ),
     );
 
     return response.statusCode == 200;
@@ -46,15 +46,15 @@ class BusSeatService {
 
   Future<bool> updateBusSeat(int id, String seatNumber, int busId) async {
     final response = await http.put(
-      Uri.parse('$apiUrl/bulk'),
+      Uri.parse('$apiUrl'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode([
+      body: jsonEncode(
         {
           'id': id,
           'seatNumber': seatNumber,
           'busId': busId
         }
-      ]),
+      ),
     );
 
     return response.statusCode == 200;

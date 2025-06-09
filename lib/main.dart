@@ -9,6 +9,7 @@ import 'package:javabus/services/seat_booking_service.dart';
 import 'package:javabus/viewmodels/auth_view_model.dart';
 import 'package:javabus/viewmodels/booking_view_model.dart';
 import 'package:javabus/viewmodels/bus_view_model.dart';
+import 'package:javabus/viewmodels/city_view_model.dart';
 import 'package:javabus/viewmodels/payment_view_model.dart';
 import 'package:javabus/viewmodels/route_view_model.dart';
 import 'package:javabus/viewmodels/schedule_view_model.dart';
@@ -19,6 +20,7 @@ import 'package:javabus/views/screens/admin/admin_home_screen.dart';
 import 'package:javabus/views/screens/admin/crud_bus/bus_list_screen.dart';
 import 'package:javabus/views/screens/admin/crud_bus_route/bus_route_list_screen.dart';
 import 'package:javabus/views/screens/admin/crud_bus_seat/bus_seat_list_screen.dart';
+import 'package:javabus/views/screens/admin/crud_city/city_list_screen.dart';
 import 'package:javabus/views/screens/auth/login_screen.dart';
 import 'package:javabus/views/screens/auth/register_screen.dart';
 import 'package:javabus/views/screens/main/home_screen.dart';
@@ -40,6 +42,7 @@ void main() async {
       builder: (context) => MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => RouteViewModel()),
+          ChangeNotifierProvider(create: (_) => CityViewModel()),
           ChangeNotifierProvider(create: (_) => AuthViewModel()),
           ChangeNotifierProvider(create: (_) => BusViewModel()),
           ChangeNotifierProvider(create: (_) => PaymentViewModel()),
@@ -100,6 +103,8 @@ class JavaBusApp extends StatelessWidget {
         '/admin/bus': (context) => BusListScreen(),
         '/admin/bus-route': (context) => const BusRouteListScreen(),
         '/admin/bus-seat': (context) => const BusSeatListScreen(),
+        // 'admin/city': (context) => const CityListScreen(),
+        
 
       },
     );
