@@ -92,6 +92,7 @@ class AdminHomeContent extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
+                // ignore: deprecated_member_use
                 color: item.color.withOpacity(0.1),
                 child: Padding(
                   padding: const EdgeInsets.all(16),

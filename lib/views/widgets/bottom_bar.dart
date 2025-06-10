@@ -2,18 +2,20 @@
 
 import 'package:flutter/material.dart';
 import 'package:javabus/viewmodels/auth_view_model.dart';
-import 'package:javabus/views/screens/admin/admin_account_screen.dart';
-import 'package:javabus/views/screens/admin/admin_home_screen.dart';
+import 'package:javabus/views/screens/main/account_screen.dart';
+import 'package:javabus/views/screens/main/home_screen.dart';
+import 'package:javabus/views/screens/main/notification_screen.dart';
+import 'package:javabus/views/screens/main/ticket_screen.dart';
 import 'package:provider/provider.dart';
 
-class AdminNavbar extends StatefulWidget {
-  const AdminNavbar({super.key});
+class BottomBar extends StatefulWidget {
+  const BottomBar({super.key});
 
   @override
-  State<AdminNavbar> createState() => _AdminNavbarState();
+  State<BottomBar> createState() => _BottomBarState();
 }
 
-class _AdminNavbarState extends State<AdminNavbar> {
+class _BottomBarState extends State<BottomBar> {
   void initState() {
     super.initState();
     final authVM = Provider.of<AuthViewModel>(context, listen: false);
@@ -22,8 +24,10 @@ class _AdminNavbarState extends State<AdminNavbar> {
   int _selectedIndex = 0;
   
   final List<Widget> _pages = [
-    AdminHomeContent(),
-    AdminAccountContent(),
+    HomeContent(),
+    TicketContent(),
+    NotificationContent(),
+    AccountContent(),
   ];
 
   void _onItemTapped(int index){
@@ -36,60 +40,6 @@ class _AdminNavbarState extends State<AdminNavbar> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(70),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.amber.shade600,
-                Colors.orange.shade500,
-              ],
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.amber.shade300.withOpacity(0.3),
-                blurRadius: 10,
-                offset: Offset(0, 3),
-              ),
-            ],
-          ),
-          child: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            centerTitle: true,
-            title: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    Icons.directions_bus,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-                SizedBox(width: 12),
-                Text(
-                  'Java Bus Admin',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 22,
-                    color: Colors.white,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -166,6 +116,14 @@ class _AdminNavbarState extends State<AdminNavbar> {
               BottomNavigationBarItem(
                 icon: _buildNavIcon(Icons.home_outlined, Icons.home, 0),
                 label: 'Beranda',
+              ),
+              BottomNavigationBarItem(
+                icon: _buildNavIcon(Icons.airplane_ticket_outlined, Icons.airplane_ticket, 1),
+                label: 'Tiketku',
+              ),
+              BottomNavigationBarItem(
+                icon: _buildNavIcon(Icons.notifications_outlined, Icons.notifications, 2),
+                label: 'Notifikasi',
               ),
               BottomNavigationBarItem(
                 icon: _buildNavIcon(Icons.settings_outlined, Icons.settings, 3),

@@ -155,7 +155,7 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                   final snapshotSuccess = await ticketVM.createSnapshot(bookingId);
                   if (snapshotSuccess) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(ticketVM.Msg ?? 'Gagal membuat tiket')),
+                      SnackBar(content: Text(ticketVM.msg ?? 'Gagal membuat tiket')),
                     );
                     return;
                   }

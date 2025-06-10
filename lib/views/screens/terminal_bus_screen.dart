@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:javabus/viewmodels/terminal_view_model.dart';
-import 'package:javabus/views/widgets/navbar.dart';
+import 'package:javabus/views/widgets/bottom_bar.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
@@ -10,7 +10,7 @@ class TerminalBusScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Navbar();
+    return BottomBar();
   }
 }
 

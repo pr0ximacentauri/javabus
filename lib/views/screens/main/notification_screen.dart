@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:javabus/views/widgets/navbar.dart';
+import 'package:javabus/views/widgets/bottom_bar.dart';
 
 class NotificationScreen extends StatelessWidget {
   const NotificationScreen({super.key});
@@ -8,7 +8,7 @@ class NotificationScreen extends StatelessWidget {
 
 
   Widget build(BuildContext context) {
-    return Navbar();
+    return BottomBar();
   }
 }
 

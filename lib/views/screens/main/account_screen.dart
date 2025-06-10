@@ -1,6 +1,8 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:javabus/viewmodels/auth_view_model.dart';
-import 'package:javabus/views/widgets/navbar.dart';
+import 'package:javabus/views/widgets/bottom_bar.dart';
 import 'package:provider/provider.dart';
 
 class AccountScreen extends StatelessWidget {
@@ -8,7 +10,7 @@ class AccountScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Navbar();
+    return BottomBar();
   }
 }
 
@@ -18,104 +20,237 @@ class AccountContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authVM = Provider.of<AuthViewModel>(context);
+    
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[50],
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                CircleAvatar(
-                  radius: 50,
-                  backgroundImage: NetworkImage(
-                    "https://cdn-icons-png.flaticon.com/512/5987/5987424.png",
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '${_capitalize(authVM.user?.fullName)}',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Divider(thickness: 1, color: Colors.grey),
-           
-            ListTile(
-              leading: const Icon(Icons.mode_edit),
-              title: const Text('Edit Profil'),
-              onTap: () {
-                
-              },
-            ),
-            const Divider(thickness: 1, color: Colors.grey),
-            
-            ListTile(
-              leading: const Icon(Icons.account_circle_sharp),
-              title: const Text('Ubah Password'),
-              onTap: () {
-                // Navigator.pushNamed(context, '/reset-password');
-              },
-            ),
-            const Divider(thickness: 1, color: Colors.grey),
-            
-
-            ListTile(
-              leading: const Icon(Icons.contact_support),
-              title: const Text('Bantuan'),
-              onTap: () {
-                
-              },
-            ),
-            const Divider(thickness: 1, color: Colors.grey),
-
-            ListTile(
-              leading: const Icon(Icons.info),
-              title: const Text('Tentang Aplikasi'),
-              onTap: () {
-                
-              },
-            ),
-            const Divider(thickness: 1, color: Colors.grey),
-
-            ListTile(
-              leading: const Icon(Icons.logout, color: Colors.red),
-              title: const Text(
-                "Logout",
-                style: TextStyle(color: Colors.red),
-              ),
-              onTap: () async {
-                final confirmLogout = await showDialog<bool>(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    backgroundColor: Colors.white,
-                    title: const Text("Konfirmasi"),
-                    content: const Text("Apakah kamu yakin ingin logout?"),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(false),
-                        child: const Text("Batal", style: TextStyle(color: Colors.black),),
+            Container(
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.amber, width: 4),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 15,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        child: const CircleAvatar(
+                          radius: 60,
+                          backgroundImage: NetworkImage(
+                            "https://cdn-icons-png.flaticon.com/512/5987/5987424.png",
+                          ),
+                        ),
                       ),
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(true),
-                        child: const Text("Logout", style: TextStyle(color: Colors.red)),
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          '${_capitalize(authVM.user?.fullName)}',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
                       ),
+                      const SizedBox(height: 24),
                     ],
                   ),
-                );
-
-                if (confirmLogout == true){
-                  await authVM.logout();  
-                  Navigator.pushReplacementNamed(context, '/login');
-                }
-              },
+                ),
+              ),
             ),
+            
+            Container(
+              margin: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.amber.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  _buildMenuItem(
+                    icon: Icons.edit,
+                    title: 'Edit Profil',
+                    onTap: () {},
+                  ),
+                  _buildDivider(),
+                  _buildMenuItem(
+                    icon: Icons.lock_outline,
+                    title: 'Ubah Password',
+                    onTap: () {},
+                  ),
+                  _buildDivider(),
+                  _buildMenuItem(
+                    icon: Icons.help_outline,
+                    title: 'Bantuan',
+                    onTap: () {},
+                  ),
+                  _buildDivider(),
+                  _buildMenuItem(
+                    icon: Icons.info_outline,
+                    title: 'Tentang Aplikasi',
+                    onTap: () {},
+                  ),
+                ],
+              ),
+            ),
+            
+            // Logout Section
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.red.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: _buildMenuItem(
+                icon: Icons.logout,
+                title: 'Logout',
+                iconColor: Colors.red,
+                titleColor: Colors.red,
+                onTap: () async {
+                  final confirmLogout = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      title: Row(
+                        children: [
+                          Icon(Icons.warning_amber_rounded, color: Colors.amber, size: 28),
+                          const SizedBox(width: 8),
+                          const Text("Konfirmasi"),
+                        ],
+                      ),
+                      content: const Text("Apakah kamu yakin ingin logout?"),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.grey[600],
+                          ),
+                          child: const Text("Batal"),
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Colors.red, Colors.redAccent],
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: TextButton(
+                            onPressed: () => Navigator.of(context).pop(true),
+                            style: TextButton.styleFrom(
+                              foregroundColor: Colors.white,
+                            ),
+                            child: const Text("Logout"),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirmLogout == true) {
+                    await authVM.logout();
+                    Navigator.pushReplacementNamed(context, '/login');
+                  }
+                },
+              ),
+            ),
+            
+            const SizedBox(height: 32),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildMenuItem({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+    Color? iconColor,
+    Color? titleColor,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: (iconColor ?? Colors.amber).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  icon,
+                  color: iconColor ?? Colors.amber.shade700,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: titleColor ?? Colors.grey[800],
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.grey[400],
+                size: 16,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDivider() {
+    return Divider(
+      height: 1,
+      thickness: 0.5,
+      color: Colors.grey[200],
+      indent: 60,
     );
   }
 

@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:javabus/models/bus_route.dart';
 import 'package:javabus/models/city.dart';
-import 'package:javabus/services/city_service.dart';
 import 'package:javabus/services/route_service.dart';
 
 class RouteViewModel extends ChangeNotifier {
-  final CityService _cityService = CityService();
-  final RouteService _routeService = RouteService();
+  final RouteService _service = RouteService();
 
   List<BusRoute> busRoutes = [];
   List<City>? origins = [];
@@ -21,17 +19,17 @@ class RouteViewModel extends ChangeNotifier {
 
   Future<int?> getRouteId() async {
     if (selectedOrigin == null || selectedDestination == null) return null;
-    return await _routeService.getId(selectedOrigin!.id, selectedDestination!.id);
+    return await _service.getId(selectedOrigin!.id, selectedDestination!.id);
   }
 
   Future<void> loadOrigins() async {
-    origins = await _routeService.getOrigins();
+    origins = await _service.getOrigins();
     notifyListeners();
   }
 
 
   Future<void> loadDestinations(int originId) async {
-    destinations = await _routeService.getDestinations(originId);
+    destinations = await _service.getDestinations(originId);
     notifyListeners();
   }
 
@@ -42,7 +40,7 @@ class RouteViewModel extends ChangeNotifier {
       return false;
     }
 
-    final exists = await _routeService.checkRoute(
+    final exists = await _service.checkRoute(
       selectedOrigin!.id,
       selectedDestination!.id,
     );
@@ -62,7 +60,7 @@ class RouteViewModel extends ChangeNotifier {
     return false;
   }
 
-  bool exists = await _routeService.checkRoute(
+  bool exists = await _service.checkRoute(
       selectedDestination!.id,
       selectedOrigin!.id,
     );
@@ -84,7 +82,7 @@ class RouteViewModel extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
 
-    final result = await _routeService.getRoutes();
+    final result = await _service.getRoutes();
     if (result != null) {
       busRoutes = result;
       msg = null;
@@ -97,7 +95,7 @@ class RouteViewModel extends ChangeNotifier {
   }
 
   Future<bool> createBusRoute(int originCityId, int destinationCityId) async {
-    final result = await _routeService.createRoute(originCityId, destinationCityId);
+    final result = await _service.createRoute(originCityId, destinationCityId);
     if (result) {
       await fetchBusRoutes();
       return true;
@@ -109,7 +107,7 @@ class RouteViewModel extends ChangeNotifier {
   }
 
   Future<bool> updateBusRoute(int id, int originCityId, int destinationCityId) async {
-    final result = await _routeService.updateRoute(id, originCityId, destinationCityId);
+    final result = await _service.updateRoute(id, originCityId, destinationCityId);
     if (result) {
       await fetchBusRoutes();
       return true;
@@ -121,7 +119,7 @@ class RouteViewModel extends ChangeNotifier {
   }
 
   Future<bool> deleteBusRoute(int id) async {
-    final result = await _routeService.deleteRoute(id);
+    final result = await _service.deleteRoute(id);
     if (result) {
       await fetchBusRoutes();
       return true;

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:javabus/models/city.dart';
 import 'package:javabus/viewmodels/city_view_model.dart';
-import 'package:javabus/viewmodels/route_view_model.dart';
 import 'package:provider/provider.dart';
 
 class CityCreateScreen extends StatefulWidget {
@@ -39,7 +37,7 @@ class _CityCreateScreenState extends State<CityCreateScreen> {
         _isSubmitting = false;
       });
 
-      if (cityVM.cities != null) {
+      if (cityVM.cities.isNotEmpty) {
         Navigator.pop(context, true);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
