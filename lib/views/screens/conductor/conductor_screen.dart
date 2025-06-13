@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
-import 'package:flutter/foundation.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:provider/provider.dart';
+import 'package:javabus/viewmodels/ticket_view_model.dart';
 
 class ConductorScreen extends StatefulWidget {
   const ConductorScreen({super.key});
@@ -10,17 +11,53 @@ class ConductorScreen extends StatefulWidget {
 }
 
 class _ConductorScreenState extends State<ConductorScreen> {
-  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-  QRViewController? controller;
+  final MobileScannerController _controller = MobileScannerController();
+  bool isScanning = true;
   String? scannedResult;
 
-  @override
-  void reassemble() {
-    super.reassemble();
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      controller!.pauseCamera();
+  void _onDetect(BarcodeCapture capture) async {
+    if (!isScanning) return;
+
+    final barcode = capture.barcodes.first;
+    final code = barcode.rawValue;
+
+    if (code != null) {
+      setState(() {
+        isScanning = false;
+        scannedResult = code;
+      });
+
+      final ticketId = int.tryParse(code);
+      if (ticketId == null) {
+        _showSnackbar('QR Code tidak valid');
+        setState(() => isScanning = true);
+        return;
+      }
+
+      final ticketVM = Provider.of<TicketViewModel>(context, listen: false);
+      final success = await ticketVM.updateTicketStatus(ticketId, 'selesai');
+
+      if (success) {
+        _showSnackbar('Tiket berhasil diverifikasi');
+      } else {
+        _showSnackbar('Gagal memperbarui status tiket');
+      }
+
+      await Future.delayed(const Duration(seconds: 2));
+      setState(() => isScanning = true);
     }
-    controller!.resumeCamera();
+  }
+
+  void _showSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -31,45 +68,20 @@ class _ConductorScreenState extends State<ConductorScreen> {
         children: [
           Expanded(
             flex: 4,
-            child: QRView(
-              key: qrKey,
-              onQRViewCreated: _onQRViewCreated,
-              overlay: QrScannerOverlayShape(
-                borderColor: Colors.blue,
-                borderRadius: 10,
-                borderLength: 30,
-                borderWidth: 10,
-                cutOutSize: 300,
-              ),
+            child: MobileScanner(
+              controller: _controller,
+              onDetect: _onDetect,
             ),
           ),
           if (scannedResult != null)
             Expanded(
               flex: 1,
               child: Center(
-                child: Text('Hasil: $scannedResult'),
+                child: Text('Hasil Scan: $scannedResult'),
               ),
             ),
         ],
       ),
     );
-  }
-
-  void _onQRViewCreated(QRViewController controller) {
-    this.controller = controller;
-    controller.scannedDataStream.listen((scanData) {
-      controller.pauseCamera();
-      setState(() {
-        scannedResult = scanData.code;
-      });
-
-      controller.resumeCamera();
-    });
-  }
-
-  @override
-  void dispose() {
-    controller?.dispose();
-    super.dispose();
   }
 }

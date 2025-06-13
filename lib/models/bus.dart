@@ -1,11 +1,11 @@
 class Bus {
-  final int id;
+  final int? id;
   final String name;
   final String busClass;
   final int totalSeat;
 
   Bus({
-    required this.id, 
+    this.id, 
     required this.name, 
     required this.busClass, 
     required this.totalSeat
@@ -18,5 +18,13 @@ class Bus {
       busClass: json['busClass'],
       totalSeat: json['totalSeat']
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'busClass': busClass,
+      'totalSeat': totalSeat,
+    };
   }
 }

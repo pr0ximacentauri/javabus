@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:javabus/const/api_url.dart' as url;
+import 'package:javabus/helpers/session_helper.dart';
 import 'package:javabus/models/bus.dart';
 
 class BusService {
@@ -28,60 +29,82 @@ class BusService {
     }
   }
 
-  Future<Bus?> createBus(String name, String busClass, int totalSeat) async {
-    final response = await http.post(
-      Uri.parse('$apiUrl'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(
-        {
-          'name': name,
-          'busClass': busClass,
-          'totalSeat': totalSeat
-        }
-      ),
-    );
+  Future<bool> createBus(String name, String busClass, int totalSeat) async {
+    try {
+      final token = await SessionHelper.getToken();
+      final response = await http.post(
+        Uri.parse('$apiUrl/bulk'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode([
+          {
+            'name': name,
+            'busClass': busClass,
+            'totalSeat': totalSeat,
+          }
+        ]),
+      );
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      final data = jsonDecode(response.body);
-      return Bus.fromJson(data);
-    } else {
-      return null;
+      // print('Create status: ${response.statusCode}');
+      // print('Create body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('Exception: $e');
+      return false;
     }
   }
 
-  Future<Bus?> updateBus(int id, String name, String busClass, int totalSeat) async {
-    final response = await http.put(
-      Uri.parse('$apiUrl/$id'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(
-        {
-          'name': name,
-          'busClass': busClass,
-          'totalSeat': totalSeat
-        }
-      ),
-    );
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      final data = jsonDecode(response.body);
-      return Bus.fromJson(data);
-    } else {
-      return null;
+  Future<bool> updateBus(int id, String name, String busClass, int totalSeat) async {
+    try {
+      final token = await SessionHelper.getToken();
+      final response = await http.put(
+        Uri.parse('$apiUrl/$id'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(
+          {
+            'name': name,
+            'busClass': busClass,
+            'totalSeat': totalSeat,
+          }
+        ),
+      );
+
+      // print('Create status: ${response.statusCode}');
+      // print('Create body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('Exception: $e');
+      return false;
     }
   }
 
-  Future<Bus?> deleteBus(int id) async {
+  Future<bool> deleteBus(int id) async {
     final response = await http.delete(
       Uri.parse('$apiUrl/$id'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode([id]),
     );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = jsonDecode(response.body);
-        return Bus.fromJson(data);
-      } else {
-        return null;
-      }
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      return true;
+    } else {
+      // print('Delete failed: ${response.statusCode}');
+      // print('Body: ${response.body}');
+      return false;
     }
+  }
+
 }

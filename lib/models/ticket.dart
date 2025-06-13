@@ -44,16 +44,16 @@ class Ticket {
   Map<String, dynamic> toJson() {
     return {
       'id_ticket': id,
-      'booking_id': bookingId,
-      'seat_id': seatId,
-      'qr_code_url': qrCodeUrl,
-      'departure_time': departureTime.toIso8601String(),
-      'origin_city': originCity,
-      'destination_city': destinationCity,
-      'bus_name': busName,
-      'bus_class': busClass,
-      'ticket_price': ticketPrice,
-      'ticket_status': ticketStatus,
+      'bookingId': bookingId,
+      'seatId': seatId,
+      'qrCodeUrl': qrCodeUrl,
+      'departureTime': departureTime.toIso8601String(),
+      'originCity': originCity,
+      'destinationCity': destinationCity,
+      'busName': busName,
+      'busClass': busClass,
+      'ticketPrice': ticketPrice,
+      'ticketStatus': ticketStatus,
     };
   }
 }

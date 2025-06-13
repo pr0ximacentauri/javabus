@@ -19,6 +19,7 @@ class SessionHelper {
     return prefs.getString(_tokenKey);
   }
 
+
   static Future<User?> getUser() async {
     final prefs = await SharedPreferences.getInstance();
     final userJson = prefs.getString(_userKey);

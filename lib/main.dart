@@ -25,7 +25,7 @@ import 'package:javabus/views/screens/auth/login_screen.dart';
 import 'package:javabus/views/screens/auth/register_screen.dart';
 import 'package:javabus/views/screens/main/home_screen.dart';
 import 'package:javabus/views/screens/conductor/conductor_screen.dart';
-import 'package:javabus/views/widgets/admin_navbar.dart';
+import 'package:javabus/views/widgets/admin_bottom_bar.dart';
 import 'package:javabus/views/widgets/bottom_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -74,7 +74,8 @@ class JavaBusApp extends StatelessWidget {
           homeWidget = const AdminHomeScreen();
           break;
         case 2:
-          homeWidget = const ConductorScreen();
+          // homeWidget = const ConductorScreen();
+          homeWidget = const HomeScreen();
           break;
         case 3:
         default:
@@ -98,8 +99,8 @@ class JavaBusApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/home': (context) => const BottomBar(),
-        '/admin': (context) => const AdminNavbar(),
-        '/subadmin': (context) => const ConductorScreen(),
+        '/admin': (context) => const AdminBottomBar(),
+        // '/subadmin': (context) => const ConductorScreen(),
         '/admin/bus': (context) => BusListScreen(),
         '/admin/bus-route': (context) => const BusRouteListScreen(),
         '/admin/bus-seat': (context) => const BusSeatListScreen(),

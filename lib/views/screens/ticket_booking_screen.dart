@@ -33,7 +33,7 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
   void initState() {
     super.initState();
     final seatVM = Provider.of<SeatSelectionViewModel>(context, listen: false);
-    seatVM.LoadBusSeats(widget.bus.id, widget.scheduleId);
+    seatVM.LoadBusSeats(widget.bus.id!, widget.scheduleId);
   }
 
   @override
@@ -50,6 +50,9 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
             Text("Keberangkatan: ${widget.departureTime.toLocal()}", style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 20),
             const Text("Pilih Kursi", style: TextStyle(fontSize: 16)),
+            const SizedBox(height: 4),
+            _buildSeatLegend(),
+            const SizedBox(height: 10),
 
             Expanded(
               child: Consumer<SeatSelectionViewModel>(
@@ -80,7 +83,7 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               ...leftSeats.map((seat) => _buildSeatWidget(seat)),
-                              const SizedBox(width: 32), // Lorong
+                              const SizedBox(width: 32),
                               ...rightSeats.map((seat) => _buildSeatWidget(seat)),
                             ],
                           ),
@@ -124,9 +127,9 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                   return;
                 }
 
-                if (bookingVM.hasBookingForSchedule(userId, scheduleId)) {
+                if (widget.departureTime.isBefore(DateTime.now().add(const Duration(hours: 1)))) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Tiket ini sudah dipesan')),
+                    const SnackBar(content: Text('Pemesanan ditutup kurang dari 1 jam sebelum keberangkatan')),
                   );
                   return;
                 }
@@ -142,9 +145,18 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                 }
 
                 final bookingId = booking.id;
+                bool seatBookingSuccess = true;
 
                 for (final seatId in selectedSeatIds) {
-                  await seatVM.addSeatBooking(scheduleId, seatId, bookingId);
+                  final success = await seatVM.addSeatBooking(scheduleId, seatId, bookingId);
+                  if (!success) seatBookingSuccess = false;
+                }
+
+                if (!seatBookingSuccess) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Sebagian kursi gagal dipesan')),
+                  );
+                  return;
                 }
 
                 final totalPrice = selectedSeatIds.length * widget.ticketPrice;
@@ -152,14 +164,6 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
 
                 final paymentUrl = paymentVM.paymentUrl;
                 if (paymentUrl != null) {
-                  final snapshotSuccess = await ticketVM.createSnapshot(bookingId);
-                  if (snapshotSuccess) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(ticketVM.msg ?? 'Gagal membuat tiket')),
-                    );
-                    return;
-                  }
-
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -169,10 +173,17 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
 
                   await bookingVM.updateBookingStatus(booking.id, 'belum digunakan');
                   await bookingVM.fetchBookingsWithSchedules(userId);
-                  await seatVM.LoadBusSeats(widget.bus.id, widget.scheduleId);
+                  await seatVM.LoadBusSeats(widget.bus.id!, widget.scheduleId);
 
+                  final snapshotSuccess = await ticketVM.createSnapshot(bookingId);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Pembayaran selesai, kursi berhasil dipesan')),
+                    SnackBar(
+                      content: Text(
+                        snapshotSuccess
+                            ? 'Tiket berhasil dibuat'
+                            : ticketVM.msg ?? 'Gagal membuat tiket',
+                      ),
+                    ),
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -221,6 +232,41 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
         alignment: Alignment.center,
         child: Text(seat.seatNumber),
       ),
+    );
+  }
+
+  Widget _buildSeatLegend() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: const [
+        _LegendBox(color: Colors.blue, label: 'Tersedia'),
+        SizedBox(width: 10),
+        _LegendBox(color: Colors.green, label: 'Dipilih'),
+        SizedBox(width: 10),
+        _LegendBox(color: Colors.grey, label: 'Terisi'),
+      ],
+    );
+  }
+}
+
+class _LegendBox extends StatelessWidget {
+  final Color color;
+  final String label;
+
+  const _LegendBox({required this.color, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 16,
+          height: 16,
+          decoration: BoxDecoration(color: color, border: Border.all(), borderRadius: BorderRadius.circular(4)),
+        ),
+        const SizedBox(width: 4),
+        Text(label),
+      ],
     );
   }
 }

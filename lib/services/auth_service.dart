@@ -16,7 +16,7 @@ class AuthService{
           'full_name': fullName,
           'email': email,
           'password': password,
-          'roleId': roleId = 2
+          'roleId': roleId
         }),
       );
 

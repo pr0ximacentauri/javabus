@@ -43,7 +43,7 @@ class _BusUpdateScreenState extends State<BusUpdateScreen> {
 
       final busVM = Provider.of<BusViewModel>(context, listen: false);
       final success = await busVM.updateBus(
-        widget.bus.id,
+        widget.bus.id!,
         _nameController.text.trim(),
         _classController.text.trim(),
         totalSeat,

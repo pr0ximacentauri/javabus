@@ -35,13 +35,13 @@ class _BusCreateScreenState extends State<BusCreateScreen> {
       });
 
       final busVM = Provider.of<BusViewModel>(context, listen: false);
-      await busVM.createBus(name, busClass, totalSeat);
+      final success = await busVM.createBus(name, busClass, totalSeat);
 
       setState(() {
         _isSubmitting = false;
       });
 
-      if (busVM.newBus != null) {
+      if (success) {
         Navigator.pop(context, true);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

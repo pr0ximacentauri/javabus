@@ -67,7 +67,7 @@ class _BusListScreenState extends State<BusListScreen> {
                               if (value == 'edit') {
                                 _navigateToUpdate(bus);
                               } else if (value == 'delete') {
-                                _delete(bus.id);
+                                _delete(bus.id!);
                               }
                             },
                             itemBuilder: (context) => [

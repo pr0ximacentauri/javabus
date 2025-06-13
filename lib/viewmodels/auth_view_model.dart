@@ -49,6 +49,40 @@ class AuthViewModel extends ChangeNotifier {
     }
   }
 
+  Future<bool> register({
+  required String username,
+  required String fullName,
+  required String email,
+  required String password,
+  bool staySigned = true,
+}) async {
+  _isLoading = true;
+  notifyListeners();
+
+  try {
+    final result = await _service.register(username, fullName, email, password, 3);
+
+    if (result != null) {
+      final token = result['token'] as String;
+      final registeredUser = result['user'] as User;
+
+      _user = registeredUser;
+      await SessionHelper.saveUserSession(token, registeredUser, staySigned);
+
+      return true;
+    } else {
+      return false;
+    }
+  } catch (e) {
+    print("Register error: $e");
+    return false;
+  } finally {
+    _isLoading = false;
+    notifyListeners();
+  }
+}
+
+
   Future<void> logout() async {
     _user = null;
     await SessionHelper.logout();
@@ -93,33 +127,33 @@ class AuthViewModel extends ChangeNotifier {
     }
   }
     
-    Future<bool> updatePassword({required String oldPassword, required String newPassword,
-    }) async {
-      if (_user == null) return false;
 
-      _isLoading = true;
-      notifyListeners();
+  Future<bool> updatePassword({required String oldPassword, required String newPassword}) async {
+    if (_user == null) return false;
 
-      try {
-        final success = await _service.updatePassword(
-          userId: _user!.id,
-          oldPassword: oldPassword,
-          newPassword: newPassword,
-        );
+    _isLoading = true;
+    notifyListeners();
 
-        if (!success) {
-          return false;
-        }
+    try {
+      final success = await _service.updatePassword(
+        userId: _user!.id,
+        oldPassword: oldPassword,
+        newPassword: newPassword,
+      );
 
-        return true;
-      } catch (e) {
-        print("Gagal update password: $e");
+      if (!success) {
         return false;
-      } finally {
-        _isLoading = false;
-        notifyListeners();
       }
+
+      return true;
+    } catch (e) {
+      print("Gagal update password: $e");
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
+  }
 
 
   int _mapRoleToId(String? role) {

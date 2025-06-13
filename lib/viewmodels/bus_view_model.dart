@@ -6,7 +6,6 @@ class BusViewModel extends ChangeNotifier {
   final BusService _service = BusService();
 
   List<Bus> buses = [];
-  Bus? newBus;
   String? msg;
   bool isLoading = false;
 
@@ -36,42 +35,38 @@ class BusViewModel extends ChangeNotifier {
   }
 
   Future<bool> createBus(String name, String busClass, int totalSeat) async {
-    final result = await _service.createBus(name, busClass, totalSeat);
-    if (result != null) {
-      newBus = result;
+    final success = await _service.createBus(name, busClass, totalSeat);
+
+    if (success) {
       await fetchBuses();
       return true;
-    } else {
+    }else{
       msg = 'Gagal menambahkan bus';
-      newBus = null;
       notifyListeners();
       return false;
     }
   }
 
   Future<bool> updateBus(int id, String name, String busClass, int totalSeat) async {
-    final result = await _service.updateBus(id, name, busClass, totalSeat);
-    if (result != null) {
-      newBus = result;
+    final success = await _service.updateBus(id, name, busClass, totalSeat);
+    if (success) {
       await fetchBuses();
       return true;
-    } else {
-      msg = 'Gagal memperbarui bus';
-      newBus = null;
+    }else{
+      msg = 'Gagal update bus';
       notifyListeners();
       return false;
     }
   }
 
-  Future<bool> deleteBus(int id) async {
-    final result = await _service.deleteBus(id);
-    if (result != null) {
-      newBus = result;
+  Future<bool> deleteBus(int id)  async {
+    final success = await _service.deleteBus(id);
+
+    if (success) {
       await fetchBuses();
       return true;
-    } else {
-      msg = 'Gagal menghapus bus';
-      newBus = null;
+    }else{
+      msg = 'Gagal hapus bus';
       notifyListeners();
       return false;
     }

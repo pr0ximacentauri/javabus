@@ -1,10 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:javabus/viewmodels/auth_view_model.dart';
+import 'package:provider/provider.dart';
 
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
   @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController fullNameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
+
+  @override
   Widget build(BuildContext context) {
+    final authVM = Provider.of<AuthViewModel>(context);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
       body: Padding(
@@ -23,7 +38,7 @@ class RegisterScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 36,
                         fontWeight: FontWeight.bold,
-                        color: const Color.fromARGB(255, 206, 145, 1),
+                        color: Color.fromARGB(255, 206, 145, 1),
                       ),
                     ),
                   ],
@@ -34,7 +49,7 @@ class RegisterScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: const Color.fromARGB(255, 206, 145, 1),
+                    color: Color.fromARGB(255, 206, 145, 1),
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -43,11 +58,14 @@ class RegisterScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: const Color.fromARGB(255, 96, 67, 0),
+                    color: Color.fromARGB(255, 96, 67, 0),
                   ),
                 ),
                 const SizedBox(height: 32),
+
+                // Username
                 TextField(
+                  controller: usernameController,
                   decoration: InputDecoration(
                     hintText: 'Username',
                     prefixIcon: const Icon(Icons.person_outline),
@@ -59,7 +77,25 @@ class RegisterScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
+
+                // Full Name
                 TextField(
+                  controller: fullNameController,
+                  decoration: InputDecoration(
+                    hintText: 'Nama Lengkap',
+                    prefixIcon: const Icon(Icons.badge_outlined),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Email
+                TextField(
+                  controller: emailController,
                   decoration: InputDecoration(
                     hintText: 'Email',
                     prefixIcon: const Icon(Icons.email_outlined),
@@ -71,7 +107,10 @@ class RegisterScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
+
+                // Password
                 TextField(
+                  controller: passwordController,
                   obscureText: true,
                   decoration: InputDecoration(
                     hintText: 'Password',
@@ -84,7 +123,10 @@ class RegisterScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
+
+                // Konfirmasi Password
                 TextField(
+                  controller: confirmPasswordController,
                   obscureText: true,
                   decoration: InputDecoration(
                     hintText: 'Konfirmasi Password',
@@ -97,10 +139,37 @@ class RegisterScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
+
+                // Tombol Daftar
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: authVM.isLoading
+                        ? null
+                        : () async {
+                            if (passwordController.text != confirmPasswordController.text) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Password tidak cocok')),
+                              );
+                              return;
+                            }
+
+                            final success = await authVM.register(
+                              username: usernameController.text,
+                              fullName: fullNameController.text,
+                              email: emailController.text,
+                              password: passwordController.text,
+                              staySigned: true,
+                            );
+
+                            if (success) {
+                              Navigator.pushReplacementNamed(context, '/login');
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Pendaftaran gagal')),
+                              );
+                            }
+                          },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 206, 145, 1),
                       foregroundColor: Colors.white,
@@ -109,11 +178,14 @@ class RegisterScreen extends StatelessWidget {
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                    child: const Text('DAFTAR'),
+                    child: authVM.isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text('Daftar'),
                   ),
                 ),
                 const SizedBox(height: 16),
 
+                // Navigasi ke login
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -124,7 +196,7 @@ class RegisterScreen extends StatelessWidget {
                       },
                       child: const Text(
                         'Masuk',
-                        style: TextStyle(color: const Color.fromARGB(255, 206, 145, 1)),
+                        style: TextStyle(color: Color.fromARGB(255, 206, 145, 1)),
                       ),
                     ),
                   ],
