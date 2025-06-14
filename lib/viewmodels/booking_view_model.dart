@@ -1,27 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:javabus/models/booking.dart';
-import 'package:javabus/models/schedule.dart';
 import 'package:javabus/services/booking_service.dart';
-import 'package:javabus/services/schedule_service.dart';
-
-class BookingWithSchedule {
-  final Booking booking;
-  final Schedule schedule;
-
-  BookingWithSchedule({
-    required this.booking,
-    required this.schedule,
-  });
-}
 
 class BookingViewModel extends ChangeNotifier {
   final BookingService _bookingService = BookingService();
-  final ScheduleService _scheduleService = ScheduleService();
 
   Booking? newBooking;
   String? error;
 
-  List<BookingWithSchedule> bookingsWithSchedules = [];
+  List<Booking>? bookings = [];
   bool isLoading = false;
 
   Future<void> addBooking(int userId, int scheduleId) async {
@@ -36,25 +23,16 @@ class BookingViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchBookingsWithSchedules(int userId) async {
+  Future<void> fetchBookingsByUser(int userId) async {
     isLoading = true;
     notifyListeners();
 
-    final bookings = await _bookingService.getBookingsByUser(userId);
-    bookingsWithSchedules = [];
-
-    if (bookings != null) {
-      for (var booking in bookings) {
-        final schedule = await _scheduleService.getScheduleById(booking.scheduleId);
-        if (schedule != null) {
-          bookingsWithSchedules.add(BookingWithSchedule(
-            booking: booking,
-            schedule: schedule,
-          ));
-        }
-      }
+    final result = await _bookingService.getBookingsByUser(userId);
+    if (result != null) {
+      bookings = result;
       error = null;
     } else {
+      bookings = [];
       error = 'Gagal memuat data booking.';
     }
 
@@ -62,24 +40,12 @@ class BookingViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool hasBookingForSchedule(int userId, int scheduleId) {
-    return bookingsWithSchedules.any((bws) =>
-        bws.booking.userId == userId &&
-        bws.booking.scheduleId == scheduleId);
-  }
-
-
   Future<bool> updateBookingStatus(int bookingId, String status) async {
     final success = await _bookingService.updateBookingStatus(bookingId, status);
     if (success) {
-      final index = bookingsWithSchedules.indexWhere((bws) => bws.booking.id == bookingId);
+      final index = bookings!.indexWhere((b) => b.id == bookingId);
       if (index != -1) {
-        final oldBws = bookingsWithSchedules[index];
-        final updatedBooking = oldBws.booking.copyWith(status: status);
-        bookingsWithSchedules[index] = BookingWithSchedule(
-          booking: updatedBooking,
-          schedule: oldBws.schedule,
-        );
+        bookings![index] = bookings![index].copyWith(status: status);
         notifyListeners();
       }
       error = null;
@@ -89,5 +55,10 @@ class BookingViewModel extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+  }
+
+  bool hasBookingForSchedule(int userId, int scheduleId) {
+    return bookings!.any((booking) =>
+        booking.userId == userId && booking.scheduleId == scheduleId);
   }
 }

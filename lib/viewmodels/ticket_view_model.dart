@@ -9,11 +9,33 @@ class TicketViewModel extends ChangeNotifier {
   bool isLoading = false;
   String? msg;
 
+  void clearTickets() {
+    tickets = [];
+    notifyListeners();
+  }
+
   Future<bool> createSnapshot(int bookingId) async {
     final result = await _service.createTicket(bookingId);
     if (!result) {
       msg = "Gagal membuat snapshot";
     }
+    return result;
+  }
+
+  Future<List<Ticket>?> fetchTicketsByBooking(int bookingId) async {
+    isLoading = true;
+    notifyListeners();
+
+    final result = await _service.getTicketsByBooking(bookingId);
+    if (result != null) {
+      tickets = result;
+      msg = null;
+    } else {
+      tickets = null;
+      msg = 'Gagal memuat tiket berdasarkan booking';
+    }
+
+    notifyListeners();
     return result;
   }
 

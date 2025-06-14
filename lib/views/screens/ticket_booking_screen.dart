@@ -171,8 +171,7 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                     ),
                   );
 
-                  await bookingVM.updateBookingStatus(booking.id, 'belum digunakan');
-                  await bookingVM.fetchBookingsWithSchedules(userId);
+                  await bookingVM.updateBookingStatus(booking.id, 'lunas');
                   await seatVM.LoadBusSeats(widget.bus.id!, widget.scheduleId);
 
                   final snapshotSuccess = await ticketVM.createSnapshot(bookingId);
