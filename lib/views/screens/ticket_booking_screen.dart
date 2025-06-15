@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 import 'package:javabus/models/bus.dart';
 import 'package:javabus/viewmodels/auth_view_model.dart';
 import 'package:javabus/viewmodels/booking_view_model.dart';
@@ -134,12 +135,21 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                   return;
                 }
 
-                await bookingVM.addBooking(userId, scheduleId);
-                final booking = bookingVM.newBooking;
+                final created = await bookingVM.createBooking("pending", userId, scheduleId);
+                if (!created) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Gagal membuat booking: ${bookingVM.msg ?? ''}')),
+                  );
+                  return;
+                }
+
+                final booking = bookingVM.bookings.firstWhereOrNull(
+                  (b) => b.userId == userId && b.scheduleId == scheduleId && b.status == "pending",
+                );
 
                 if (booking == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Gagal membuat booking: ${bookingVM.error}')),
+                    const SnackBar(content: Text('Booking tidak ditemukan')),
                   );
                   return;
                 }
@@ -148,7 +158,7 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                 bool seatBookingSuccess = true;
 
                 for (final seatId in selectedSeatIds) {
-                  final success = await seatVM.addSeatBooking(scheduleId, seatId, bookingId);
+                  final success = await seatVM.addSeatBooking(bookingId, scheduleId, seatId);
                   if (!success) seatBookingSuccess = false;
                 }
 
@@ -171,8 +181,8 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                     ),
                   );
 
-                  await bookingVM.updateBookingStatus(booking.id, 'lunas');
-                  await seatVM.LoadBusSeats(widget.bus.id!, widget.scheduleId);
+                  await bookingVM.updateBookingStatus(bookingId, 'lunas');
+                  await seatVM.LoadBusSeats(widget.bus.id!, scheduleId);
 
                   final snapshotSuccess = await ticketVM.createSnapshot(bookingId);
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -190,7 +200,7 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                   );
                 }
               },
-              child: const Text("Lanjut ke Pembayaran"),
+              child: const Text("Lanjut ke Pembayaran")
             )
           ],
         ),

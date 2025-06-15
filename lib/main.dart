@@ -11,6 +11,7 @@ import 'package:javabus/viewmodels/booking_view_model.dart';
 import 'package:javabus/viewmodels/bus_view_model.dart';
 import 'package:javabus/viewmodels/city_view_model.dart';
 import 'package:javabus/viewmodels/payment_view_model.dart';
+import 'package:javabus/viewmodels/province_view_model.dart';
 import 'package:javabus/viewmodels/route_view_model.dart';
 import 'package:javabus/viewmodels/schedule_view_model.dart';
 import 'package:javabus/viewmodels/seat_selection_view_model.dart';
@@ -43,6 +44,7 @@ void main() async {
         providers: [
           ChangeNotifierProvider(create: (_) => RouteViewModel()),
           ChangeNotifierProvider(create: (_) => CityViewModel()),
+          ChangeNotifierProvider(create: (_) => ProvinceViewModel()),
           ChangeNotifierProvider(create: (_) => AuthViewModel()),
           ChangeNotifierProvider(create: (_) => BusViewModel()),
           ChangeNotifierProvider(create: (_) => PaymentViewModel()),
@@ -100,7 +102,7 @@ class JavaBusApp extends StatelessWidget {
         '/register': (context) => const RegisterScreen(),
         '/home': (context) => const BottomBar(),
         '/admin': (context) => const AdminBottomBar(),
-        // '/subadmin': (context) => const ConductorScreen(),
+        '/subadmin': (context) => const ConductorScreen(),
         '/admin/bus': (context) => BusListScreen(),
         '/admin/bus-route': (context) => const BusRouteListScreen(),
         '/admin/bus-seat': (context) => const BusSeatListScreen(),

@@ -31,43 +31,66 @@ class CityService {
   }
 
   Future<bool> createCity(String name, int provinceId) async {
-    final response = await http.post(
-      Uri.parse('$apiUrl/bulk'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode([
-        {
-          'name': name,
-          'provinceId': provinceId
-        }
-      ]),
-    );
+    try{
+      final response = await http.post(
+        Uri.parse('$apiUrl/bulk'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode([
+          {
+            'name': name,
+            'provinceId': provinceId
+          }
+        ]),
+      );
 
-    return response.statusCode == 200;
+    if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('Exception: $e');
+      return false;
+    }
   }
 
   Future<bool> updateCity(int id, String name, int provinceId) async {
-    final response = await http.put(
-      Uri.parse('$apiUrl/bulk'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode([
-        {
-          'name': name,
-          'provinceId': provinceId
-        }
-      ]),
-    );
+    try{
+      final response = await http.put(
+        Uri.parse('$apiUrl/$id'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(
+          {
+            'name': name,
+            'provinceId': provinceId
+          }
+        ),
+      );
 
-    return response.statusCode == 200;
+    if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('Exception: $e');
+      return false;
+    }
   }
 
   Future<bool> deleteCity(int id) async {
-    final response = await http.delete(
-      Uri.parse('$apiUrl/$id'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode([id]),
-    );
+    try{
+      final response = await http.delete(
+        Uri.parse('$apiUrl/$id'),
+        headers: {'Content-Type': 'application/json'},
+      );
 
-    return response.statusCode == 200;
+    if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('Exception: $e');
+      return false;
+    }
   }
 
 }

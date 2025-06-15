@@ -17,7 +17,7 @@ class TicketDetailScreen extends StatelessWidget {
         child: Column(
           children: [
             QrImageView(
-              data: ticket.qrCodeUrl ?? 'No QR Code',
+              data: ticket.qrCodeUrl.isNotEmpty == true ? ticket.qrCodeUrl : ticket.id.toString(),
               version: QrVersions.auto,
               size: 200,
             ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:javabus/models/province.dart';
 import 'package:javabus/viewmodels/city_view_model.dart';
+import 'package:javabus/viewmodels/province_view_model.dart';
 import 'package:provider/provider.dart';
 
 class CityCreateScreen extends StatefulWidget {
@@ -12,26 +14,26 @@ class CityCreateScreen extends StatefulWidget {
 class _CityCreateScreenState extends State<CityCreateScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _provinceIdController = TextEditingController();
+  int? _selectedProvinceId;
   bool _isSubmitting = false;
 
-  void _submit() async {
-    if (_formKey.currentState!.validate()) {
-      final String name = _nameController.text.trim();
-      final int? provinceId = int.tryParse(_provinceIdController.text.trim());
-      if (provinceId == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('ID provinsi harus berupa angka')),
-        );
-        return;
-      }
+  @override
+  void initState() {
+    super.initState();
+    // Ambil data provinsi saat pertama kali layar muncul
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ProvinceViewModel>(context, listen: false).fetchProvinces();
+    });
+  }
 
+  void _submit() async {
+    if (_formKey.currentState!.validate() && _selectedProvinceId != null) {
       setState(() {
         _isSubmitting = true;
       });
 
       final cityVM = Provider.of<CityViewModel>(context, listen: false);
-      await cityVM.createCity(name, provinceId);
+      await cityVM.createCity(_nameController.text.trim(), _selectedProvinceId!);
 
       setState(() {
         _isSubmitting = false;
@@ -49,6 +51,9 @@ class _CityCreateScreenState extends State<CityCreateScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final provinceVM = Provider.of<ProvinceViewModel>(context);
+    final List<Province> provinces = provinceVM.provinces;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Tambah Kota')),
       body: Padding(
@@ -64,19 +69,20 @@ class _CityCreateScreenState extends State<CityCreateScreen> {
                     value == null || value.isEmpty ? 'Nama kota wajib diisi' : null,
               ),
               const SizedBox(height: 12),
-              TextFormField(
-                controller: _provinceIdController,
-                decoration: const InputDecoration(labelText: 'ID Provinsi'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'ID provinsi wajib diisi';
-                  }
-                  if (int.tryParse(value) == null) {
-                    return 'ID provinsi harus berupa angka';
-                  }
-                  return null;
-                },
-              ),
+              provinceVM.isLoading
+                  ? const CircularProgressIndicator()
+                  : DropdownButtonFormField<int>(
+                      value: _selectedProvinceId,
+                      items: provinces
+                          .map((prov) => DropdownMenuItem(
+                                value: prov.id,
+                                child: Text(prov.name),
+                              ))
+                          .toList(),
+                      onChanged: (value) => setState(() => _selectedProvinceId = value),
+                      decoration: const InputDecoration(labelText: 'Provinsi'),
+                      validator: (value) => value == null ? 'Provinsi harus dipilih' : null,
+                    ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _isSubmitting ? null : _submit,

@@ -48,6 +48,7 @@ class RouteService {
 }
 
 
+
   Future<List<City>?> getDestinations(int originId) async{
     final response = await http.get(Uri.parse('$apiUrl/destinations/$originId'));
 
@@ -70,43 +71,66 @@ class RouteService {
   }
 
   Future<bool> createRoute(int originCityId, int destinationCityId) async {
-    final response = await http.post(
-      Uri.parse('${apiUrl}/bulk'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode([
-        {
-          'originCityId': originCityId,
-          'destinationCityId': destinationCityId
-        }
-      ]),
-    );
+    try{
+      final response = await http.post(
+        Uri.parse('${apiUrl}/bulk'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode([
+          {
+            'originCityId': originCityId,
+            'destinationCityId': destinationCityId
+          }
+        ]),
+      );
 
-    return response.statusCode == 200;
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('Exception: $e');
+      return false;
+    }
   }
 
   Future<bool> updateRoute(int id, int originCityId, int destinationCityId) async {
-    final response = await http.put(
-      Uri.parse('$apiUrl/bulk'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode([
-        {
-          'id': id,
-          'originCityId': originCityId,
-          'destinationCityId': destinationCityId
-        }
-      ]),
-    );
-    return response.statusCode == 200;
+    try{
+      final response = await http.put(
+        Uri.parse('$apiUrl/$id'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode([
+          {
+            'originCityId': originCityId,
+            'destinationCityId': destinationCityId
+          }
+        ]),
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('Exception: $e');
+      return false;
+    }
   }
 
 
   Future<bool> deleteRoute(int id) async {
-    final response = await http.delete(
-      Uri.parse('$apiUrl/$id'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode([id]),
-    );
+    try{
+      final response = await http.delete(
+        Uri.parse('$apiUrl/$id'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode([id]),
+      );
 
-    return response.statusCode == 200;
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('Exception: $e');
+      return false;
+    }
   }
 }

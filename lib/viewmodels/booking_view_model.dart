@@ -3,37 +3,52 @@ import 'package:javabus/models/booking.dart';
 import 'package:javabus/services/booking_service.dart';
 
 class BookingViewModel extends ChangeNotifier {
-  final BookingService _bookingService = BookingService();
+  final BookingService _service = BookingService();
 
-  Booking? newBooking;
-  String? error;
-
-  List<Booking>? bookings = [];
+  List<Booking> bookings = [];
+  
+  String? msg;
   bool isLoading = false;
 
-  Future<void> addBooking(int userId, int scheduleId) async {
-    final result = await _bookingService.createBooking(userId, scheduleId);
-    if (result != null) {
-      newBooking = result;
-      error = null;
-    } else {
-      newBooking = null;
-      error = 'Gagal membuat booking.';
-    }
+  Future<void> fetchBookings() async {
+    isLoading = true;
     notifyListeners();
+
+    final result = await _service.getBookings();
+    if (result != null) {
+      bookings = result;
+      msg = null;
+    } else {
+      msg = 'Gagal memuat data bus';
+    }
+
+    isLoading = false;
+    notifyListeners();
+  }
+
+  Future<bool> createBooking(String status, int userId, int scheduleId) async {
+    final success = await _service.createBooking(status, userId, scheduleId);
+    if (success) {
+      fetchBookings;
+      return true;
+    } else {
+      msg = 'Gagal membuat booking.';
+      notifyListeners();
+      return false;
+    }
   }
 
   Future<void> fetchBookingsByUser(int userId) async {
     isLoading = true;
     notifyListeners();
 
-    final result = await _bookingService.getBookingsByUser(userId);
+    final result = await _service.getBookingsByUser(userId);
     if (result != null) {
       bookings = result;
-      error = null;
+      msg = null;
     } else {
       bookings = [];
-      error = 'Gagal memuat data booking.';
+      msg = 'Gagal memuat data booking.';
     }
 
     isLoading = false;
@@ -41,24 +56,44 @@ class BookingViewModel extends ChangeNotifier {
   }
 
   Future<bool> updateBookingStatus(int bookingId, String status) async {
-    final success = await _bookingService.updateBookingStatus(bookingId, status);
+    final success = await _service.updateBookingStatus(bookingId, status);
     if (success) {
-      final index = bookings!.indexWhere((b) => b.id == bookingId);
+      final index = bookings.indexWhere((b) => b.id == bookingId);
       if (index != -1) {
-        bookings![index] = bookings![index].copyWith(status: status);
+        bookings[index] = bookings[index].copyWith(status: status);
         notifyListeners();
       }
-      error = null;
+      msg = null;
       return true;
     } else {
-      error = 'Gagal memperbarui status booking.';
+      msg = 'Gagal memperbarui status booking.';
       notifyListeners();
       return false;
     }
   }
 
-  bool hasBookingForSchedule(int userId, int scheduleId) {
-    return bookings!.any((booking) =>
-        booking.userId == userId && booking.scheduleId == scheduleId);
+  Future<bool> updateBooking(int id, String status, int userId, int scheduleId) async {
+    final success = await _service.updateBooking(id, status, userId, scheduleId);
+    if (success) {
+      fetchBookings;
+      return true;
+    } else {
+      msg = 'Gagal memperbarui booking.';
+      notifyListeners();
+      return false;
+    }
+  }
+
+    Future<bool> deleteBooking(int id)  async {
+    final success = await _service.deleteBooking(id);
+
+    if (success) {
+      await fetchBookings();
+      return true;
+    }else{
+      msg = 'Gagal hapus booking';
+      notifyListeners();
+      return false;
+    }
   }
 }

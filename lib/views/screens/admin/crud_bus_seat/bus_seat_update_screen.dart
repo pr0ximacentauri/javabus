@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:javabus/models/bus_seat.dart';
+import 'package:javabus/viewmodels/bus_view_model.dart';
 import 'package:javabus/viewmodels/seat_selection_view_model.dart';
 import 'package:provider/provider.dart';
 
@@ -15,27 +16,22 @@ class BusSeatUpdateScreen extends StatefulWidget {
 class _BusSeatUpdateScreenState extends State<BusSeatUpdateScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _seatNumberController;
-  late TextEditingController _busIdController;
+  int? _selectedBusId;
   bool _isSubmitting = false;
 
   @override
   void initState() {
     super.initState();
     _seatNumberController = TextEditingController(text: widget.seat.seatNumber);
-    _busIdController = TextEditingController(text: widget.seat.busId.toString());
+    _selectedBusId = widget.seat.busId;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<BusViewModel>(context, listen: false).fetchBuses();
+    });
   }
 
   void _submit() async {
-    if (_formKey.currentState!.validate()) {
-      final int? busId = int.tryParse(_busIdController.text.trim());
-
-      if (busId == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('ID bus harus berupa angka')),
-        );
-        return;
-      }
-
+    if (_formKey.currentState!.validate() && _selectedBusId != null) {
       setState(() {
         _isSubmitting = true;
       });
@@ -44,7 +40,7 @@ class _BusSeatUpdateScreenState extends State<BusSeatUpdateScreen> {
       final success = await seatVM.updateBusSeat(
         widget.seat.id,
         _seatNumberController.text.trim(),
-        busId,
+        _selectedBusId!,
       );
 
       setState(() {
@@ -63,8 +59,11 @@ class _BusSeatUpdateScreenState extends State<BusSeatUpdateScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final busVM = Provider.of<BusViewModel>(context);
+    final allBuses = busVM.buses;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Bus')),
+      appBar: AppBar(title: const Text('Edit Kursi Bus')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -74,22 +73,21 @@ class _BusSeatUpdateScreenState extends State<BusSeatUpdateScreen> {
               TextFormField(
                 controller: _seatNumberController,
                 decoration: const InputDecoration(labelText: 'Nomor Kursi'),
-                validator: (value) => value == null || value.isEmpty ? 'Wajib diisi' : null,
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Nomor kursi wajib diisi' : null,
               ),
               const SizedBox(height: 12),
-              TextFormField(
-                controller: _busIdController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'ID Bus'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Jumlah kursi wajib diisi';
-                  }
-                  if (int.tryParse(value) == null) {
-                    return 'Jumlah kursi harus berupa angka';
-                  }
-                  return null;
-                },
+              DropdownButtonFormField<int>(
+                value: _selectedBusId,
+                items: allBuses.map((bus) {
+                  return DropdownMenuItem(
+                    value: bus.id,
+                    child: Text('${bus.name} (${bus.busClass})'),
+                  );
+                }).toList(),
+                onChanged: (value) => setState(() => _selectedBusId = value),
+                decoration: const InputDecoration(labelText: 'Pilih Bus'),
+                validator: (value) => value == null ? 'Bus harus dipilih' : null,
               ),
               const SizedBox(height: 20),
               ElevatedButton(

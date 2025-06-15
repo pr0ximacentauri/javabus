@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:javabus/models/bus_seat.dart';
+import 'package:javabus/models/seat_booking.dart';
 import 'package:javabus/services/bus_seat_service.dart';
 import 'package:javabus/services/seat_booking_service.dart';
 
@@ -7,9 +8,9 @@ class SeatSelectionViewModel extends ChangeNotifier{
   final BusSeatService _seatService;
   final SeatBookingService _seatBookingService;
 
+  List<SeatBooking> seatBookings = [];
   List<BusSeat> allBusSeats = [];
   List<int> bookedSeats = [];
-  BusSeat? newBusSeat;
 
   String? msg;
   bool isLoading = false;
@@ -25,14 +26,29 @@ class SeatSelectionViewModel extends ChangeNotifier{
     notifyListeners();
   }
 
+  Future<void> fetchSeatBookings() async {
+    isLoading = true;
+    notifyListeners();
+
+    final result = await _seatBookingService.getSeatBookings();
+    if (result != null) {
+      seatBookings = result;
+      msg = null;
+    } else {
+      msg = 'Gagal memuat data bus';
+    }
+
+    isLoading = false;
+    notifyListeners();
+  }
 
   bool isSeatBooked(int seatId){
     return bookedSeats.contains(seatId);
   }
 
-  Future<bool> addSeatBooking(int scheduleId, int seatId, int bookingId) async{
-    final result = await _seatBookingService.createSeatBooking(scheduleId, seatId, bookingId);
-    if(result != null){
+  Future<bool> addSeatBooking(int bookingId,int scheduleId, int seatId) async{
+    final result = await _seatBookingService.createSeatBooking(bookingId, scheduleId, seatId);
+    if(result){
       bookedSeats.add(seatId);
       notifyListeners();
       return true;
@@ -40,6 +56,35 @@ class SeatSelectionViewModel extends ChangeNotifier{
       return false;
     }
   }
+
+  Future<bool> updateSeatBooking(int id, int bookingId, int scheduleId, int seatId) async {
+    final result = await _seatBookingService.updateSeatBooking(id, bookingId, scheduleId, seatId);
+    if (result) {
+      final index = bookedSeats.indexOf(id);
+      if (index != -1) {
+        bookedSeats[index] = seatId;
+      } else {
+        bookedSeats.add(seatId);
+      }
+      notifyListeners();
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> deleteSeatBooking(int id) async {
+    final result = await _seatBookingService.deleteSeatBooking(id);
+    if (result) {
+      bookedSeats.remove(id);
+      notifyListeners();
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+
 
   Future<void> fetchBusSeats() async {
     isLoading = true;
@@ -88,7 +133,7 @@ class SeatSelectionViewModel extends ChangeNotifier{
       await fetchBusSeats();
       return true;
     } else {
-      msg = 'Gagal menghapus bus';
+      msg = 'Gagal menghapus kursi bus';
       notifyListeners();
       return false;
     }

@@ -9,7 +9,6 @@ class RouteViewModel extends ChangeNotifier {
   List<BusRoute> busRoutes = [];
   List<City>? origins = [];
   List<City>? destinations = [];
-  BusRoute? newBusRoute;
   City? selectedOrigin;
   City? selectedDestination;
   DateTime? selectedDate;

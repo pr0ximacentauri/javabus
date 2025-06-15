@@ -120,7 +120,7 @@ void initState() {
                           itemCount: filtered.length,
                           itemBuilder: (context, index) {
                             final ticket = filtered[index];
-                            final booking = allBookings!.firstWhere((b) => b.id == ticket.bookingId);
+                            final booking = allBookings.firstWhere((b) => b.id == ticket.bookingId);
                             return buildTicketCard(booking, ticket, context);
                           },
                         ),

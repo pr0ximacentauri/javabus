@@ -30,43 +30,66 @@ class BusSeatService {
   }
 
   Future<bool> createBusSeat(String seatNumber, int busId) async {
-    final response = await http.post(
-      Uri.parse('$apiUrl'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(
-        {
-          'seatNumber': seatNumber,
-          'busId': busId
-        }
-      ),
-    );
+    try{
+      final response = await http.post(
+        Uri.parse('$apiUrl'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(
+          {
+            'seatNumber': seatNumber,
+            'busId': busId
+          }
+        ),
+      );
 
-    return response.statusCode == 200;
+    if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('Exception: $e');
+      return false;
+    }
   }
 
   Future<bool> updateBusSeat(int id, String seatNumber, int busId) async {
-    final response = await http.put(
-      Uri.parse('$apiUrl'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(
-        {
-          'id': id,
-          'seatNumber': seatNumber,
-          'busId': busId
-        }
-      ),
-    );
+    try{
+      final response = await http.put(
+        Uri.parse('$apiUrl/$id'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(
+          {
+            'seatNumber': seatNumber,
+            'busId': busId
+          }
+        ),
+      );
 
-    return response.statusCode == 200;
+    if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('Exception: $e');
+      return false;
+    }
   }
 
   Future<bool> deleteBusSeat(int id) async {
-    final response = await http.delete(
-      Uri.parse('$apiUrl/$id'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode([id]),
-    );
+    try{
+      final response = await http.delete(
+        Uri.parse('$apiUrl/$id'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode([id]),
+      );
 
-    return response.statusCode == 200;
+    if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('Exception: $e');
+      return false;
+    }
   }
 }

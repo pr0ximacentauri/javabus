@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:javabus/viewmodels/route_view_model.dart';
 import 'package:provider/provider.dart';
+import 'package:javabus/viewmodels/city_view_model.dart';
+import 'package:javabus/viewmodels/route_view_model.dart';
 
 class BusRouteCreateScreen extends StatefulWidget {
   const BusRouteCreateScreen({super.key});
@@ -11,33 +12,51 @@ class BusRouteCreateScreen extends StatefulWidget {
 
 class _BusRouteCreateScreenState extends State<BusRouteCreateScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _originCityController = TextEditingController();
-  final _destinationCityController = TextEditingController();
+  int? _selectedOriginCityId;
+  int? _selectedDestinationCityId;
   bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      Provider.of<CityViewModel>(context, listen: false).fetchCities();
+      Provider.of<RouteViewModel>(context, listen: false).fetchBusRoutes();
+    });
+  }
 
   void _submit() async {
     if (_formKey.currentState!.validate()) {
-      final int? originCityId = int.tryParse(_originCityController.text.trim());
-      final int? destinationCityId = int.tryParse(_destinationCityController.text.trim());
-      if (originCityId == null || destinationCityId == null) {
+      if (_selectedOriginCityId == _selectedDestinationCityId) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('ID kota asal & tujuan harus berupa angka')),
+          const SnackBar(content: Text('Kota asal dan tujuan tidak boleh sama')),
         );
         return;
       }
 
-      setState(() {
-        _isSubmitting = true;
-      });
+      setState(() => _isSubmitting = true);
 
       final routeVM = Provider.of<RouteViewModel>(context, listen: false);
-      await routeVM.createBusRoute(originCityId, destinationCityId);
+      final existing = routeVM.busRoutes.any((r) =>
+          r.originCityId == _selectedOriginCityId &&
+          r.destinationCityId == _selectedDestinationCityId);
 
-      setState(() {
-        _isSubmitting = false;
-      });
+      if (existing) {
+        setState(() => _isSubmitting = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Rute ini sudah ada')),
+        );
+        return;
+      }
 
-      if (routeVM.newBusRoute != null) {
+      final success = await routeVM.createBusRoute(
+        _selectedOriginCityId!,
+        _selectedDestinationCityId!,
+      );
+
+      setState(() => _isSubmitting = false);
+
+      if (success) {
         Navigator.pop(context, true);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -49,6 +68,9 @@ class _BusRouteCreateScreenState extends State<BusRouteCreateScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cityVM = Provider.of<CityViewModel>(context);
+    final cities = cityVM.cities;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Tambah Rute Bus')),
       body: Padding(
@@ -57,32 +79,38 @@ class _BusRouteCreateScreenState extends State<BusRouteCreateScreen> {
           key: _formKey,
           child: Column(
             children: [
-              TextFormField(
-                controller: _originCityController,
-                decoration: const InputDecoration(labelText: 'ID Kota Asal'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'ID kota asal wajib diisi';
-                  }
-                  if (int.tryParse(value) == null) {
-                    return 'ID kota asal harus berupa angka';
-                  }
-                  return null;
+              DropdownButtonFormField<int>(
+                value: _selectedOriginCityId,
+                items: cities
+                    .map((city) => DropdownMenuItem(
+                          value: city.id,
+                          child: Text('${city.name} (${city.province?.name ?? "-"})'),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedOriginCityId = value;
+                  });
                 },
+                decoration: const InputDecoration(labelText: 'Kota Asal'),
+                validator: (value) => value == null ? 'Pilih kota asal' : null,
               ),
               const SizedBox(height: 12),
-              TextFormField(
-                controller: _destinationCityController,
-                decoration: const InputDecoration(labelText: 'ID Kota Tujuan'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'ID kota tujuan wajib diisi';
-                  }
-                  if (int.tryParse(value) == null) {
-                    return 'ID kota tujuan harus berupa angka';
-                  }
-                  return null;
+              DropdownButtonFormField<int>(
+                value: _selectedDestinationCityId,
+                items: cities
+                    .map((city) => DropdownMenuItem(
+                          value: city.id,
+                          child: Text('${city.name} (${city.province?.name ?? "-"})'),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedDestinationCityId = value;
+                  });
                 },
+                decoration: const InputDecoration(labelText: 'Kota Tujuan'),
+                validator: (value) => value == null ? 'Pilih kota tujuan' : null,
               ),
               const SizedBox(height: 20),
               ElevatedButton(

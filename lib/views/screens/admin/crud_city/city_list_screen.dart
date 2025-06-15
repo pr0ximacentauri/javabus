@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:javabus/models/city.dart';
 import 'package:javabus/viewmodels/city_view_model.dart';
+import 'package:javabus/viewmodels/province_view_model.dart';
 import 'package:javabus/views/screens/admin/crud_city/city_create_screen.dart';
 import 'package:javabus/views/screens/admin/crud_city/city_update_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:collection/collection.dart'; // for firstWhereOrNull
 
 class CityListScreen extends StatefulWidget {
   const CityListScreen({super.key});
@@ -17,7 +19,10 @@ class _CityListScreenState extends State<CityListScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<CityViewModel>(context, listen: false).fetchCities();
+      final cityVM = Provider.of<CityViewModel>(context, listen: false);
+      final provinceVM = Provider.of<ProvinceViewModel>(context, listen: false);
+      cityVM.fetchCities();
+      provinceVM.fetchProvinces();
     });
   }
 
@@ -33,14 +38,14 @@ class _CityListScreenState extends State<CityListScreen> {
     final cityVM = Provider.of<CityViewModel>(context, listen: false);
     final success = await cityVM.deleteCity(id);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(success ? 'kota dihapus' : 'Gagal hapus kota')),
+      SnackBar(content: Text(success ? 'Kota dihapus' : 'Gagal hapus kota')),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<CityViewModel>(
-      builder: (context, cityVM, _) {
+    return Consumer2<CityViewModel, ProvinceViewModel>(
+      builder: (context, cityVM, provinceVM, _) {
         return Scaffold(
           appBar: AppBar(
             title: const Text('Data Kota'),
@@ -51,7 +56,7 @@ class _CityListScreenState extends State<CityListScreen> {
               ),
             ],
           ),
-          body: cityVM.isLoading
+          body: cityVM.isLoading || provinceVM.isLoading
               ? const Center(child: CircularProgressIndicator())
               : cityVM.msg != null
                   ? Center(child: Text(cityVM.msg!))
@@ -59,9 +64,13 @@ class _CityListScreenState extends State<CityListScreen> {
                       itemCount: cityVM.cities.length,
                       itemBuilder: (context, index) {
                         final city = cityVM.cities[index];
+                        final province = provinceVM.provinces.firstWhereOrNull(
+                          (prov) => prov.id == city.provinceId,
+                        );
+
                         return ListTile(
-                          title: Text('${city.name}, ID Provinsi: ${city.provinceId}'),
-                          subtitle: Text('ID: ${city.id}'),
+                          title: Text('${city.name} (${province?.name ?? 'Provinsi tidak ditemukan'})'),
+                          subtitle: Text('ID Kota: ${city.id}, ID Provinsi: ${city.provinceId}'),
                           trailing: PopupMenuButton<String>(
                             onSelected: (value) {
                               if (value == 'edit') {

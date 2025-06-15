@@ -93,18 +93,19 @@ class BusService {
   }
 
   Future<bool> deleteBus(int id) async {
-    final response = await http.delete(
-      Uri.parse('$apiUrl/$id'),
-      headers: {'Content-Type': 'application/json'},
-    );
+    try{
+      final response = await http.delete(
+        Uri.parse('$apiUrl/$id'),
+        headers: {'Content-Type': 'application/json'},
+      );
 
-    if (response.statusCode == 200 || response.statusCode == 204) {
-      return true;
-    } else {
-      // print('Delete failed: ${response.statusCode}');
-      // print('Body: ${response.body}');
+    if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('Exception: $e');
       return false;
     }
   }
-
 }

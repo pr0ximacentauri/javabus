@@ -6,7 +6,6 @@ class CityViewModel extends ChangeNotifier {
   final CityService _service = CityService();
 
   List<City> cities = [];
-  City? newCity;
   City? selectedCity;
   String? msg;
   bool isLoading = false;

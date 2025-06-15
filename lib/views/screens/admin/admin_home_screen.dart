@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:javabus/viewmodels/auth_view_model.dart';
+import 'package:javabus/views/screens/admin/crud_booking/booking_list_screen.dart';
 import 'package:javabus/views/screens/admin/crud_bus/bus_list_screen.dart';
 import 'package:javabus/views/screens/admin/crud_bus_route/bus_route_list_screen.dart';
 import 'package:javabus/views/screens/admin/crud_bus_seat/bus_seat_list_screen.dart';
 import 'package:javabus/views/screens/admin/crud_city/city_list_screen.dart';
+import 'package:javabus/views/screens/admin/crud_schedule/schedule_list_screen.dart';
+import 'package:javabus/views/screens/admin/crud_seat_booking/seat_booking_list_screen.dart';
 import 'package:javabus/views/screens/admin/crud_ticket/ticket_list_screen.dart';
 import 'package:javabus/views/widgets/admin_bottom_bar.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -26,12 +29,12 @@ class AdminHomeContent extends StatelessWidget {
     final authVM = Provider.of<AuthViewModel>(context);
 
     final List<_CrudItem> crudItems = [
-      // _CrudItem(
-      //   title: 'Data Booking Tiket',
-      //   icon: LucideIcons.bookOpenCheck,
-      //   screenClass: () => BookingListScreen(), 
-      //   color: Colors.amber.shade700,
-      // ),
+      _CrudItem(
+        title: 'Data Booking Tiket',
+        icon: LucideIcons.bookOpenCheck,
+        screenClass: () => BookingListScreen(), 
+        color: Colors.amber.shade700,
+      ),
       _CrudItem(
         title: 'Data Rute Bus',
         icon: LucideIcons.map,
@@ -56,24 +59,24 @@ class AdminHomeContent extends StatelessWidget {
         screenClass: () => CityListScreen(), 
         color: Colors.amber.shade700,
       ),
-      // _CrudItem(
-      //   title: 'Data Jadwal Bus',
-      //   icon: LucideIcons.calendarDays,
-      //   screenClass: () => ScheduleListScreen(), 
-      //   color: Colors.orange.shade600,
-      // ),
+      _CrudItem(
+        title: 'Data Jadwal Bus',
+        icon: LucideIcons.calendarDays,
+        screenClass: () => ScheduleListScreen(), 
+        color: Colors.orange.shade600,
+      ),
+      _CrudItem(
+        title: 'Data Booking Kursi ',
+        icon: LucideIcons.bookMarked,
+        screenClass: () => SeatBookingListScreen(), 
+        color: Colors.orange.shade700,
+      ),
       _CrudItem(
         title: 'Data Tiket Penumpang',
         icon: LucideIcons.ticket,
         screenClass: () => TicketListScreen(), 
         color: Colors.amber.shade800,
       ),
-      // _CrudItem(
-      //   title: 'Data Pengguna',
-      //   icon: LucideIcons.users,
-      //   screenClass: () => UserListScreen(), 
-      //   color: Colors.orange.shade700,
-      // ),
     ];
 
     return Scaffold(

@@ -7,11 +7,15 @@ class TicketService{
   final String apiUrl = '${url.baseUrl}/Ticket';
 
   Future<bool> createTicket(int bookingId) async {
-    final response = await http.post(Uri.parse('$apiUrl/snapshot/$bookingId'));
+    try{
+      final response = await http.post(Uri.parse('$apiUrl/snapshot/$bookingId'));
 
-    if(response.statusCode == 200){
-      return true;
-    }else{
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('Exception: $e');
       return false;
     }
   }
@@ -50,78 +54,99 @@ class TicketService{
   }
 
   Future<bool> addTicket(int bookingId, int seatId, String qrCodeUrl, DateTime departureTime, String originCity, String destinationCity, String busName, String busClass, int ticketPrice, String ticketStatus) async {
-    final response = await http.post(
-      Uri.parse(apiUrl),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(
-        {
-          'bookingId': bookingId,
-          'seatId': seatId,
-          'qrCodeUrl': qrCodeUrl,
-          'departureTime': departureTime.toIso8601String(),
-          'originCity': originCity,
-          'destinationCity': destinationCity,
-          'busName': busName,
-          'busClass': busClass,
-          'ticketPrice': ticketPrice,
-          'ticketStatus': ticketStatus,
-        }
-      ),
-    );
-
-    if (response.statusCode == 200 || response.statusCode == 201) {
-        return true;
-      }
-      return false;
-  }
-
-  Future<bool> updateTicket(int id, int bookingId, int seatId, String qrCodeUrl, DateTime departureTime, String originCity, String destinationCity, String busName, String busClass, int ticketPrice, String ticketStatus) async {
-    final response = await http.put(
-      Uri.parse('$apiUrl/$id'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(
-        {
-          'id_ticket': id,
-          'bookingId': bookingId,
-          'seatId': seatId,
-          'qrCodeUrl': qrCodeUrl,
-          'departureTime': departureTime.toIso8601String(),
-          'originCity': originCity,
-          'destinationCity': destinationCity,
-          'busName': busName,
-          'busClass': busClass,
-          'ticketPrice': ticketPrice,
-          'ticketStatus': ticketStatus,
-        }
-      ),
-    );
-
-    if (response.statusCode == 200 || response.statusCode == 201) {
-        return true;
-      }
-      return false;
-  }
-
-  Future<bool> updateTicketStatus(int id, String status) async {
-    final response = await http.patch(
-      Uri.parse('$apiUrl/$id'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'ticketStatus': status}),
-    );
-
-    return response.statusCode == 200;
-  }
-
-  Future<bool> deleteTicket(int id) async {
-    final response = await http.delete(
-      Uri.parse('$apiUrl/$id'),
-      headers: {'Content-Type': 'application/json'},
-    );
+    try{
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(
+          {
+            'bookingId': bookingId,
+            'seatId': seatId,
+            'qrCodeUrl': qrCodeUrl,
+            'departureTime': departureTime.toIso8601String(),
+            'originCity': originCity,
+            'destinationCity': destinationCity,
+            'busName': busName,
+            'busClass': busClass,
+            'ticketPrice': ticketPrice,
+            'ticketStatus': ticketStatus,
+          }
+        ),
+      );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return true;
-      }else{
-        return false;
       }
+      return false;
+    } catch (e) {
+      print('Exception: $e');
+      return false;
     }
+  }
+
+  Future<bool> updateTicket(int id, int bookingId, int seatId, String qrCodeUrl, DateTime departureTime, String originCity, String destinationCity, String busName, String busClass, int ticketPrice, String ticketStatus) async {
+    try{
+      final response = await http.put(
+        Uri.parse('$apiUrl/$id'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(
+          {
+            'bookingId': bookingId,
+            'seatId': seatId,
+            'qrCodeUrl': qrCodeUrl,
+            'departureTime': departureTime.toIso8601String(),
+            'originCity': originCity,
+            'destinationCity': destinationCity,
+            'busName': busName,
+            'busClass': busClass,
+            'ticketPrice': ticketPrice,
+            'ticketStatus': ticketStatus,
+          }
+        ),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('Exception: $e');
+      return false;
+    }
+  }
+
+  Future<bool> updateTicketStatus(int id, String status) async {
+    try{
+      final response = await http.patch(
+        Uri.parse('$apiUrl/$id'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(status),
+      );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('Exception: $e');
+      return false;
+    }
+  }
+
+  Future<bool> deleteTicket(int id) async {
+    try{
+      final response = await http.delete(
+        Uri.parse('$apiUrl/$id'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('Exception: $e');
+      return false;
+    }
+  }
 }

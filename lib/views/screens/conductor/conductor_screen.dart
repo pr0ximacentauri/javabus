@@ -21,31 +21,41 @@ class _ConductorScreenState extends State<ConductorScreen> {
     final barcode = capture.barcodes.first;
     final code = barcode.rawValue;
 
-    if (code != null) {
-      setState(() {
-        isScanning = false;
-        scannedResult = code;
-      });
-
-      final ticketId = int.tryParse(code);
-      if (ticketId == null) {
-        _showSnackbar('QR Code tidak valid');
-        setState(() => isScanning = true);
-        return;
-      }
-
-      final ticketVM = Provider.of<TicketViewModel>(context, listen: false);
-      final success = await ticketVM.updateTicketStatus(ticketId, 'selesai');
-
-      if (success) {
-        _showSnackbar('Tiket berhasil diverifikasi');
-      } else {
-        _showSnackbar('Gagal memperbarui status tiket');
-      }
-
-      await Future.delayed(const Duration(seconds: 2));
-      setState(() => isScanning = true);
+    if (code == null) {
+      _showSnackbar('QR Code tidak terbaca');
+      return;
     }
+
+    final ticketId = int.tryParse(code);
+    if (ticketId == null) {
+      _showSnackbar('QR Code tidak valid');
+      return;
+    }
+
+    setState(() {
+      isScanning = false;
+      scannedResult = code;
+    });
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    final ticketVM = Provider.of<TicketViewModel>(context, listen: false);
+    final success = await ticketVM.updateTicketStatus(ticketId, 'selesai');
+
+    Navigator.pop(context); 
+
+    if (success) {
+      _showSnackbar('Tiket berhasil diverifikasi');
+    } else {
+      _showSnackbar(ticketVM.msg!);
+    }
+
+    await Future.delayed(const Duration(seconds: 2));
+    setState(() => isScanning = true);
   }
 
   void _showSnackbar(String message) {
@@ -63,7 +73,10 @@ class _ConductorScreenState extends State<ConductorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Scan Tiket')),
+      appBar: AppBar(
+        title: const Text('Scan Tiket'),
+        backgroundColor: Colors.green,
+      ),
       body: Column(
         children: [
           Expanded(
@@ -76,8 +89,21 @@ class _ConductorScreenState extends State<ConductorScreen> {
           if (scannedResult != null)
             Expanded(
               flex: 1,
-              child: Center(
-                child: Text('Hasil Scan: $scannedResult'),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Hasil Scan: $scannedResult'),
+                  const SizedBox(height: 10),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        scannedResult = null;
+                        isScanning = true;
+                      });
+                    },
+                    child: const Text("Scan Ulang"),
+                  ),
+                ],
               ),
             ),
         ],

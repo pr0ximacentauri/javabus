@@ -101,18 +101,6 @@ class AdminAccountContent extends StatelessWidget {
                     title: 'Ubah Password',
                     onTap: () {},
                   ),
-                  _buildDivider(),
-                  _buildMenuItem(
-                    icon: Icons.help_outline,
-                    title: 'Bantuan',
-                    onTap: () {},
-                  ),
-                  _buildDivider(),
-                  _buildMenuItem(
-                    icon: Icons.info_outline,
-                    title: 'Tentang Aplikasi',
-                    onTap: () {},
-                  ),
                 ],
               ),
             ),
