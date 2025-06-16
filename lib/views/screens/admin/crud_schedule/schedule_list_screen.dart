@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:javabus/models/bus_route.dart';
 import 'package:javabus/models/schedule.dart';
 import 'package:javabus/viewmodels/route_view_model.dart';
 import 'package:javabus/viewmodels/schedule_view_model.dart';
-import 'package:javabus/views/screens/admin/crud_bus_route/bus_route_create_screen.dart';
-import 'package:javabus/views/screens/admin/crud_bus_route/bus_route_update_screen.dart';
 import 'package:javabus/views/screens/admin/crud_schedule/schedule_create_screen.dart';
 import 'package:javabus/views/screens/admin/crud_schedule/schedule_update_screen.dart';
 import 'package:provider/provider.dart';

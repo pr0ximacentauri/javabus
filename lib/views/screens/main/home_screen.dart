@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:javabus/viewmodels/auth_view_model.dart';
 import 'package:javabus/viewmodels/route_view_model.dart';
 import 'package:javabus/viewmodels/schedule_view_model.dart';
+import 'package:javabus/viewmodels/ticket_view_model.dart';
 import 'package:javabus/views/screens/bus_schedule_screen.dart';
 import 'package:javabus/views/screens/help_center_screen.dart';
 import 'package:javabus/views/screens/route_selection_screen.dart';
@@ -34,6 +35,7 @@ class _HomeContentState extends State<HomeContent> {
   Widget build(BuildContext context) {
     final routeVM = Provider.of<RouteViewModel>(context);
     final authVM = Provider.of<AuthViewModel>(context);
+    final ticketVM = Provider.of<TicketViewModel>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -349,13 +351,15 @@ class _HomeContentState extends State<HomeContent> {
                     ),
                     _buildCircleButton(
                       icon: Icons.help,
-                      label: 'Bantuan',
+                      label: 'Pembatalan Tiket',
                       colors: [Colors.amber.shade700, Colors.orange.shade600],
                       onTap: () {
+                        final user = authVM.user!;
+                        final tickets = ticketVM.tickets!;
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const HelpCenterContent(),
+                            builder: (_) => CancelTicketScreen(user: user, tickets: tickets),
                           ),
                         );
                       },
