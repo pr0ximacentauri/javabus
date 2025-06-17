@@ -23,23 +23,26 @@ class _TicketContentState extends State<TicketContent> {
   bool isTiketSelected = true;
 
   @override
-void initState() {
-  super.initState();
-  WidgetsBinding.instance.addPostFrameCallback((_) async {
-    final authVM = Provider.of<AuthViewModel>(context, listen: false);
-    final ticketVM = Provider.of<TicketViewModel>(context, listen: false);
-    final bookingVM = Provider.of<BookingViewModel>(context, listen: false);
-    final userId = authVM.user!.id;
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final authVM = Provider.of<AuthViewModel>(context, listen: false);
+      final ticketVM = Provider.of<TicketViewModel>(context, listen: false);
+      final bookingVM = Provider.of<BookingViewModel>(context, listen: false);
 
-    await bookingVM.fetchBookingsByUser(userId);
+      final user = authVM.user;
+      if (user == null) return;
 
-    ticketVM.clearTickets();
-    for (final booking in bookingVM.bookings ?? []) {
-      await ticketVM.fetchTicketsByBooking(booking.id);
-    }
-  });
-}
+      await bookingVM.fetchBookingsByUser(user.id);
+      ticketVM.clearTickets();
 
+      for (final booking in bookingVM.bookings) {
+        await ticketVM.fetchTicketsByBooking(booking.id);
+      }
+
+      setState(() {});
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,12 +50,8 @@ void initState() {
     final bookingVM = Provider.of<BookingViewModel>(context);
     final now = DateTime.now();
 
-    final List<Ticket>? allTickets = ticketVM.tickets;
-    final List<Booking>? allBookings = bookingVM.bookings;
-
-    if (allTickets == null || allBookings == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    final allTickets = ticketVM.tickets ?? [];
+    final allBookings = bookingVM.bookings;
 
     final filtered = allTickets.where((ticket) {
       final booking = allBookings.firstWhere(
@@ -62,7 +61,7 @@ void initState() {
 
       if (isTiketSelected) {
         return booking.status == 'lunas' &&
-            (ticket.ticketStatus == 'belum terpakai') &&
+            ticket.ticketStatus == 'belum terpakai' &&
             ticket.departureTime.isAfter(now);
       }
 
@@ -80,55 +79,62 @@ void initState() {
       return false;
     }).toList();
 
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.amber.shade600,
-        title: const Text('Tiket Perjalanan', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Tiket Perjalanan',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
       ),
       backgroundColor: Colors.grey[50],
-      body: ticketVM.isLoading || bookingVM.isLoading
-          ? const Center(child: CircularProgressIndicator(color: Colors.amber))
-          : Column(
+      body: Column(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(colors: [Colors.amber, Colors.deepOrange]),
+            ),
+            child: Column(
               children: [
-                Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(colors: [Colors.amber, Colors.deepOrange]),
-                  ),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 20),
-                      _buildFilterToggle(),
-                      const SizedBox(height: 20),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: filtered.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.receipt_long, size: 80, color: Colors.grey[400]),
-                              const SizedBox(height: 16),
-                              Text("Tidak ada tiket", style: TextStyle(fontSize: 18, color: Colors.grey[600])),
-                            ],
-                          ),
-                        )
-                      : ListView.builder(
-                          padding: const EdgeInsets.all(16),
-                          itemCount: filtered.length,
-                          itemBuilder: (context, index) {
-                            final ticket = filtered[index];
-                            final booking = allBookings.firstWhere((b) => b.id == ticket.bookingId);
-                            return buildTicketCard(booking, ticket, context);
-                          },
-                        ),
-                ),
+                const SizedBox(height: 20),
+                _buildFilterToggle(),
+                const SizedBox(height: 20),
               ],
             ),
+          ),
+          Expanded(
+            child: filtered.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.receipt_long, size: 80, color: Colors.grey[400]),
+                        const SizedBox(height: 16),
+                        Text("Tidak ada tiket ditemukan",
+                            style: TextStyle(fontSize: 18, color: Colors.grey[600])),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: filtered.length,
+                    itemBuilder: (context, index) {
+                      final ticket = filtered[index];
+                      final booking = allBookings.firstWhere(
+                        (b) => b.id == ticket.bookingId,
+                        orElse: () => Booking(id: 0, userId: 0, scheduleId: 0, status: 'unknown'),
+                      );
+                      return buildTicketCard(booking, ticket, context);
+                    },
+                  ),
+          ),
+        ],
+      ),
     );
   }
+
+  // Tetap gunakan _buildFilterToggle, _buildTab, _buildStatusChip, buildTicketCard seperti sebelumnya
+
 
   Widget _buildFilterToggle() {
     return Container(

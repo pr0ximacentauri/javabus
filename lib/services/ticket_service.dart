@@ -20,16 +20,21 @@ class TicketService{
     }
   }
 
-  Future<List<Ticket>?> getTicketsByBooking(int bookingId) async {
-    final response = await http.get(Uri.parse('$apiUrl/booking/$bookingId'));
+Future<List<Ticket>?> getTicketsByBooking(int bookingId) async {
+  print('Fetching tickets for bookingId: $bookingId');
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((json) => Ticket.fromJson(json)).toList();
-    } else {
-      return null;
-    }
+  final response = await http.get(Uri.parse('$apiUrl/booking/$bookingId'));
+
+  print('Ticket response status: ${response.statusCode}');
+  print('Ticket response body: ${response.body}');
+
+  if (response.statusCode == 200) {
+    final List<dynamic> data = jsonDecode(response.body);
+    return data.map((json) => Ticket.fromJson(json)).toList();
+  } else {
+    return null;
   }
+}
 
   Future<List<Ticket>?> getTickets() async {
     final response = await http.get(Uri.parse(apiUrl));

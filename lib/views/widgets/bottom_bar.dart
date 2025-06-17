@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:javabus/viewmodels/auth_view_model.dart';
 import 'package:javabus/views/screens/main/account_screen.dart';
 import 'package:javabus/views/screens/main/home_screen.dart';
-import 'package:javabus/views/screens/main/notification_screen.dart';
+// import 'package:javabus/views/screens/main/notification_screen.dart';
 import 'package:javabus/views/screens/main/ticket_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -26,7 +26,7 @@ class _BottomBarState extends State<BottomBar> {
   final List<Widget> _pages = [
     HomeContent(),
     TicketContent(),
-    NotificationContent(),
+    // NotificationContent(),
     AccountContent(),
   ];
 
@@ -121,10 +121,10 @@ class _BottomBarState extends State<BottomBar> {
                 icon: _buildNavIcon(Icons.airplane_ticket_outlined, Icons.airplane_ticket, 1),
                 label: 'Tiketku',
               ),
-              BottomNavigationBarItem(
-                icon: _buildNavIcon(Icons.notifications_outlined, Icons.notifications, 2),
-                label: 'Notifikasi',
-              ),
+              // BottomNavigationBarItem(
+              //   icon: _buildNavIcon(Icons.notifications_outlined, Icons.notifications, 2),
+              //   label: 'Notifikasi',
+              // ),
               BottomNavigationBarItem(
                 icon: _buildNavIcon(Icons.account_circle_outlined, Icons.account_circle_rounded, 3),
                 label: 'Akun',

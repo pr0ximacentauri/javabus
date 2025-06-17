@@ -38,16 +38,22 @@ class BookingService {
     }
   }
 
-  Future<List<Booking>?> getBookingsByUser(int userId) async {
-    final response = await http.get(Uri.parse('$apiUrl/user/$userId'));
+Future<List<Booking>?> getBookingsByUser(int userId) async {
+  print('Fetching bookings for userId: $userId');
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((e) => Booking.fromJson(e)).toList();
-    } else {
-      return null;
-    }
+  final response = await http.get(Uri.parse('$apiUrl/user/$userId'));
+
+  print('Booking response status: ${response.statusCode}');
+  print('Booking response body: ${response.body}');
+
+  if (response.statusCode == 200) {
+    final List<dynamic> data = jsonDecode(response.body);
+    return data.map((e) => Booking.fromJson(e)).toList();
+  } else {
+    return null;
   }
+}
+
 
   Future<bool> updateBooking(int id, String status, int userId, int scheduleId) async {
     try{

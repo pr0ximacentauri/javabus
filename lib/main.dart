@@ -76,10 +76,11 @@ class JavaBusApp extends StatelessWidget {
           homeWidget = const AdminHomeScreen();
           break;
         case 2:
-          // homeWidget = const ConductorScreen();
-          homeWidget = const HomeScreen();
+          homeWidget = const ConductorScreen();
           break;
         case 3:
+          homeWidget = const HomeScreen();
+          break;
         default:
           homeWidget = const HomeScreen();
           break;
