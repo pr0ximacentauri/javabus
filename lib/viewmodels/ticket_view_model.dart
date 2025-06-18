@@ -5,12 +5,22 @@ import 'package:javabus/services/ticket_service.dart';
 class TicketViewModel extends ChangeNotifier {
   final TicketService _service = TicketService();
 
-  List<Ticket>? tickets;
+  List<Ticket> tickets = [];
   bool isLoading = false;
   String? msg;
 
   void clearTickets() {
     tickets = [];
+    notifyListeners();
+  }
+
+  void setTickets(List<Ticket> newTickets) {
+    tickets = newTickets;
+    notifyListeners();
+  }
+
+  void addTickets(List<Ticket> newTickets) {
+    tickets.addAll(newTickets);
     notifyListeners();
   }
 
@@ -23,20 +33,23 @@ class TicketViewModel extends ChangeNotifier {
   }
 
   Future<List<Ticket>?> fetchTicketsByBooking(int bookingId) async {
-    isLoading = true;
-    notifyListeners();
+    try {
+      isLoading = true;
+      notifyListeners();
 
-    final result = await _service.getTicketsByBooking(bookingId);
-    if (result != null) {
-      tickets = result;
-      msg = null;
-    } else {
-      tickets = null;
-      msg = 'Gagal memuat tiket berdasarkan booking';
+      final result = await _service.getTicketsByBooking(bookingId);
+
+      if (result != null) {
+        msg = null;
+        return result;
+      } else {
+        msg = 'Gagal memuat tiket berdasarkan booking';
+        return null;
+      }
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
-
-    notifyListeners();
-    return result;
   }
 
   Future<void> fetchTickets() async {
@@ -48,6 +61,7 @@ class TicketViewModel extends ChangeNotifier {
       tickets = result;
       msg = null;
     } else {
+      tickets = [];
       msg = 'Gagal memuat data tiket';
     }
 
@@ -67,7 +81,18 @@ class TicketViewModel extends ChangeNotifier {
     int ticketPrice,
     String ticketStatus,
   ) async {
-    final result = await _service.addTicket(bookingId, seatId, qrCodeUrl, departureTime, originCity, destinationCity, busName, busClass, ticketPrice, ticketStatus);
+    final result = await _service.addTicket(
+      bookingId,
+      seatId,
+      qrCodeUrl,
+      departureTime,
+      originCity,
+      destinationCity,
+      busName,
+      busClass,
+      ticketPrice,
+      ticketStatus,
+    );
 
     if (result) {
       await fetchTickets();
@@ -92,7 +117,19 @@ class TicketViewModel extends ChangeNotifier {
     int ticketPrice,
     String ticketStatus,
   ) async {
-    final result = await _service.updateTicket(id, bookingId, seatId, qrCodeUrl, departureTime, originCity, destinationCity, busName, busClass, ticketPrice, ticketStatus);
+    final result = await _service.updateTicket(
+      id,
+      bookingId,
+      seatId,
+      qrCodeUrl,
+      departureTime,
+      originCity,
+      destinationCity,
+      busName,
+      busClass,
+      ticketPrice,
+      ticketStatus,
+    );
 
     if (result) {
       await fetchTickets();

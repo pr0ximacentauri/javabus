@@ -34,6 +34,7 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
   void initState() {
     super.initState();
     final seatVM = Provider.of<SeatSelectionViewModel>(context, listen: false);
+    // print("Memuat kursi untuk bus id ${widget.bus.id}, schedule id ${widget.scheduleId}");
     seatVM.LoadBusSeats(widget.bus.id!, widget.scheduleId);
   }
 

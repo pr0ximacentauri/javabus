@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:javabus/const/api_url.dart' as url;
 import 'package:http/http.dart' as http;
+import 'package:javabus/helpers/session_helper.dart';
 import 'package:javabus/models/ticket.dart';
 
 class TicketService{
@@ -8,7 +9,10 @@ class TicketService{
 
   Future<bool> createTicket(int bookingId) async {
     try{
-      final response = await http.post(Uri.parse('$apiUrl/snapshot/$bookingId'));
+      final token = await SessionHelper.getToken();
+      final response = await http.post(Uri.parse('$apiUrl/snapshot/$bookingId'),
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
+      );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return true;
@@ -21,12 +25,15 @@ class TicketService{
   }
 
 Future<List<Ticket>?> getTicketsByBooking(int bookingId) async {
-  print('Fetching tickets for bookingId: $bookingId');
+  // print('Fetching tickets for bookingId: $bookingId');
 
-  final response = await http.get(Uri.parse('$apiUrl/booking/$bookingId'));
+  final token = await SessionHelper.getToken();
+  final response = await http.get(Uri.parse('$apiUrl/booking/$bookingId'),
+    headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
+  );
 
-  print('Ticket response status: ${response.statusCode}');
-  print('Ticket response body: ${response.body}');
+  // print('Ticket response status: ${response.statusCode}');
+  // print('Ticket response body: ${response.body}');
 
   if (response.statusCode == 200) {
     final List<dynamic> data = jsonDecode(response.body);
@@ -37,7 +44,10 @@ Future<List<Ticket>?> getTicketsByBooking(int bookingId) async {
 }
 
   Future<List<Ticket>?> getTickets() async {
-    final response = await http.get(Uri.parse(apiUrl));
+    final token = await SessionHelper.getToken();
+    final response = await http.get(Uri.parse(apiUrl),
+      headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
+    );
 
     if (response.statusCode == 200) {
       final List data = jsonDecode(response.body);
@@ -60,9 +70,10 @@ Future<List<Ticket>?> getTicketsByBooking(int bookingId) async {
 
   Future<bool> addTicket(int bookingId, int seatId, String qrCodeUrl, DateTime departureTime, String originCity, String destinationCity, String busName, String busClass, int ticketPrice, String ticketStatus) async {
     try{
+      final token = await SessionHelper.getToken();
       final response = await http.post(
         Uri.parse(apiUrl),
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
         body: jsonEncode(
           {
             'bookingId': bookingId,
@@ -91,9 +102,10 @@ Future<List<Ticket>?> getTicketsByBooking(int bookingId) async {
 
   Future<bool> updateTicket(int id, int bookingId, int seatId, String qrCodeUrl, DateTime departureTime, String originCity, String destinationCity, String busName, String busClass, int ticketPrice, String ticketStatus) async {
     try{
+      final token = await SessionHelper.getToken();
       final response = await http.put(
         Uri.parse('$apiUrl/$id'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
         body: jsonEncode(
           {
             'bookingId': bookingId,
@@ -122,9 +134,10 @@ Future<List<Ticket>?> getTicketsByBooking(int bookingId) async {
 
   Future<bool> updateTicketStatus(int id, String status) async {
     try{
+      final token = await SessionHelper.getToken();
       final response = await http.patch(
-        Uri.parse('$apiUrl/$id'),
-        headers: {'Content-Type': 'application/json'},
+        Uri.parse('$apiUrl/$id/status'),
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
         body: jsonEncode(status),
       );
 
@@ -140,9 +153,10 @@ Future<List<Ticket>?> getTicketsByBooking(int bookingId) async {
 
   Future<bool> deleteTicket(int id) async {
     try{
+      final token = await SessionHelper.getToken();
       final response = await http.delete(
         Uri.parse('$apiUrl/$id'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
       );
 
     if (response.statusCode == 200 || response.statusCode == 201) {

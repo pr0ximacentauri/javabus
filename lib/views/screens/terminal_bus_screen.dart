@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:javabus/viewmodels/terminal_view_model.dart';
-import 'package:javabus/views/widgets/bottom_bar.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
@@ -10,21 +9,12 @@ class TerminalBusScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BottomBar();
-  }
-}
-
-class TerminalBusContent extends StatelessWidget {
-  const TerminalBusContent({super.key});
-
-  @override
-  Widget build(BuildContext context) {
     final viewModel = Provider.of<TerminalViewModel>(context);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Peta Terminal Bus'),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Colors.amber,
       ),
       body: Builder(
         builder: (context) {
@@ -38,7 +28,7 @@ class TerminalBusContent extends StatelessWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
                   viewModel.errorMessage,
-                  style: const TextStyle(color: Colors.red),
+                  style: const TextStyle(color: Colors.deepOrange),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -85,7 +75,7 @@ class TerminalBusContent extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         onPressed: () => viewModel.refreshLocation(),
         child: const Icon(Icons.my_location),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Colors.deepOrange,
       ),
     );
   }

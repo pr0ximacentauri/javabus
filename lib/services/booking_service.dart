@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:javabus/helpers/session_helper.dart';
 import 'package:javabus/models/booking.dart';
 import 'package:javabus/const/api_url.dart' as url;
 
@@ -7,7 +8,13 @@ class BookingService {
   final String apiUrl = '${url.baseUrl}/Booking';
 
   Future<List<Booking>?> getBookings() async {
-    final response = await http.get(Uri.parse(apiUrl));
+    final token = await SessionHelper.getToken();
+    final response = await http.get(Uri.parse(apiUrl), 
+      headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
+    );
+
+    // print('Response status: ${response.statusCode}');
+    // print('Response body: ${response.body}');
 
     if (response.statusCode == 200) {
       final List data = jsonDecode(response.body);
@@ -19,8 +26,9 @@ class BookingService {
 
   Future<bool> createBooking(String status, int userId, int scheduleId) async {
     try{
+      final token = await SessionHelper.getToken();
       final response = await http.post(Uri.parse('$apiUrl'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
         body: jsonEncode({
           'status': status,
           'userId': userId,
@@ -28,7 +36,10 @@ class BookingService {
         }),
       );
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
         return true;
       }
       return false;
@@ -39,12 +50,12 @@ class BookingService {
   }
 
 Future<List<Booking>?> getBookingsByUser(int userId) async {
-  print('Fetching bookings for userId: $userId');
+  // print('Fetching bookings for userId: $userId');
 
   final response = await http.get(Uri.parse('$apiUrl/user/$userId'));
 
-  print('Booking response status: ${response.statusCode}');
-  print('Booking response body: ${response.body}');
+  // print('Booking response status: ${response.statusCode}');
+  // print('Booking response body: ${response.body}');
 
   if (response.statusCode == 200) {
     final List<dynamic> data = jsonDecode(response.body);
@@ -57,8 +68,9 @@ Future<List<Booking>?> getBookingsByUser(int userId) async {
 
   Future<bool> updateBooking(int id, String status, int userId, int scheduleId) async {
     try{
+      final token = await SessionHelper.getToken();
       final response = await http.put(Uri.parse('$apiUrl/$id'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
         body: jsonEncode({
           'status': status,
           'userId': userId,
@@ -78,9 +90,10 @@ Future<List<Booking>?> getBookingsByUser(int userId) async {
 
   Future<bool> updateBookingStatus(int bookingId, String status) async {
     try{
+      final token = await SessionHelper.getToken();
       final response = await http.put(
         Uri.parse('$apiUrl/$bookingId/status'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
         body: jsonEncode({'status': status}),
       );
 
@@ -96,9 +109,10 @@ Future<List<Booking>?> getBookingsByUser(int userId) async {
 
   Future<bool> deleteBooking(int id) async {
     try{
+      final token = await SessionHelper.getToken();
       final response = await http.delete(
         Uri.parse('$apiUrl/$id'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {

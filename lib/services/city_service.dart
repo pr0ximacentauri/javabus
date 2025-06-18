@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:javabus/const/api_url.dart' as url;
+import 'package:javabus/helpers/session_helper.dart';
 import 'package:javabus/models/city.dart';
 
 class CityService {
@@ -32,9 +33,10 @@ class CityService {
 
   Future<bool> createCity(String name, int provinceId) async {
     try{
+      final token = await SessionHelper.getToken();
       final response = await http.post(
         Uri.parse('$apiUrl/bulk'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
         body: jsonEncode([
           {
             'name': name,
@@ -55,9 +57,10 @@ class CityService {
 
   Future<bool> updateCity(int id, String name, int provinceId) async {
     try{
+      final token = await SessionHelper.getToken();
       final response = await http.put(
         Uri.parse('$apiUrl/$id'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
         body: jsonEncode(
           {
             'name': name,
@@ -78,9 +81,10 @@ class CityService {
 
   Future<bool> deleteCity(int id) async {
     try{
+      final token = await SessionHelper.getToken();
       final response = await http.delete(
         Uri.parse('$apiUrl/$id'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
       );
 
     if (response.statusCode == 200 || response.statusCode == 201) {

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:javabus/const/api_url.dart' as url;
 import 'package:http/http.dart' as http;
+import 'package:javabus/helpers/session_helper.dart';
 import 'package:javabus/models/schedule.dart';
 
 class ScheduleService {
@@ -8,7 +9,10 @@ class ScheduleService {
 
 
   Future<List<Schedule>?> getSchedules() async {
-    final response = await http.get(Uri.parse(apiUrl));
+    final token = await SessionHelper.getToken();
+    final response = await http.get(Uri.parse(apiUrl), 
+      headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
+    );
 
     if (response.statusCode == 200) {
       final List data = jsonDecode(response.body);
@@ -19,7 +23,10 @@ class ScheduleService {
   } 
 
   Future<List<Schedule>?> searchSchedules(int routeId, String date) async {
-    final response = await http.get(Uri.parse('$apiUrl/search?routeId=$routeId&date=$date'));
+    final token = await SessionHelper.getToken();
+    final response = await http.get(Uri.parse('$apiUrl/search?routeId=$routeId&date=$date'),
+      headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
+    );
 
     if (response.statusCode == 200) {
       final List jsonData = jsonDecode(response.body);
@@ -42,8 +49,9 @@ class ScheduleService {
 
   Future<bool> createSchedule(DateTime departureTime, int ticketPrice, int busId, int routeId) async {
     try{
+      final token = await SessionHelper.getToken();
       final response = await http.post(Uri.parse(apiUrl),
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
         body: jsonEncode({
           'departureTime': departureTime.toIso8601String(),
           'ticketPrice': ticketPrice,
@@ -64,8 +72,9 @@ class ScheduleService {
 
   Future<bool> updateSchedule(int id, DateTime departureTime, int ticketPrice, int busId, int routeId) async {
     try{
+      final token = await SessionHelper.getToken();
       final response = await http.put(Uri.parse('$apiUrl/$id'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
         body: jsonEncode({
           'departureTime': departureTime.toIso8601String(),
           'ticketPrice': ticketPrice,
@@ -86,9 +95,10 @@ class ScheduleService {
 
   Future<bool> deleteSchedule(int id) async {
     try{
+      final token = await SessionHelper.getToken();
       final response = await http.delete(
         Uri.parse('$apiUrl/$id'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
         body: jsonEncode([id]),
       );
 

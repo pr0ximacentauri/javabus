@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:javabus/const/api_url.dart' as url;
+import 'package:javabus/helpers/session_helper.dart';
 
 class PaymentService {
   Future<String?> createSnapPayment({required int grossAmount, required int bookingId}) async {
@@ -11,9 +12,10 @@ class PaymentService {
       "bookingId": bookingId,
     };
 
+    final token = await SessionHelper.getToken();
     final response = await http.post(
       Uri.parse('$apiUrl/snap'),
-      headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
       body: jsonEncode(body),
     );
 

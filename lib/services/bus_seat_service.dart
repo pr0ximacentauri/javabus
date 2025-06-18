@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:javabus/const/api_url.dart' as url;
 import 'package:http/http.dart' as http;
+import 'package:javabus/helpers/session_helper.dart';
 import 'package:javabus/models/bus_seat.dart';
 
 class BusSeatService {
@@ -31,9 +32,10 @@ class BusSeatService {
 
   Future<bool> createBusSeat(String seatNumber, int busId) async {
     try{
+      final token = await SessionHelper.getToken();
       final response = await http.post(
         Uri.parse('$apiUrl'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
         body: jsonEncode(
           {
             'seatNumber': seatNumber,
@@ -54,9 +56,10 @@ class BusSeatService {
 
   Future<bool> updateBusSeat(int id, String seatNumber, int busId) async {
     try{
+      final token = await SessionHelper.getToken();
       final response = await http.put(
         Uri.parse('$apiUrl/$id'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
         body: jsonEncode(
           {
             'seatNumber': seatNumber,
@@ -77,9 +80,10 @@ class BusSeatService {
 
   Future<bool> deleteBusSeat(int id) async {
     try{
+      final token = await SessionHelper.getToken();
       final response = await http.delete(
         Uri.parse('$apiUrl/$id'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
         body: jsonEncode([id]),
       );
 

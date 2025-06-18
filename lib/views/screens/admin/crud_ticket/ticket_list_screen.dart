@@ -26,25 +26,25 @@ class _BusListScreenState extends State<TicketListScreen> {
     Navigator.push(context, MaterialPageRoute(builder: (context) => const BusSeatCreateScreen()));
   }
 
-  void _navigateToUpdate(BusSeat seat) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => BusSeatUpdateScreen(seat: seat)));
-  }
+  // void _navigateToUpdate(BusSeat ticket) {
+  //   Navigator.push(context, MaterialPageRoute(builder: (context) => BusSeatUpdateScreen(ticket: ticket)));
+  // }
 
   void _delete(int id) async {
-    final seatVM = Provider.of<SeatSelectionViewModel>(context, listen: false);
-    final success = await seatVM.deleteBusSeat(id);
+    final ticketVM = Provider.of<TicketViewModel>(context, listen: false);
+    final success = await ticketVM.deleteTicket(id);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(success ? 'Kursi bus dihapus' : 'Gagal hapus kursi bus')),
+      SnackBar(content: Text(success ? 'Ticket dihapus' : 'Gagal hapus tiket')),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<SeatSelectionViewModel>(
-      builder: (context, seatVM, _) {
+    return Consumer<TicketViewModel>(
+      builder: (context, ticketVM, _) {
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Data Kursi Bus'),
+            title: const Text('Data Tiket Penumpang'),
             actions: [
               IconButton(
                 icon: const Icon(Icons.add),
@@ -52,23 +52,23 @@ class _BusListScreenState extends State<TicketListScreen> {
               ),
             ],
           ),
-          body: seatVM.isLoading
+          body: ticketVM.isLoading
               ? const Center(child: CircularProgressIndicator())
-              : seatVM.msg != null
-                  ? Center(child: Text(seatVM.msg!))
+              : ticketVM.msg != null
+                  ? Center(child: Text(ticketVM.msg!))
                   : ListView.builder(
-                      itemCount: seatVM.allBusSeats.length,
+                      itemCount: ticketVM.tickets!.length,
                       itemBuilder: (context, index) {
-                        final seat = seatVM.allBusSeats[index];
+                        final ticket = ticketVM.tickets![index];
                         return ListTile(
-                          title: Text('Nomor Kursi: ${seat.seatNumber}, ID Bus: ${seat.busId}'),
-                          subtitle: Text('ID: ${seat.id}'),
+                          title: Text('Harga: ${ticket.ticketPrice}, Status: ${ticket.ticketStatus}'),
+                          subtitle: Text('ID: ${ticket.id}'),
                           trailing: PopupMenuButton<String>(
                             onSelected: (value) {
                               if (value == 'edit') {
-                                _navigateToUpdate(seat);
+                                // _navigateToUpdate(ticket);
                               } else if (value == 'delete') {
-                                _delete(seat.id);
+                                _delete(ticket.id);
                               }
                             },
                             itemBuilder: (context) => [

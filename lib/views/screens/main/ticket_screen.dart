@@ -23,26 +23,33 @@ class _TicketContentState extends State<TicketContent> {
   bool isTiketSelected = true;
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final authVM = Provider.of<AuthViewModel>(context, listen: false);
-      final ticketVM = Provider.of<TicketViewModel>(context, listen: false);
-      final bookingVM = Provider.of<BookingViewModel>(context, listen: false);
+void initState() {
+  super.initState();
+  WidgetsBinding.instance.addPostFrameCallback((_) async {
+    final authVM = Provider.of<AuthViewModel>(context, listen: false);
+    final ticketVM = Provider.of<TicketViewModel>(context, listen: false);
+    final bookingVM = Provider.of<BookingViewModel>(context, listen: false);
 
-      final user = authVM.user;
-      if (user == null) return;
+    final user = authVM.user;
+    if (user == null) return;
 
-      await bookingVM.fetchBookingsByUser(user.id);
-      ticketVM.clearTickets();
+    await bookingVM.fetchBookingsByUser(user.id);
 
-      for (final booking in bookingVM.bookings) {
-        await ticketVM.fetchTicketsByBooking(booking.id);
+    final List<Ticket> allFetchedTickets = [];
+
+    for (final booking in bookingVM.bookings) {
+      // print('Fetching tickets for bookingId: ${booking.id}');
+      final result = await ticketVM.fetchTicketsByBooking(booking.id);
+      if (result != null) {
+        allFetchedTickets.addAll(result);
       }
+    }
 
-      setState(() {});
-    });
-  }
+    ticketVM.setTickets(allFetchedTickets);
+
+    setState(() {});
+  });
+}
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +57,7 @@ class _TicketContentState extends State<TicketContent> {
     final bookingVM = Provider.of<BookingViewModel>(context);
     final now = DateTime.now();
 
-    final allTickets = ticketVM.tickets ?? [];
+    final allTickets = ticketVM.tickets;
     final allBookings = bookingVM.bookings;
 
     final filtered = allTickets.where((ticket) {
@@ -61,7 +68,7 @@ class _TicketContentState extends State<TicketContent> {
 
       if (isTiketSelected) {
         return booking.status == 'lunas' &&
-            ticket.ticketStatus == 'belum terpakai' &&
+           ticket.ticketStatus == 'belum digunakan' &&
             ticket.departureTime.isAfter(now);
       }
 
@@ -69,7 +76,7 @@ class _TicketContentState extends State<TicketContent> {
         return true;
       }
 
-      if (ticket.ticketStatus == 'belum terpakai' && ticket.departureTime.isBefore(now)) {
+      if (ticket.ticketStatus == 'belum digunakan' && ticket.departureTime.isBefore(now)) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           await ticketVM.updateTicketStatus(ticket.id, 'kadaluwarsa');
         });
@@ -133,9 +140,6 @@ class _TicketContentState extends State<TicketContent> {
     );
   }
 
-  // Tetap gunakan _buildFilterToggle, _buildTab, _buildStatusChip, buildTicketCard seperti sebelumnya
-
-
   Widget _buildFilterToggle() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24),
@@ -189,7 +193,7 @@ class _TicketContentState extends State<TicketContent> {
         chipColor = Colors.orange;
         break;
       case 'lunas':
-      case 'belum terpakai':
+      case 'belum digunakan':
         chipColor = Colors.green;
         break;
       case 'selesai':
@@ -259,7 +263,7 @@ class _TicketContentState extends State<TicketContent> {
 
                 if(newTickets == null) return;
                 for (var ticket in newTickets) {
-                  await ticketVM.updateTicketStatus(ticket.id, 'belum terpakai');
+                  await ticketVM.updateTicketStatus(ticket.id, 'belum digunakan');
                 }
 
                 ScaffoldMessenger.of(context).showSnackBar(

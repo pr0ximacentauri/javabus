@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:javabus/helpers/session_helper.dart';
 import 'package:javabus/models/bus_route.dart';
 import 'package:javabus/models/city.dart';
 import 'package:http/http.dart' as http;
@@ -72,9 +73,10 @@ class RouteService {
 
   Future<bool> createRoute(int originCityId, int destinationCityId) async {
     try{
+      final token = await SessionHelper.getToken();
       final response = await http.post(
         Uri.parse('${apiUrl}/bulk'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
         body: jsonEncode([
           {
             'originCityId': originCityId,
@@ -95,9 +97,10 @@ class RouteService {
 
   Future<bool> updateRoute(int id, int originCityId, int destinationCityId) async {
     try{
+      final token = await SessionHelper.getToken();
       final response = await http.put(
         Uri.parse('$apiUrl/$id'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
         body: jsonEncode([
           {
             'originCityId': originCityId,
@@ -118,9 +121,10 @@ class RouteService {
 
   Future<bool> deleteRoute(int id) async {
     try{
+      final token = await SessionHelper.getToken();
       final response = await http.delete(
         Uri.parse('$apiUrl/$id'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
         body: jsonEncode([id]),
       );
 

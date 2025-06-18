@@ -7,9 +7,10 @@ import 'package:javabus/viewmodels/route_view_model.dart';
 import 'package:javabus/viewmodels/schedule_view_model.dart';
 import 'package:javabus/viewmodels/ticket_view_model.dart';
 import 'package:javabus/views/screens/bus_schedule_screen.dart';
-import 'package:javabus/views/screens/help_center_screen.dart';
+import 'package:javabus/views/screens/cancel_ticket_screen.dart';
 import 'package:javabus/views/screens/route_selection_screen.dart';
 import 'package:javabus/views/screens/terminal_bus_screen.dart';
+import 'package:javabus/views/screens/terminal_nearest_screen.dart';
 import 'package:javabus/views/widgets/bottom_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -325,23 +326,17 @@ class _HomeContentState extends State<HomeContent> {
                       onTap: () => print('Jadwal tapped'),
                     ),
                     _buildCircleButton(
-                      icon: Icons.map,
-                      label: 'Terminal Bus',
-                      colors: [Colors.orange.shade500, Colors.deepOrange.shade400],
+                      icon: Icons.map_outlined,
+                      label: 'Terminal Terdekat',
+                      colors: [Colors.amber.shade500, Colors.amber.shade700],
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const TerminalBusContent(),
+                            builder: (_) => const TerminalNearestScreen(),
                           ),
                         );
                       },
-                    ),
-                    _buildCircleButton(
-                      icon: Icons.map_outlined,
-                      label: 'Terminal Terdekat',
-                      colors: [Colors.amber.shade500, Colors.amber.shade700],
-                      onTap: () => print('terminal terdekat tapped'),
                     ),
                     _buildCircleButton(
                       icon: Icons.directions_bus_outlined,
@@ -355,7 +350,7 @@ class _HomeContentState extends State<HomeContent> {
                       colors: [Colors.amber.shade700, Colors.orange.shade600],
                       onTap: () {
                         final user = authVM.user!;
-                        final tickets = ticketVM.tickets!;
+                        final tickets = ticketVM.tickets;
                         Navigator.push(
                           context,
                           MaterialPageRoute(

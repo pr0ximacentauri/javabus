@@ -29,7 +29,7 @@ class BookingViewModel extends ChangeNotifier {
   Future<bool> createBooking(String status, int userId, int scheduleId) async {
     final success = await _service.createBooking(status, userId, scheduleId);
     if (success) {
-      fetchBookings;
+      await fetchBookings();
       return true;
     } else {
       msg = 'Gagal membuat booking.';
