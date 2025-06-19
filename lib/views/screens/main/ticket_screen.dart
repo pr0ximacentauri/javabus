@@ -267,20 +267,26 @@ void initState() {
                 }
 
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Pembayaran berhasil dan tiket dibuat.')),
+                  SnackBar(content: Text('Pembayaran berhasil dan tiket dibuat.'), backgroundColor: Colors.orange.shade600,),
                 );
 
                 setState(() {});
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Gagal membuat pembayaran: ${paymentVM.errorMsg}')),
+                  SnackBar(content: Text('Gagal membuat pembayaran: ${paymentVM.errorMsg}'), backgroundColor: Colors.orange.shade600,),
                 );
               }
             }else {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => TicketDetailScreen(ticket: ticket)),
-              );
+              if(ticket.ticketStatus.toLowerCase() == 'kadaluwarsa' || ticket.ticketStatus.toLowerCase() == 'selesai'){
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Tiket ${ticket.ticketStatus.toLowerCase() == 'selesai' ? 'selesai' : 'kadaluwarsa'} '), backgroundColor: Colors.orange.shade600,),
+                );
+              }else{
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => TicketDetailScreen(ticket: ticket)),
+                );
+              }
             }
           },
 

@@ -6,9 +6,11 @@ import 'package:javabus/viewmodels/auth_view_model.dart';
 import 'package:javabus/viewmodels/route_view_model.dart';
 import 'package:javabus/viewmodels/schedule_view_model.dart';
 import 'package:javabus/viewmodels/ticket_view_model.dart';
+import 'package:javabus/views/screens/bus_catalog_screen.dart';
 import 'package:javabus/views/screens/bus_schedule_screen.dart';
 import 'package:javabus/views/screens/cancel_ticket_screen.dart';
 import 'package:javabus/views/screens/route_selection_screen.dart';
+import 'package:javabus/views/screens/schedule_catalog_screen.dart';
 import 'package:javabus/views/screens/terminal_bus_screen.dart';
 import 'package:javabus/views/screens/terminal_nearest_screen.dart';
 import 'package:javabus/views/widgets/bottom_bar.dart';
@@ -323,7 +325,14 @@ class _HomeContentState extends State<HomeContent> {
                       icon: Icons.calendar_month,
                       label: 'Jadwal Bus',
                       colors: [Colors.amber.shade600, Colors.orange.shade400],
-                      onTap: () => print('Jadwal tapped'),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ScheduleCatalogScreen(),
+                          ),
+                        );
+                      },
                     ),
                     _buildCircleButton(
                       icon: Icons.map_outlined,
@@ -342,7 +351,14 @@ class _HomeContentState extends State<HomeContent> {
                       icon: Icons.directions_bus_outlined,
                       label: 'Daftar Bus',
                       colors: [Colors.orange.shade600, Colors.orange.shade800],
-                      onTap: () => print('Daftar tapped'),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => BusCatalogScreen(),
+                          ),
+                        );
+                      },
                     ),
                     _buildCircleButton(
                       icon: Icons.help,
