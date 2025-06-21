@@ -11,7 +11,6 @@ import 'package:javabus/views/screens/bus_schedule_screen.dart';
 import 'package:javabus/views/screens/cancel_ticket_screen.dart';
 import 'package:javabus/views/screens/route_selection_screen.dart';
 import 'package:javabus/views/screens/schedule_catalog_screen.dart';
-import 'package:javabus/views/screens/terminal_bus_screen.dart';
 import 'package:javabus/views/screens/terminal_nearest_screen.dart';
 import 'package:javabus/views/widgets/bottom_bar.dart';
 import 'package:provider/provider.dart';
@@ -366,7 +365,7 @@ class _HomeContentState extends State<HomeContent> {
                       colors: [Colors.amber.shade700, Colors.orange.shade600],
                       onTap: () {
                         final user = authVM.user!;
-                        final tickets = ticketVM.tickets;
+                        final tickets = ticketVM.tickets.where((t) => t.ticketStatus == 'belum terpakai').toList();
                         Navigator.push(
                           context,
                           MaterialPageRoute(

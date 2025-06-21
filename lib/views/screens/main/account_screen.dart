@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:javabus/viewmodels/auth_view_model.dart';
+import 'package:javabus/viewmodels/ticket_view_model.dart';
+import 'package:javabus/views/screens/cancel_ticket_screen.dart';
 import 'package:javabus/views/widgets/bottom_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -20,6 +22,7 @@ class AccountContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authVM = Provider.of<AuthViewModel>(context);
+    final ticketVM = Provider.of<TicketViewModel>(context);
     
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -104,8 +107,15 @@ class AccountContent extends StatelessWidget {
                   _buildDivider(),
                   _buildMenuItem(
                     icon: Icons.help_outline,
-                    title: 'Bantuan',
-                    onTap: () {},
+                    title: 'Pembatalan Tiket',
+                    onTap: () {
+                      final user = authVM.user!;
+                      final tickets = ticketVM.tickets.where((t) => t.ticketStatus == 'belum terpakai').toList();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => CancelTicketScreen(user: user, tickets: tickets))
+                      );
+                    },
                   ),
                   _buildDivider(),
                   _buildMenuItem(

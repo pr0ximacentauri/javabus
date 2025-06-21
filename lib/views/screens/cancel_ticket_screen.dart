@@ -24,8 +24,7 @@ class _CancelTicketScreenState extends State<CancelTicketScreen> {
   String reason = '';
 
   Future<void> _sendToWhatsApp() async {
-    final adminPhone = '6281234567890';
-
+    final adminPhone = '6282235244931';
     final ticketInfo = selectedTicket != null
         ? '''
 🚌 Tiket: ${selectedTicket!.originCity} → ${selectedTicket!.destinationCity}

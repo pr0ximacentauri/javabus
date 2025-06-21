@@ -47,7 +47,7 @@ void initState() {
 
     ticketVM.setTickets(allFetchedTickets);
 
-    setState(() {});
+    // setState(() {});
   });
 }
 

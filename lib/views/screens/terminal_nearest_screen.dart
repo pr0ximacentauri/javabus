@@ -32,7 +32,6 @@ class _TerminalNearestScreenState extends State<TerminalNearestScreen> {
     final distance = const Distance();
     final userLocation = vm.currentLocation!;
 
-    // Cari terminal terdekat
     nearestTerminal = vm.terminals!.reduce((a, b) {
       final dA = distance(userLocation, LatLng(a.latitude, a.longitude));
       final dB = distance(userLocation, LatLng(b.latitude, b.longitude));
@@ -41,7 +40,6 @@ class _TerminalNearestScreenState extends State<TerminalNearestScreen> {
 
     final terminalLocation = LatLng(nearestTerminal!.latitude, nearestTerminal!.longitude);
 
-    // Ambil rute dari OSRM (bukan Google)
     final url =
         "http://router.project-osrm.org/route/v1/driving/${userLocation.longitude},${userLocation.latitude};${terminalLocation.longitude},${terminalLocation.latitude}?overview=full&geometries=geojson";
 

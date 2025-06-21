@@ -34,7 +34,6 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
   void initState() {
     super.initState();
     final seatVM = Provider.of<SeatSelectionViewModel>(context, listen: false);
-    // print("Memuat kursi untuk bus id ${widget.bus.id}, schedule id ${widget.scheduleId}");
     seatVM.LoadBusSeats(widget.bus.id!, widget.scheduleId);
   }
 
@@ -171,11 +170,20 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                 }
 
                 final totalPrice = selectedSeatIds.length * widget.ticketPrice;
+
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (_) => const Center(child: CircularProgressIndicator()),
+                );
+
                 await paymentVM.addPayment(grossAmount: totalPrice, bookingId: bookingId);
+
+                Navigator.pop(context);
 
                 final paymentUrl = paymentVM.paymentUrl;
                 if (paymentUrl != null) {
-                  Navigator.push(
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => PaymentWebView(url: paymentUrl),
@@ -197,11 +205,11 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Gagal membuat pembayaran: ${paymentVM.errorMsg}')),
+                    SnackBar(content: Text('Gagal membuat pembayaran: ${paymentVM.errorMsg ?? "Unknown Error"}')),
                   );
                 }
               },
-              child: const Text("Lanjut ke Pembayaran")
+              child: const Text("Lanjut ke Pembayaran"),
             )
           ],
         ),

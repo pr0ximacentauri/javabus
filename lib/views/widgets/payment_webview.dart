@@ -2,14 +2,38 @@ import 'package:flutter/material.dart';
 import 'package:javabus/views/screens/main/home_screen.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-class PaymentWebView extends StatelessWidget {
+class PaymentWebView extends StatefulWidget {
   final String url;
 
   const PaymentWebView({super.key, required this.url});
 
-  void _navigateToHome(BuildContext context) {
+  @override
+  State<PaymentWebView> createState() => _PaymentWebViewState();
+}
+
+class _PaymentWebViewState extends State<PaymentWebView> {
+  late final WebViewController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPageFinished: (url) {
+            if (url.contains('/snap/v2/finish')) {
+              _navigateToHome();
+            }
+          },
+        ),
+      )
+      ..loadRequest(Uri.parse(widget.url));
+  }
+
+  void _navigateToHome() {
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => HomeScreen()),
+      MaterialPageRoute(builder: (_) => const HomeScreen()),
       (route) => false,
     );
   }
@@ -21,7 +45,7 @@ class PaymentWebView extends StatelessWidget {
       // ignore: deprecated_member_use
       onPopInvoked: (didPop) {
         if (!didPop) {
-          _navigateToHome(context);
+          _navigateToHome();
         }
       },
       child: Scaffold(
@@ -29,16 +53,10 @@ class PaymentWebView extends StatelessWidget {
           title: const Text('Pembayaran'),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              _navigateToHome(context);
-            },
+            onPressed: _navigateToHome,
           ),
         ),
-        body: WebViewWidget(
-          controller: WebViewController()
-            ..setJavaScriptMode(JavaScriptMode.unrestricted)
-            ..loadRequest(Uri.parse(url)),
-        ),
+        body: WebViewWidget(controller: _controller),
       ),
     );
   }
