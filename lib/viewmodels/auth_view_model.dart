@@ -32,7 +32,8 @@ class AuthViewModel extends ChangeNotifier {
         fullName: payload['name'],
         email: payload['email'],
         password: '', 
-        roleId: _mapRoleToId(payload['role']),
+        imageUrl: payload['imageUrl'],
+        roleId: _mapRoleToId(payload['role'])
       );
       
       _user = user;
@@ -50,37 +51,37 @@ class AuthViewModel extends ChangeNotifier {
   }
 
   Future<bool> register({
-  required String username,
-  required String fullName,
-  required String email,
-  required String password,
-  bool staySigned = true,
-}) async {
-  _isLoading = true;
-  notifyListeners();
-
-  try {
-    final result = await _service.register(username, fullName, email, password, 3);
-
-    if (result != null) {
-      final token = result['token'] as String;
-      final registeredUser = result['user'] as User;
-
-      _user = registeredUser;
-      await SessionHelper.saveUserSession(token, registeredUser, staySigned);
-
-      return true;
-    } else {
-      return false;
-    }
-  } catch (e) {
-    print("Register error: $e");
-    return false;
-  } finally {
-    _isLoading = false;
+    required String username,
+    required String fullName,
+    required String email,
+    required String password,
+    bool staySigned = true,
+  }) async {
+    _isLoading = true;
     notifyListeners();
+
+    try {
+      final result = await _service.register(username, fullName, email, password, 3);
+
+      if (result != null) {
+        final token = result['token'] as String;
+        final registeredUser = result['user'] as User;
+
+        _user = registeredUser;
+        await SessionHelper.saveUserSession(token, registeredUser, staySigned);
+
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print("Register error: $e");
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
-}
 
 
   Future<void> logout() async {
@@ -97,34 +98,45 @@ class AuthViewModel extends ChangeNotifier {
     }
   }
 
-  Future<bool> updateProfile({String? username, String? fullName, String? email, String? newPassword, imageUrl}) async{
-    if(user == null) return false;
+  Future<bool> updateProfile({String? username,String? fullName,String? email,String? newPassword,String? imageUrl}) async {
+    if (user == null) return false;
     _isLoading = true;
     notifyListeners();
 
-    try{
+    try {
       final updatedUsername = username ?? user!.username;
       final updatedFullName = fullName ?? user!.fullName;
       final updatedEmail = email ?? user!.email;
-      final updatedPassword = newPassword ?? user!.password;
-      final updatedImageUrl = imageUrl ?? user!.imageUrl;
-      final success = await _service.updateAccount(userId: user!.id, username: updatedUsername, fullName: updatedFullName, email: updatedEmail, newPassword: updatedPassword, imageUrl: updatedImageUrl);
-      
-      if (success) {
-      _user = User(
-        id: user!.id,
+      final updatedImageUrl = imageUrl?.isNotEmpty == true
+      ? imageUrl
+      : user!.imageUrl;
+
+
+      final success = await _service.updateAccount(
+        userId: user!.id,
         username: updatedUsername,
         fullName: updatedFullName,
         email: updatedEmail,
-        password: newPassword ?? user!.password,
-        roleId: user!.roleId,
+        newPassword: newPassword,
+        imageUrl: updatedImageUrl,
       );
 
-      await SessionHelper.updateUser(_user!);
-    }
-    return success;
+      if (success) {
+        _user = User(
+          id: user!.id,
+          username: updatedUsername,
+          fullName: updatedFullName,
+          email: updatedEmail,
+          password: newPassword?.isNotEmpty == true ? newPassword! : user!.password,
+          imageUrl: updatedImageUrl,
+          roleId: user!.roleId,
+        );
 
-    }catch(e){
+        await SessionHelper.updateUser(_user!);
+      }
+
+      return success;
+    } catch (e) {
       print("Update profile failed: $e");
       return false;
     } finally {
@@ -132,7 +144,7 @@ class AuthViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
-    
+
 
   int _mapRoleToId(String? role) {
     switch (role) {

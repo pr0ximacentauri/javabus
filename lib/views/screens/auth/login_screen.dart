@@ -12,7 +12,21 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  final FocusNode _usernameFocus = FocusNode();
+  final FocusNode _passwordFocus = FocusNode();
+
   bool staySignedIn = false;
+  bool _obscurePassword = true;
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    _usernameFocus.dispose();
+    _passwordFocus.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,131 +34,143 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+      body: Stack(
+        children: [
+          ListView(
+            padding: const EdgeInsets.all(24.0),
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            children: [
+              const SizedBox(height: 60),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset('assets/javabus-logo.png', height: 40),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'JavaBus',
+                    style: TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 206, 145, 1),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              const Center(
+                child: Column(
                   children: [
-                    Image.asset('assets/javabus-logo.png', height: 40),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'JavaBus',
+                    Text(
+                      'Selamat Datang',
                       style: TextStyle(
-                        fontSize: 36,
+                        fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: Color.fromARGB(255, 206, 145, 1),
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Selamat Datang',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Color.fromARGB(255, 206, 145, 1),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  'Ayo mulai perjalanan serumu!',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Color.fromARGB(255, 96, 67, 0),
-                  ),
-                ),
-                const SizedBox(height: 32),
-
-                // Username
-                TextField(
-                  controller: _usernameController,
-                  decoration: InputDecoration(
-                    hintText: 'Username',
-                    prefixIcon: const Icon(Icons.person_outline),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                TextField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    hintText: 'Password',
-                    prefixIcon: const Icon(Icons.lock_outline),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                  ),
-                ),
-
-                Row(
-                  children: [
-                    Checkbox(
-                      value: staySignedIn,
-                      onChanged: (value) {
-                        setState(() {
-                          staySignedIn = value ?? false;
-                        });
-                      },
-                    ),
-                    const Text("Tetap masuk"),
-                  ],
-                ),
-
-                const SizedBox(height: 12),
-
-                // Register button
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("Belum Punya Akun?"),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacementNamed(context, '/register');
-                      },
-                      child: const Text(
-                        'Daftar',
-                        style: TextStyle(color: Color.fromARGB(255, 206, 145, 1)),
+                    SizedBox(height: 4),
+                    Text(
+                      'Ayo mulai perjalanan serumu!',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Color.fromARGB(255, 96, 67, 0),
                       ),
                     ),
                   ],
                 ),
+              ),
+              const SizedBox(height: 32),
 
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: authVM.isLoading
+              TextField(
+                controller: _usernameController,
+                focusNode: _usernameFocus,
+                decoration: InputDecoration(
+                  hintText: 'Username',
+                  prefixIcon: const Icon(Icons.person_outline),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              TextField(
+                controller: _passwordController,
+                obscureText: _obscurePassword,
+                obscuringCharacter: '*',
+                decoration: InputDecoration(
+                  hintText: 'Password',
+                  prefixIcon: const Icon(Icons.lock_outline),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                      color: Colors.grey,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              Row(
+                children: [
+                  Checkbox(
+                    value: staySignedIn,
+                    onChanged: (value) {
+                      setState(() {
+                        staySignedIn = value ?? false;
+                      });
+                    },
+                  ),
+                  const Text("Tetap masuk"),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Belum Punya Akun?"),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(context, '/register');
+                    },
+                    child: const Text(
+                      'Daftar',
+                      style: TextStyle(color: Color.fromARGB(255, 206, 145, 1)),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: authVM.isLoading
                       ? null
                       : () async {
-                          final username = _usernameController.text;
+                          final username = _usernameController.text.trim();
                           final password = _passwordController.text;
 
                           if (username.isEmpty || password.isEmpty) {
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text('Peringatan'),
-                                content: const Text('Username dan password tidak boleh kosong.'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.of(context).pop(),
-                                    child: const Text('Ok'),
-                                  ),
-                                ],
-                              ),
+                            _showMessageDialog(
+                              context,
+                              title: 'Peringatan',
+                              message: 'Username dan password tidak boleh kosong.',
                             );
                             return;
                           }
@@ -160,85 +186,57 @@ class _LoginScreenState extends State<LoginScreen> {
                               case 2:
                                 Navigator.pushReplacementNamed(context, '/subadmin');
                                 break;
-                              case 3:
                               default:
                                 Navigator.pushReplacementNamed(context, '/home');
                                 break;
                             }
                           } else {
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text('Login Gagal'),
-                                content: const Text('Username atau password salah.'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.of(context).pop(),
-                                    child: const Text('Ok'),
-                                  ),
-                                ],
-                              ),
+                            _showMessageDialog(
+                              context,
+                              title: 'Login Gagal',
+                              message: 'Username atau password salah.',
                             );
                           }
                         },
-
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 206, 145, 1),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: authVM.isLoading
-                        ? const CircularProgressIndicator()
-                        : const Text('Masuk'),
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-                const Row(
-                  children: [
-                    Expanded(child: Divider()),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 12),
-                      child: Text('or'),
-                    ),
-                    Expanded(child: Divider()),
-                  ],
-                ),
-                const SizedBox(height: 24),
-
-                // Google and Apple buttons (dummy)
-                OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.g_mobiledata, color: Colors.black),
-                  label: const Text('Lanjutkan dengan Google'),
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: Colors.grey[200],
-                    minimumSize: const Size(double.infinity, 50),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 206, 145, 1),
+                    foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(30),
                     ),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
+                  child: const Text('Masuk'),
                 ),
-                const SizedBox(height: 12),
-                OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.apple, color: Colors.black),
-                  label: const Text('Lanjutkan dengan Apple'),
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: Colors.grey[200],
-                    minimumSize: const Size(double.infinity, 50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 40),
+            ],
           ),
-        ),
+
+          if (authVM.isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.3),
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  void _showMessageDialog(BuildContext context, {required String title, required String message}) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
       ),
     );
   }

@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:javabus/viewmodels/auth_view_model.dart';
 import 'package:javabus/viewmodels/ticket_view_model.dart';
+import 'package:javabus/views/screens/account_edit_screen.dart';
 import 'package:javabus/views/screens/cancel_ticket_screen.dart';
 import 'package:javabus/views/widgets/bottom_bar.dart';
 import 'package:provider/provider.dart';
@@ -95,13 +96,12 @@ class AccountContent extends StatelessWidget {
                   _buildMenuItem(
                     icon: Icons.edit,
                     title: 'Edit Profil',
-                    onTap: () {},
-                  ),
-                  _buildDivider(),
-                  _buildMenuItem(
-                    icon: Icons.lock_outline,
-                    title: 'Ubah Password',
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const AccountEditScreen()),
+                      );
+                    },
                   ),
                   _buildDivider(),
                   _buildMenuItem(
@@ -115,13 +115,7 @@ class AccountContent extends StatelessWidget {
                         MaterialPageRoute(builder: (_) => CancelTicketScreen(user: user, tickets: tickets))
                       );
                     },
-                  ),
-                  _buildDivider(),
-                  _buildMenuItem(
-                    icon: Icons.info_outline,
-                    title: 'Tentang Aplikasi',
-                    onTap: () {},
-                  ),
+                  )
                 ],
               ),
             ),

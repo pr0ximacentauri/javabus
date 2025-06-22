@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:javabus/const/api_url.dart' as url;
+import 'package:javabus/helpers/session_helper.dart';
 import 'package:javabus/models/user.dart';
 
 class AuthService{
@@ -35,7 +36,6 @@ class AuthService{
       return null;
     }
   }
-
 
   Future<String?> login(String username, String password) async {
     try {
@@ -74,23 +74,33 @@ class AuthService{
       'username': username,
       'fullName': fullName,
       'email': email,
-      if (newPassword != null && newPassword.isNotEmpty)
-        'newPassword': newPassword,
-      if (imageUrl != null && imageUrl.isNotEmpty)
-        'imageUrl': imageUrl
+      'newPassword': newPassword ?? '',
+      'imageUrl': imageUrl ?? '',
     };
 
     final response = await http.put(
       url,
-      headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ${await SessionHelper.getToken()}'},
       body: jsonEncode(body),
     );
 
     if (response.statusCode == 200) {
       return true;
     } else {
-      print('Error: ${response.body}');
+      // print('Update akun gagal (${response.statusCode})');
+      // print('Body: ${response.body}');
       return false;
+    }
+  }
+
+  Future<User?> getById(int id) async {
+    final response = await http.get(Uri.parse('$apiUrl/$id'));
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return User.fromJson(data);
+    } else {
+      return null;
     }
   }
 

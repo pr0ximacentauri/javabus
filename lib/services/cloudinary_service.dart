@@ -11,38 +11,35 @@ class CloudinaryService {
   static const List<String> allowedExtensions = ['jpg', 'jpeg', 'png'];
 
   static Future<String?> uploadImage(File imageFile) async {
+    final ext = extension(imageFile.path).toLowerCase();
     final fileSize = await imageFile.length();
-    final fileExtension = extension(imageFile.path).toLowerCase().replaceAll('.', '');
 
-    if (!allowedExtensions.contains(fileExtension)) {
-      print('Format file tidak didukung. Hanya JPG, JPEG, PNG yang diperbolehkan.');
+    if (!allowedExtensions.contains(ext.replaceAll('.', ''))) {
+      print('❌ Tipe file tidak didukung: $ext');
       return null;
     }
 
     if (fileSize > maxFileSize) {
-      print('Ukuran file terlalu besar. Maksimal 2 MB.');
+      print('❌ Ukuran file melebihi batas');
       return null;
     }
 
-    final url = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
+    final uri = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
 
-    try {
-      final request = http.MultipartRequest('POST', url)
-        ..fields['upload_preset'] = uploadPreset
-        ..files.add(await http.MultipartFile.fromPath('file', imageFile.path));
+    final request = http.MultipartRequest('POST', uri)
+      ..fields['upload_preset'] = uploadPreset
+      ..files.add(await http.MultipartFile.fromPath('file', imageFile.path));
 
-      final response = await request.send();
+    final response = await request.send();
+    final responseBody = await response.stream.bytesToString();
 
-      if (response.statusCode == 200) {
-        final resBody = await response.stream.bytesToString();
-        final jsonData = jsonDecode(resBody);
-        return jsonData['secure_url'];
-      } else {
-        print('Gagal upload ke Cloudinary: ${response.statusCode}');
-        return null;
-      }
-    } catch (e) {
-      print('Upload error: $e');
+    if (response.statusCode == 200) {
+      final json = jsonDecode(responseBody);
+      // print('Cloudinary upload success: ${json['secure_url']}');
+      return json['secure_url'];
+    } else {
+      // print('Cloudinary upload failed (${response.statusCode})');
+      // print('Body: $responseBody');
       return null;
     }
   }

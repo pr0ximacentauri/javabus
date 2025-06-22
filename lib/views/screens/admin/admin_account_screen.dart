@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:javabus/viewmodels/auth_view_model.dart';
+import 'package:javabus/views/screens/account_edit_screen.dart';
 import 'package:javabus/views/widgets/bottom_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -45,11 +46,10 @@ class AdminAccountContent extends StatelessWidget {
                             ),
                           ],
                         ),
-                        child: const CircleAvatar(
+                        child: CircleAvatar(
                           radius: 60,
-                          backgroundImage: NetworkImage(
-                            "https://cdn-icons-png.flaticon.com/512/5987/5987424.png",
-                          ),
+                          backgroundImage: authVM.user?.imageUrl != null && authVM.user?.imageUrl != "" 
+                          ? NetworkImage(authVM.user!.imageUrl!) : NetworkImage("https://cdn-icons-png.flaticon.com/512/5987/5987424.png"),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -93,14 +93,14 @@ class AdminAccountContent extends StatelessWidget {
                   _buildMenuItem(
                     icon: Icons.edit,
                     title: 'Edit Profil',
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const AccountEditScreen()),
+                      );
+                    },
                   ),
                   _buildDivider(),
-                  _buildMenuItem(
-                    icon: Icons.lock_outline,
-                    title: 'Ubah Password',
-                    onTap: () {},
-                  ),
                 ],
               ),
             ),

@@ -126,7 +126,7 @@ class _BottomBarState extends State<BottomBar> {
               //   label: 'Notifikasi',
               // ),
               BottomNavigationBarItem(
-                icon: _buildNavIcon(Icons.account_circle_outlined, Icons.account_circle_rounded, 3),
+                icon: _buildNavIcon(Icons.account_circle_outlined, Icons.account_circle_rounded, 2),
                 label: 'Akun',
               ),
             ],

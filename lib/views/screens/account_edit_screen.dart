@@ -120,7 +120,7 @@ class _AccountEditScreenState extends State<AccountEditScreen> {
                               ? FileImage(_selectedImage!)
                               : (_imageUrl != null
                                   ? NetworkImage(_imageUrl!) as ImageProvider
-                                  : const AssetImage('assets/avatar_placeholder.png')),
+                                  : const NetworkImage("https://cdn-icons-png.flaticon.com/512/5987/5987424.png")),
                         ),
                       ),
                     const SizedBox(height: 16),
@@ -153,8 +153,8 @@ class _AccountEditScreenState extends State<AccountEditScreen> {
                     ),
                     const SizedBox(height: 32),
                     ElevatedButton(
-                      onPressed: _saveProfile,
-                      child: const Text('Simpan Perubahan'),
+                      onPressed: _isUploadingImage ? null : _saveProfile, 
+                      child: _isUploadingImage ? const Text('Uploading...') : Text('Simpan Perubahan'),
                     ),
                   ],
                 ),

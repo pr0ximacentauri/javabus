@@ -46,7 +46,8 @@ class _HomeContentState extends State<HomeContent> {
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: CircleAvatar(
-            backgroundImage: NetworkImage('https://cdn-icons-png.flaticon.com/512/5987/5987424.png'),
+            backgroundImage: authVM.user?.imageUrl != null && authVM.user?.imageUrl != "" 
+            ? NetworkImage(authVM.user!.imageUrl!) : NetworkImage("https://cdn-icons-png.flaticon.com/512/5987/5987424.png"),
             backgroundColor: Colors.amber.shade100,
           ),
         ),
