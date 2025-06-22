@@ -10,6 +10,7 @@ import 'package:javabus/viewmodels/auth_view_model.dart';
 import 'package:javabus/viewmodels/booking_view_model.dart';
 import 'package:javabus/viewmodels/bus_view_model.dart';
 import 'package:javabus/viewmodels/city_view_model.dart';
+import 'package:javabus/viewmodels/image_view_model.dart';
 import 'package:javabus/viewmodels/payment_view_model.dart';
 import 'package:javabus/viewmodels/province_view_model.dart';
 import 'package:javabus/viewmodels/route_view_model.dart';
@@ -42,13 +43,14 @@ void main() async {
       enabled: !kReleaseMode,
       builder: (context) => MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (_) => RouteViewModel()),
-          ChangeNotifierProvider(create: (_) => CityViewModel()),
-          ChangeNotifierProvider(create: (_) => ProvinceViewModel()),
           ChangeNotifierProvider(create: (_) => AuthViewModel()),
           ChangeNotifierProvider(create: (_) => BusViewModel()),
-          ChangeNotifierProvider(create: (_) => PaymentViewModel()),
           ChangeNotifierProvider(create: (_) => BookingViewModel()),
+          ChangeNotifierProvider(create: (_) => CityViewModel()),
+          ChangeNotifierProvider(create: (_) => ImageViewModel()),
+          ChangeNotifierProvider(create: (_) => PaymentViewModel()),
+          ChangeNotifierProvider(create: (_) => ProvinceViewModel()),
+          ChangeNotifierProvider(create: (_) => RouteViewModel()),
           ChangeNotifierProvider(create: (_) => ScheduleViewModel()),
           ChangeNotifierProvider(create: (_) => SeatSelectionViewModel(seatService, seatBookingService)),
           ChangeNotifierProvider(create: (_) => TicketViewModel()),

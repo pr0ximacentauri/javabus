@@ -97,27 +97,33 @@ class AuthViewModel extends ChangeNotifier {
     }
   }
 
-  Future<bool> updateProfile(String username, String fullName, String email) async{
+  Future<bool> updateProfile({String? username, String? fullName, String? email, String? newPassword, imageUrl}) async{
     if(user == null) return false;
     _isLoading = true;
     notifyListeners();
 
     try{
-      final updatedUser = User(
-        id: user!.id, 
-        username: username, 
-        fullName: fullName, 
-        email: email, 
-        password: user!.password, 
-        roleId: user!.roleId
-      );
+      final updatedUsername = username ?? user!.username;
+      final updatedFullName = fullName ?? user!.fullName;
+      final updatedEmail = email ?? user!.email;
+      final updatedPassword = newPassword ?? user!.password;
+      final updatedImageUrl = imageUrl ?? user!.imageUrl;
+      final success = await _service.updateAccount(userId: user!.id, username: updatedUsername, fullName: updatedFullName, email: updatedEmail, newPassword: updatedPassword, imageUrl: updatedImageUrl);
       
-      final updated = await _service.updateUser(updatedUser);
-      if(updated) {
-        _user = updatedUser;
-        await SessionHelper.updateUser(_user!);
-      }
-      return updated;
+      if (success) {
+      _user = User(
+        id: user!.id,
+        username: updatedUsername,
+        fullName: updatedFullName,
+        email: updatedEmail,
+        password: newPassword ?? user!.password,
+        roleId: user!.roleId,
+      );
+
+      await SessionHelper.updateUser(_user!);
+    }
+    return success;
+
     }catch(e){
       print("Update profile failed: $e");
       return false;
@@ -127,34 +133,6 @@ class AuthViewModel extends ChangeNotifier {
     }
   }
     
-
-  Future<bool> updatePassword({required String oldPassword, required String newPassword}) async {
-    if (_user == null) return false;
-
-    _isLoading = true;
-    notifyListeners();
-
-    try {
-      final success = await _service.updatePassword(
-        userId: _user!.id,
-        oldPassword: oldPassword,
-        newPassword: newPassword,
-      );
-
-      if (!success) {
-        return false;
-      }
-
-      return true;
-    } catch (e) {
-      print("Gagal update password: $e");
-      return false;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
 
   int _mapRoleToId(String? role) {
     switch (role) {

@@ -24,11 +24,17 @@ class _BusRouteUpdateScreenState extends State<BusRouteUpdateScreen> {
   @override
   void initState() {
     super.initState();
-    final cityVM = Provider.of<CityViewModel>(context, listen: false);
-    cityVM.fetchCities().then((_) {
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final cityVM = Provider.of<CityViewModel>(context, listen: false);
+      await cityVM.fetchCities();
+
+      final origin = cityVM.cities.firstWhereOrNull((c) => c.id == widget.busRoute.originCityId);
+      final destination = cityVM.cities.firstWhereOrNull((c) => c.id == widget.busRoute.destinationCityId);
+
       setState(() {
-        _selectedOrigin = cityVM.cities.firstWhereOrNull((c) => c.id == widget.busRoute.originCityId);
-        _selectedDestination = cityVM.cities.firstWhereOrNull((c) => c.id == widget.busRoute.destinationCityId);
+        _selectedOrigin = origin;
+        _selectedDestination = destination;
       });
     });
   }

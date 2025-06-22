@@ -48,11 +48,10 @@ class AccountContent extends StatelessWidget {
                             ),
                           ],
                         ),
-                        child: const CircleAvatar(
+                        child: CircleAvatar(
                           radius: 60,
-                          backgroundImage: NetworkImage(
-                            "https://cdn-icons-png.flaticon.com/512/5987/5987424.png",
-                          ),
+                          backgroundImage: authVM.user?.imageUrl != null && authVM.user?.imageUrl != "" 
+                          ? NetworkImage(authVM.user!.imageUrl!) : NetworkImage("https://cdn-icons-png.flaticon.com/512/5987/5987424.png"),
                         ),
                       ),
                       const SizedBox(height: 16),

@@ -60,11 +60,30 @@ class AuthService{
     }
   }
 
+  Future<bool> updateAccount({
+    required int userId,
+    required String username,
+    required String fullName,
+    required String email,
+    String? newPassword,
+    String? imageUrl
+  }) async {
+    final url = Uri.parse('$apiUrl/update-account/$userId');
 
-  Future<bool> updateUser(User user) async{
-    final response = await http.put(Uri.parse('$apiUrl/update/${user.id}'),
+    final body = {
+      'username': username,
+      'fullName': fullName,
+      'email': email,
+      if (newPassword != null && newPassword.isNotEmpty)
+        'newPassword': newPassword,
+      if (imageUrl != null && imageUrl.isNotEmpty)
+        'imageUrl': imageUrl
+    };
+
+    final response = await http.put(
+      url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(user.toJson()),
+      body: jsonEncode(body),
     );
 
     if (response.statusCode == 200) {
@@ -75,17 +94,4 @@ class AuthService{
     }
   }
 
-  Future<bool> updatePassword({required int userId, required String oldPassword, required String newPassword}) async{
-    final response = await http.put(Uri.parse('$apiUrl/update-password/$userId'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'oldPassword': oldPassword, 'newPassword': newPassword}),
-    );
-
-    if (response.statusCode == 200) {
-      return true;
-    } else {
-      print('Error: ${response.body}');
-      return false;
-    }
-  }
 }

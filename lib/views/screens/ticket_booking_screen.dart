@@ -116,14 +116,14 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
 
                 if (userId == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('User belum login')),
+                    SnackBar(content: Text('User belum login'), backgroundColor: Colors.orange.shade600),
                   );
                   return;
                 }
 
                 if (selectedSeatIds.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Pilih minimal satu kursi')),
+                    SnackBar(content: Text('Pilih minimal satu kursi'), backgroundColor: Colors.orange.shade600),
                   );
                   return;
                 }
@@ -138,7 +138,7 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                 final created = await bookingVM.createBooking("pending", userId, scheduleId);
                 if (!created) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Gagal membuat booking: ${bookingVM.msg ?? ''}')),
+                    SnackBar(content: Text('Gagal membuat booking: ${bookingVM.msg ?? ''}'), backgroundColor: Colors.orange.shade600),
                   );
                   return;
                 }
@@ -149,7 +149,7 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
 
                 if (booking == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Booking tidak ditemukan')),
+                    SnackBar(content: Text('Booking tidak ditemukan'), backgroundColor: Colors.orange.shade600),
                   );
                   return;
                 }
@@ -164,7 +164,7 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
 
                 if (!seatBookingSuccess) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Sebagian kursi gagal dipesan')),
+                    SnackBar(content: Text('Sebagian kursi gagal dipesan'),backgroundColor: Colors.orange.shade600),
                   );
                   return;
                 }
@@ -205,7 +205,7 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Gagal membuat pembayaran: ${paymentVM.errorMsg ?? "Unknown Error"}')),
+                    SnackBar(content: Text('Gagal membuat pembayaran: ${paymentVM.errorMsg ?? "Unknown Error"}'), backgroundColor: Colors.orange.shade600),
                   );
                 }
               },
@@ -230,7 +230,13 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                 if (isSelected) {
                   selectedSeatIds.remove(seat.id);
                 } else {
-                  selectedSeatIds.add(seat.id);
+                  if(selectedSeatIds.length >= 10){
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Maksimal hanya dapat memesan 10 tiket"), backgroundColor: Colors.orange.shade600),  
+                    );
+                  }else{
+                    selectedSeatIds.add(seat.id);
+                  }
                 }
               });
             },
@@ -240,7 +246,7 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
         margin: const EdgeInsets.symmetric(horizontal: 4),
         decoration: BoxDecoration(
           color: isBooked
-              ? Colors.grey
+              ? Colors.red
               : isSelected
                   ? Colors.green
                   : Colors.blue,
@@ -261,7 +267,7 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
         SizedBox(width: 10),
         _LegendBox(color: Colors.green, label: 'Dipilih'),
         SizedBox(width: 10),
-        _LegendBox(color: Colors.grey, label: 'Terisi'),
+        _LegendBox(color: Colors.red, label: 'Terisi'),
       ],
     );
   }

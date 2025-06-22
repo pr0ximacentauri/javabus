@@ -139,8 +139,8 @@ class AdminHomeContent extends StatelessWidget {
             ),
           ),
         ),
-        backgroundColor: Colors.transparent, // Agar tidak menutupi gradient
-        elevation: 0, // Hilangkan bayangan AppBar
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
       body: Column(
         children: [

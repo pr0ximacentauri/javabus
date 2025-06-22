@@ -7,43 +7,47 @@ class ScheduleCreateScreen extends StatefulWidget {
   const ScheduleCreateScreen({super.key});
 
   @override
-  State<ScheduleCreateScreen> createState() => _ScheduleScreenState();
+  State<ScheduleCreateScreen> createState() => _ScheduleCreateScreenState();
 }
 
-class _ScheduleScreenState extends State<ScheduleCreateScreen> {
+class _ScheduleCreateScreenState extends State<ScheduleCreateScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _departureTimeController = TextEditingController();
-  final _ticketPriceController = TextEditingController();
-  final _busIdController = TextEditingController();
-  final _routeIdController = TextEditingController();
 
   DateTime? _selectedDateTime;
+  int? _ticketPrice;
+  int? _busId;
+  int? _routeId;
+
   bool _isSubmitting = false;
 
   Future<void> _pickDateTime() async {
-    final DateTime? date = await showDatePicker(
+    final now = DateTime.now();
+    final firstDate = DateTime(now.year, now.month, now.day);
+    final initialDate = _selectedDateTime?.isAfter(firstDate) == true
+        ? _selectedDateTime!
+        : now.add(const Duration(hours: 1));
+
+    final date = await showDatePicker(
       context: context,
-      initialDate: DateTime.now().add(const Duration(hours: 1)),
-      firstDate: DateTime.now(),
+      initialDate: initialDate,
+      firstDate: firstDate,
       lastDate: DateTime(2100),
     );
+
     if (date != null) {
-      final TimeOfDay? time = await showTimePicker(
+      final time = await showTimePicker(
         context: context,
-        initialTime: TimeOfDay.now(),
+        initialTime: TimeOfDay.fromDateTime(_selectedDateTime ?? now),
       );
       if (time != null) {
-        final DateTime dateTime = DateTime(
-          date.year,
-          date.month,
-          date.day,
-          time.hour,
-          time.minute,
-        );
         setState(() {
-          _selectedDateTime = dateTime;
-          _departureTimeController.text =
-              DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
+          _selectedDateTime = DateTime(
+            date.year,
+            date.month,
+            date.day,
+            time.hour,
+            time.minute,
+          );
         });
       }
     }
@@ -58,27 +62,17 @@ class _ScheduleScreenState extends State<ScheduleCreateScreen> {
         return;
       }
 
-      final int? ticketPrice = int.tryParse(_ticketPriceController.text.trim());
-      final int? busId = int.tryParse(_busIdController.text.trim());
-      final int? routeId = int.tryParse(_routeIdController.text.trim());
-
-      if (ticketPrice == null || busId == null || routeId == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Harga, Bus ID, dan Route ID harus berupa angka')),
-        );
-        return;
-      }
-
-      setState(() {
-        _isSubmitting = true;
-      });
+      setState(() => _isSubmitting = true);
 
       final scheduleVM = Provider.of<ScheduleViewModel>(context, listen: false);
-      final success = await scheduleVM.createSchedule(_selectedDateTime!, ticketPrice, busId, routeId);
+      final success = await scheduleVM.createSchedule(
+        _selectedDateTime!,
+        _ticketPrice!,
+        _busId!,
+        _routeId!,
+      );
 
-      setState(() {
-        _isSubmitting = false;
-      });
+      setState(() => _isSubmitting = false);
 
       if (success) {
         Navigator.pop(context, true);
@@ -91,15 +85,6 @@ class _ScheduleScreenState extends State<ScheduleCreateScreen> {
   }
 
   @override
-  void dispose() {
-    _departureTimeController.dispose();
-    _ticketPriceController.dispose();
-    _busIdController.dispose();
-    _routeIdController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Tambah Jadwal Bus')),
@@ -109,44 +94,69 @@ class _ScheduleScreenState extends State<ScheduleCreateScreen> {
           key: _formKey,
           child: Column(
             children: [
-              TextFormField(
-                controller: _departureTimeController,
-                readOnly: true,
+              GestureDetector(
                 onTap: _pickDateTime,
-                decoration: const InputDecoration(labelText: 'Waktu Keberangkatan'),
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Waktu keberangkatan wajib diisi' : null,
+                child: InputDecorator(
+                  decoration: const InputDecoration(
+                    labelText: 'Waktu Keberangkatan',
+                    border: OutlineInputBorder(),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(_selectedDateTime == null
+                          ? 'Pilih waktu'
+                          : DateFormat('yyyy-MM-dd HH:mm').format(_selectedDateTime!)),
+                      const Icon(Icons.calendar_today),
+                    ],
+                  ),
+                ),
               ),
               const SizedBox(height: 12),
               TextFormField(
-                controller: _ticketPriceController,
+                initialValue: '',
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Harga Tiket'),
+                decoration: const InputDecoration(
+                  labelText: 'Harga Tiket',
+                  border: OutlineInputBorder(),
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) return 'Harga tiket wajib diisi';
-                  if (int.tryParse(value) == null) return 'Harga tiket harus berupa angka';
+                  final parsed = int.tryParse(value);
+                  if (parsed == null) return 'Harga tiket harus berupa angka';
+                  _ticketPrice = parsed;
                   return null;
                 },
               ),
               const SizedBox(height: 12),
               TextFormField(
-                controller: _busIdController,
+                initialValue: '',
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'ID Bus'),
+                decoration: const InputDecoration(
+                  labelText: 'ID Bus',
+                  border: OutlineInputBorder(),
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) return 'ID Bus wajib diisi';
-                  if (int.tryParse(value) == null) return 'ID Bus harus berupa angka';
+                  final parsed = int.tryParse(value);
+                  if (parsed == null) return 'ID Bus harus berupa angka';
+                  _busId = parsed;
                   return null;
                 },
               ),
               const SizedBox(height: 12),
               TextFormField(
-                controller: _routeIdController,
+                initialValue: '',
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'ID Rute'),
+                decoration: const InputDecoration(
+                  labelText: 'ID Rute',
+                  border: OutlineInputBorder(),
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) return 'ID Rute wajib diisi';
-                  if (int.tryParse(value) == null) return 'ID Rute harus berupa angka';
+                  final parsed = int.tryParse(value);
+                  if (parsed == null) return 'ID Rute harus berupa angka';
+                  _routeId = parsed;
                   return null;
                 },
               ),
