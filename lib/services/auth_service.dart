@@ -13,20 +13,20 @@ class AuthService{
         Uri.parse('$apiUrl/register'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'username': username,
-          'full_name': fullName,
-          'email': email,
-          'password': password,
-          'roleId': roleId
+          'Username': username,
+          'FullName': fullName,
+          'Email': email,
+          'Password': password,
+          'RoleId': roleId
         }),
       );
 
-      if (response.statusCode == 200) {
+      // print("Register response: ${response.statusCode}");
+      // print("Register body: ${response.body}");
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
-        return {
-          'token': data['token'],
-          'user': User.fromJson(data['user']),
-        };
+        return {'message': data['message'] ?? 'Pendaftaran berhasil'};
       } else {
         print('Register gagal: ${response.body}');
         return null;
@@ -36,6 +36,7 @@ class AuthService{
       return null;
     }
   }
+
 
   Future<String?> login(String username, String password) async {
     try {

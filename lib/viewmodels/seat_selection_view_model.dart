@@ -8,23 +8,20 @@ class SeatSelectionViewModel extends ChangeNotifier{
   final BusSeatService _seatService;
   final SeatBookingService _seatBookingService;
 
-  List<SeatBooking> seatBookings = [];
   List<BusSeat> allBusSeats = [];
-  List<int> bookedSeats = [];
+  List<SeatBooking> seatBookingsBySchedule = [];
 
   String? msg;
   bool isLoading = false;
 
   SeatSelectionViewModel(this._seatService, this._seatBookingService);
-
-  Future<void> LoadBusSeats(int busId, int scheduleId) async {
-    final seats = await _seatService.getBusSeatsByBus(busId);
-    allBusSeats = seats ?? [];
-    final bookings = await _seatBookingService.getSeatBookingSchedules(scheduleId);
-    bookedSeats = bookings?.map((e) => e.seatId).toList() ?? [];
-
+  Future<void> loadBusSeats(int busId, int scheduleId) async {
+    allBusSeats = await _seatService.getBusSeatsByBus(busId) ?? [];
+    seatBookingsBySchedule = await _seatBookingService.getSeatBookingSchedules(scheduleId) ?? [];
     notifyListeners();
   }
+
+
 
   Future<void> fetchSeatBookings() async {
     isLoading = true;
@@ -32,7 +29,7 @@ class SeatSelectionViewModel extends ChangeNotifier{
 
     final result = await _seatBookingService.getSeatBookings();
     if (result != null) {
-      seatBookings = result;
+      seatBookingsBySchedule = result;
       msg = null;
     } else {
       msg = 'Gagal memuat data bus';
@@ -42,31 +39,43 @@ class SeatSelectionViewModel extends ChangeNotifier{
     notifyListeners();
   }
 
-  bool isSeatBooked(int seatId){
-    return bookedSeats.contains(seatId);
+  bool isSeatBooked(int seatId) {
+    return seatBookingsBySchedule.any((b) => b.seatId == seatId);
   }
 
-  Future<bool> addSeatBooking(int bookingId,int scheduleId, int seatId) async{
+
+  Future<bool> addSeatBooking(int bookingId, int scheduleId, int seatId) async {
     final result = await _seatBookingService.createSeatBooking(bookingId, scheduleId, seatId);
-    if(result){
-      bookedSeats.add(seatId);
+    if (result) {
+      seatBookingsBySchedule.add(
+        SeatBooking(
+          id: 0,
+          bookingId: bookingId,
+          scheduleId: scheduleId,
+          seatId: seatId,
+        ),
+      );
       notifyListeners();
       return true;
-    }else{
+    } else {
       return false;
     }
   }
 
-  Future<bool> updateSeatBooking(int id, int bookingId, int scheduleId, int seatId) async {
-    final result = await _seatBookingService.updateSeatBooking(id, bookingId, scheduleId, seatId);
+
+  Future<bool> updateSeatBooking(int id, int bookingId, int scheduleId, int newSeatId) async {
+    final result = await _seatBookingService.updateSeatBooking(id, bookingId, scheduleId, newSeatId);
     if (result) {
-      final index = bookedSeats.indexOf(id);
+      final index = seatBookingsBySchedule.indexWhere((sb) => sb.id == id);
       if (index != -1) {
-        bookedSeats[index] = seatId;
-      } else {
-        bookedSeats.add(seatId);
+        seatBookingsBySchedule[index] = SeatBooking(
+          id: id,
+          bookingId: bookingId,
+          scheduleId: scheduleId,
+          seatId: newSeatId,
+        );
+        notifyListeners();
       }
-      notifyListeners();
       return true;
     } else {
       return false;
@@ -76,14 +85,13 @@ class SeatSelectionViewModel extends ChangeNotifier{
   Future<bool> deleteSeatBooking(int id) async {
     final result = await _seatBookingService.deleteSeatBooking(id);
     if (result) {
-      bookedSeats.remove(id);
+      seatBookingsBySchedule.removeWhere((booking) => booking.id == id);
       notifyListeners();
       return true;
     } else {
       return false;
     }
   }
-
 
 
   Future<void> fetchBusSeats() async {

@@ -74,9 +74,9 @@ class _SeatBookingListScreenState extends State<SeatBookingListScreen> {
               : seatVM.msg != null
                   ? Center(child: Text(seatVM.msg!))
                   : ListView.builder(
-                      itemCount: seatVM.seatBookings.length,
+                      itemCount: seatVM.seatBookingsBySchedule.length,
                       itemBuilder: (context, index) {
-                        final seatBooking = seatVM.seatBookings[index];
+                        final seatBooking = seatVM.seatBookingsBySchedule[index];
                         final booking = bookingVM.bookings.firstWhereOrNull((b) => b.id == seatBooking.bookingId);
                         final seat = seatVM.allBusSeats.firstWhereOrNull((s) => s.id == seatBooking.seatId);
                         final schedule = scheduleVM.schedules.firstWhereOrNull((s) => s.id == booking?.scheduleId);

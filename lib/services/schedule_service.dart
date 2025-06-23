@@ -53,7 +53,7 @@ class ScheduleService {
       final response = await http.post(Uri.parse(apiUrl),
         headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
         body: jsonEncode({
-          'departureTime': departureTime.toIso8601String(),
+          'departureTime': departureTime.toUtc().toIso8601String(),
           'ticketPrice': ticketPrice,
           'busId': busId,
           'routeId': routeId
@@ -63,6 +63,7 @@ class ScheduleService {
       if (response.statusCode == 200 || response.statusCode == 201) {
         return true;
       }
+      print('Create Schedule failed: ${response.statusCode} - ${response.body}');
       return false;
     } catch (e) {
       print('Exception: $e');
@@ -76,7 +77,7 @@ class ScheduleService {
       final response = await http.put(Uri.parse('$apiUrl/$id'),
         headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
         body: jsonEncode({
-          'departureTime': departureTime.toIso8601String(),
+          'departureTime': departureTime.toUtc().toIso8601String(),
           'ticketPrice': ticketPrice,
           'busId': busId,
           'routeId': routeId

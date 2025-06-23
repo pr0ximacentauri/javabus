@@ -64,12 +64,7 @@ class AuthViewModel extends ChangeNotifier {
       final result = await _service.register(username, fullName, email, password, 3);
 
       if (result != null) {
-        final token = result['token'] as String;
-        final registeredUser = result['user'] as User;
-
-        _user = registeredUser;
-        await SessionHelper.saveUserSession(token, registeredUser, staySigned);
-
+        print('Register success: ${result['message']}');
         return true;
       } else {
         return false;

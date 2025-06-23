@@ -99,68 +99,83 @@ class _AccountEditScreenState extends State<AccountEditScreen> {
   Widget build(BuildContext context) {
     final authVM = Provider.of<AuthViewModel>(context);
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Edit Akun')),
-      body: authVM.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    if (_isUploadingImage)
-                      const CircularProgressIndicator()
-                    else
-                      GestureDetector(
-                        onTap: () => _showImagePickerOptions(),
-                        child: CircleAvatar(
-                          radius: 50,
-                          backgroundImage: _selectedImage != null
-                              ? FileImage(_selectedImage!)
-                              : (_imageUrl != null
-                                  ? NetworkImage(_imageUrl!) as ImageProvider
-                                  : const NetworkImage("https://cdn-icons-png.flaticon.com/512/5987/5987424.png")),
+    return PopScope(
+      canPop: !_isUploadingImage,
+      // ignore: deprecated_member_use
+      onPopInvoked: (didPop) {
+        if (!didPop && _isUploadingImage) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Tunggu hingga gambar selesai diunggah'),
+              backgroundColor: Colors.orange.shade600,
+            ),
+          );
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Edit Akun')),
+        body: authVM.isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      if (_isUploadingImage)
+                        const CircularProgressIndicator()
+                      else
+                        GestureDetector(
+                          onTap: () => _showImagePickerOptions(),
+                          child: CircleAvatar(
+                            radius: 50,
+                            backgroundImage: _selectedImage != null
+                                ? FileImage(_selectedImage!)
+                                : (_imageUrl != null
+                                    ? NetworkImage(_imageUrl!) as ImageProvider
+                                    : const NetworkImage("https://cdn-icons-png.flaticon.com/512/5987/5987424.png")),
+                          ),
+                        ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _usernameController,
+                        decoration: const InputDecoration(labelText: 'Username'),
+                        validator: (value) =>
+                            value == null || value.isEmpty ? 'Wajib diisi' : null,
+                      ),
+                      TextFormField(
+                        controller: _fullNameController,
+                        decoration: const InputDecoration(labelText: 'Nama Lengkap'),
+                        validator: (value) =>
+                            value == null || value.isEmpty ? 'Wajib diisi' : null,
+                      ),
+                      TextFormField(
+                        controller: _emailController,
+                        decoration: const InputDecoration(labelText: 'Email'),
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (value) =>
+                            value == null || value.isEmpty ? 'Wajib diisi' : null,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _newPasswordController,
+                        obscureText: true,
+                        decoration: const InputDecoration(
+                          labelText: 'Password Baru (opsional)',
                         ),
                       ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _usernameController,
-                      decoration: const InputDecoration(labelText: 'Username'),
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Wajib diisi' : null,
-                    ),
-                    TextFormField(
-                      controller: _fullNameController,
-                      decoration: const InputDecoration(labelText: 'Nama Lengkap'),
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Wajib diisi' : null,
-                    ),
-                    TextFormField(
-                      controller: _emailController,
-                      decoration: const InputDecoration(labelText: 'Email'),
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Wajib diisi' : null,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _newPasswordController,
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                        labelText: 'Password Baru (opsional)',
+                      const SizedBox(height: 32),
+                      ElevatedButton(
+                        onPressed: _isUploadingImage ? null : _saveProfile,
+                        child: _isUploadingImage ? const Text('Uploading...') : const Text('Simpan Perubahan'),
                       ),
-                    ),
-                    const SizedBox(height: 32),
-                    ElevatedButton(
-                      onPressed: _isUploadingImage ? null : _saveProfile, 
-                      child: _isUploadingImage ? const Text('Uploading...') : Text('Simpan Perubahan'),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
+      ),
     );
+
   }
 
   void _showImagePickerOptions() {

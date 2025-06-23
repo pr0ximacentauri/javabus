@@ -64,7 +64,6 @@ class ScheduleViewModel extends ChangeNotifier {
     }
   }
 
-
   Future<bool> deleteBusSeat(int id) async {
     final result = await _service.deleteSchedule(id);
     if (result) {
