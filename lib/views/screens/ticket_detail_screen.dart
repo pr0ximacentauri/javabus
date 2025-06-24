@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:javabus/models/ticket.dart';
@@ -54,7 +56,6 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Ticket Card
             Container(
               margin: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -71,7 +72,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
               ),
               child: Column(
                 children: [
-                  // QR Code Section
+                  
                   Container(
                     padding: const EdgeInsets.all(24),
                     child: Column(
@@ -110,7 +111,6 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
                     ),
                   ),
                   
-                  // Divider with dashed effect
                   Container(
                     height: 1,
                     margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -119,7 +119,6 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
                     ),
                   ),
                   
-                  // Trip Details Section
                   Padding(
                     padding: const EdgeInsets.all(24),
                     child: Column(
@@ -132,11 +131,12 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    ticket.originCity,
+                                    _capitalize(ticket.originCity),
                                     style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
                                     ),
+                                    
                                   ),
                                   Text(
                                     DateFormat('dd MMM yyyy').format(ticket.departureTime),
@@ -158,10 +158,10 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
                             ),
                             Expanded(
                               child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    ticket.destinationCity,
+                                    _capitalize(ticket.destinationCity),
                                     style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -182,26 +182,23 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
                         
                         const SizedBox(height: 24),
                         
-                        // Trip Details Grid
                         Row(
                           children: [
                             Expanded(
                               child: _buildDetailItem(
                                 'Bus',
-                                '${ticket.busName}\n${ticket.busClass}',
+                                '${_capitalize(ticket.busName)}',
                                 Icons.directions_bus,
                               ),
                             ),
                             Expanded(
                               child: isLoadingSeat
                                   ? _buildDetailItem(
-                                      'Kursi',
-                                      'Loading...',
+                                      'Kursi/Kelas', 'Loading...',
                                       Icons.event_seat,
                                     )
                                   : _buildDetailItem(
-                                      'Kursi',
-                                      seat?.seatNumber ?? 'N/A',
+                                      'Kursi/Kelas', '${seat?.seatNumber} / ${_capitalize(ticket.busClass)}',
                                       Icons.event_seat,
                                     ),
                             ),
@@ -214,15 +211,13 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
                           children: [
                             Expanded(
                               child: _buildDetailItem(
-                                'Harga',
-                                'Rp ${NumberFormat('#,###').format(ticket.ticketPrice)}',
+                                'Harga', 'Rp ${NumberFormat('#,###').format(ticket.ticketPrice)}',
                                 Icons.payment,
                               ),
                             ),
                             Expanded(
                               child: _buildDetailItem(
-                                'Status',
-                                ticket.ticketStatus,
+                                'Status', _capitalize(ticket.ticketStatus),
                                 Icons.check_circle,
                               ),
                             ),
@@ -279,12 +274,9 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        _buildPaymentRow('Metode Pembayaran', payment.paymentType),
-                        _buildPaymentRow('Status Pembayaran', payment.transactionStatus),
-                        _buildPaymentRow(
-                          'Waktu Transaksi', 
-                          DateFormat('dd MMM yyyy, HH:mm').format(payment.transactionTime)
-                        ),
+                        _buildPaymentRow('Metode Pembayaran', _capitalize(payment.paymentType)),
+                        _buildPaymentRow('Status Pembayaran', _capitalize(payment.transactionStatus)),
+                        _buildPaymentRow('Waktu Transaksi', DateFormat('dd MMM yyyy, HH:mm').format(payment.transactionTime)),
                       ],
                     ),
                   ),
@@ -356,6 +348,13 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
       ),
     );
   }
+}
+
+String _capitalize(String text) {
+  return text.split(' ').map((word) {
+    if (word.isEmpty) return '';
+    return word[0].toUpperCase() + word.substring(1).toLowerCase();
+  }).join(' ');
 }
 
 class DashedLinePainter extends CustomPainter {

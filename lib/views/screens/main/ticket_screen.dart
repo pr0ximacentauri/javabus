@@ -5,12 +5,11 @@ import 'package:javabus/models/booking.dart';
 import 'package:javabus/models/ticket.dart';
 import 'package:javabus/viewmodels/auth_view_model.dart';
 import 'package:javabus/viewmodels/booking_view_model.dart';
-import 'package:javabus/viewmodels/payment_view_model.dart';
 import 'package:javabus/viewmodels/ticket_view_model.dart';
 import 'package:javabus/views/screens/ticket_detail_screen.dart';
-import 'package:javabus/views/widgets/payment_webview.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'dart:math' as math;
 
 class TicketContent extends StatefulWidget {
   const TicketContent({super.key});
@@ -19,37 +18,47 @@ class TicketContent extends StatefulWidget {
   State<TicketContent> createState() => _TicketContentState();
 }
 
-class _TicketContentState extends State<TicketContent> {
+class _TicketContentState extends State<TicketContent>
+    with SingleTickerProviderStateMixin {
   bool isTiketSelected = true;
+  late AnimationController _controller;
 
   @override
-void initState() {
-  super.initState();
-  WidgetsBinding.instance.addPostFrameCallback((_) async {
-    final authVM = Provider.of<AuthViewModel>(context, listen: false);
-    final ticketVM = Provider.of<TicketViewModel>(context, listen: false);
-    final bookingVM = Provider.of<BookingViewModel>(context, listen: false);
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat();
 
-    final user = authVM.user;
-    if (user == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final authVM = Provider.of<AuthViewModel>(context, listen: false);
+      final ticketVM = Provider.of<TicketViewModel>(context, listen: false);
+      final bookingVM = Provider.of<BookingViewModel>(context, listen: false);
 
-    await bookingVM.fetchBookingsByUser(user.id);
+      final user = authVM.user;
+      if (user == null) return;
 
-    final List<Ticket> allFetchedTickets = [];
+      await bookingVM.fetchBookingsByUser(user.id);
 
-    for (final booking in bookingVM.bookings) {
-      // print('Fetching tickets for bookingId: ${booking.id}');
-      final result = await ticketVM.fetchTicketsByBooking(booking.id);
-      if (result != null) {
-        allFetchedTickets.addAll(result);
+      final List<Ticket> allFetchedTickets = [];
+
+      for (final booking in bookingVM.bookings) {
+        final result = await ticketVM.fetchTicketsByBooking(booking.id);
+        if (result != null) {
+          allFetchedTickets.addAll(result);
+        }
       }
-    }
 
-    ticketVM.setTickets(allFetchedTickets);
+      ticketVM.setTickets(allFetchedTickets);
+    });
+  }
 
-    // setState(() {});
-  });
-}
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +77,7 @@ void initState() {
 
       if (isTiketSelected) {
         return booking.status == 'lunas' &&
-           ticket.ticketStatus == 'belum digunakan' &&
+            ticket.ticketStatus == 'belum digunakan' &&
             ticket.departureTime.isAfter(now);
       }
 
@@ -76,7 +85,8 @@ void initState() {
         return true;
       }
 
-      if (ticket.ticketStatus == 'belum digunakan' && ticket.departureTime.isBefore(now)) {
+      if (ticket.ticketStatus == 'belum digunakan' &&
+          ticket.departureTime.isBefore(now)) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           await ticketVM.updateTicketStatus(ticket.id, 'kadaluwarsa');
         });
@@ -115,9 +125,18 @@ void initState() {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.receipt_long, size: 80, color: Colors.grey[400]),
+                        AnimatedBuilder(
+                          animation: _controller,
+                          builder: (context, child) {
+                            return Transform.rotate(
+                              angle: _controller.value * 2 * math.pi,
+                              child: Icon(Icons.receipt_long,
+                                  size: 80, color: Colors.amber.shade400),
+                            );
+                          },
+                        ),
                         const SizedBox(height: 16),
-                        Text("Tidak ada tiket ditemukan",
+                        Text("Loading...",
                             style: TextStyle(fontSize: 18, color: Colors.grey[600])),
                       ],
                     ),
@@ -189,10 +208,6 @@ void initState() {
   Widget _buildStatusChip(String status) {
     Color chipColor;
     switch (status.toLowerCase()) {
-      case 'pending':
-        chipColor = Colors.orange;
-        break;
-      case 'lunas':
       case 'belum digunakan':
         chipColor = Colors.green;
         break;
@@ -236,60 +251,24 @@ void initState() {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: () async {
-            if (booking.status.toLowerCase() == 'pending') {
-              final paymentVM = Provider.of<PaymentViewModel>(context, listen: false);
-              final bookingVM = Provider.of<BookingViewModel>(context, listen: false);
-              final ticketVM = Provider.of<TicketViewModel>(context, listen: false);
-
-              await paymentVM.addPayment(
-                grossAmount: ticket.ticketPrice,
-                bookingId: booking.id,
+          onTap: () {
+            if (ticket.ticketStatus.toLowerCase() == 'kadaluwarsa' ||
+                ticket.ticketStatus.toLowerCase() == 'selesai') {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Tiket ${ticket.ticketStatus.toLowerCase()}'),
+                  backgroundColor: Colors.orange.shade600,
+                ),
               );
-
-              final paymentUrl = paymentVM.paymentUrl;
-
-              if (paymentUrl != null) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => PaymentWebView(url: paymentUrl)),
-                );
-
-                await bookingVM.updateBookingStatus(booking.id, 'lunas');
-
-                await ticketVM.createSnapshot(booking.id);
-
-                final newTickets = await ticketVM.fetchTicketsByBooking(booking.id);
-
-                if(newTickets == null) return;
-                for (var ticket in newTickets) {
-                  await ticketVM.updateTicketStatus(ticket.id, 'belum digunakan');
-                }
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Pembayaran berhasil dan tiket dibuat.'), backgroundColor: Colors.orange.shade600,),
-                );
-
-                setState(() {});
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Gagal membuat pembayaran: ${paymentVM.errorMsg}'), backgroundColor: Colors.orange.shade600,),
-                );
-              }
-            }else {
-              if(ticket.ticketStatus.toLowerCase() == 'kadaluwarsa' || ticket.ticketStatus.toLowerCase() == 'selesai'){
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Tiket ${ticket.ticketStatus.toLowerCase() == 'selesai' ? 'selesai' : 'kadaluwarsa'} '), backgroundColor: Colors.orange.shade600,),
-                );
-              }else{
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => TicketDetailScreen(ticket: ticket)),
-                );
-              }
+            } else {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TicketDetailScreen(ticket: ticket),
+                ),
+              );
             }
           },
-
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
@@ -304,7 +283,8 @@ void initState() {
                         gradient: const LinearGradient(colors: [Colors.amber, Colors.orange]),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: Text('ID: ${booking.id}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                      child: Text('ID: ${booking.id}',
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
                     ),
                     _buildStatusChip(ticket.ticketStatus),
                   ],
@@ -333,22 +313,6 @@ void initState() {
                     ),
                   ],
                 ),
-                if (booking.status.toLowerCase() == 'pending') ...[
-                  const SizedBox(height: 16),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(colors: [Colors.amber, Colors.orange]),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Text(
-                      'Tap untuk bayar',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
               ],
             ),
           ),
