@@ -110,6 +110,15 @@ class SeatSelectionViewModel extends ChangeNotifier{
     notifyListeners();
   }
 
+  Future<BusSeat?> getBusSeatById(int id) async {
+    final seat = await _seatService.getById(id);
+    if (seat == null) {
+      msg = 'Kursi dengan ID $id tidak ditemukan';
+      notifyListeners();
+    }
+    return seat;
+  }
+
   Future<bool> createBusSeat(String seatNumber, int busId) async {
     final result = await _seatService.createBusSeat(seatNumber, busId);
     if (result) {

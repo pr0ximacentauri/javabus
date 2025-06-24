@@ -116,53 +116,21 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
 
                 if (userId == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('User belum login'),
-                      backgroundColor: Colors.orange.shade600,
-                    ),
+                    const SnackBar(content: Text('User belum login')),
                   );
                   return;
                 }
 
                 if (selectedSeatIds.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Pilih minimal satu kursi'),
-                      backgroundColor: Colors.orange.shade600,
-                    ),
+                    const SnackBar(content: Text('Pilih minimal satu kursi')),
                   );
                   return;
                 }
 
                 if (widget.departureTime.isBefore(DateTime.now().add(const Duration(hours: 1)))) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Pemesanan ditutup kurang dari 1 jam sebelum keberangkatan'),
-                    ),
-                  );
-                  return;
-                }
-
-                final totalPrice = selectedSeatIds.length * widget.ticketPrice;
-
-                showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (_) => const Center(child: CircularProgressIndicator()),
-                );
-
-                await paymentVM.addPayment(grossAmount: totalPrice, bookingId: -1); 
-
-                Navigator.pop(context);
-
-                final paymentUrl = paymentVM.paymentUrl;
-
-                if (paymentUrl == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Gagal membuat pembayaran: ${paymentVM.errorMsg ?? "Unknown Error"}'),
-                      backgroundColor: Colors.orange.shade600,
-                    ),
+                    const SnackBar(content: Text('Pemesanan ditutup kurang dari 1 jam sebelum keberangkatan')),
                   );
                   return;
                 }
@@ -170,10 +138,7 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                 final created = await bookingVM.createBooking("pending", userId, scheduleId);
                 if (!created) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Gagal membuat booking: ${bookingVM.msg ?? ''}'),
-                      backgroundColor: Colors.orange.shade600,
-                    ),
+                    SnackBar(content: Text('Gagal membuat booking: ${bookingVM.msg ?? ''}')),
                   );
                   return;
                 }
@@ -184,10 +149,7 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
 
                 if (booking == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Booking tidak ditemukan'),
-                      backgroundColor: Colors.orange.shade600,
-                    ),
+                    const SnackBar(content: Text('Booking tidak ditemukan')),
                   );
                   return;
                 }
@@ -202,40 +164,44 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
 
                 if (!seatBookingSuccess) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Sebagian kursi gagal dipesan'),
-                      backgroundColor: Colors.orange.shade600,
-                    ),
+                    const SnackBar(content: Text('Sebagian kursi gagal dipesan')),
                   );
                   return;
                 }
 
+                final totalPrice = selectedSeatIds.length * widget.ticketPrice;
                 await paymentVM.addPayment(grossAmount: totalPrice, bookingId: bookingId);
 
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PaymentWebView(url: paymentUrl),
-                  ),
-                );
-
-                await bookingVM.updateBookingStatus(bookingId, 'lunas');
-                await seatVM.loadBusSeats(widget.bus.id!, scheduleId);
-
-                final snapshotSuccess = await ticketVM.createSnapshot(bookingId);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      snapshotSuccess
-                          ? 'Tiket berhasil dibuat'
-                          : ticketVM.msg ?? 'Gagal membuat tiket',
+                final paymentUrl = paymentVM.paymentUrl;
+                if (paymentUrl != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PaymentWebView(url: paymentUrl),
                     ),
-                  ),
-                );
-              },
-              child: const Text("Lanjut ke Pembayaran"),
-            )
+                  );
 
+                  await bookingVM.updateBookingStatus(bookingId, 'lunas');
+                  await seatVM.loadBusSeats(widget.bus.id!, scheduleId);
+
+                  final snapshotSuccess = await ticketVM.createSnapshot(bookingId);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        snapshotSuccess
+                            ? 'Tiket berhasil dibuat'
+                            : ticketVM.msg ?? 'Gagal membuat tiket',
+                      ),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Gagal membuat pembayaran: ${paymentVM.errorMsg}')),
+                  );
+                }
+              },
+              child: const Text("Lanjut ke Pembayaran")
+            )
           ],
         ),
       ),
@@ -255,13 +221,7 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                 if (isSelected) {
                   selectedSeatIds.remove(seat.id);
                 } else {
-                  if(selectedSeatIds.length >= 10){
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Maksimal hanya dapat memesan 10 tiket"), backgroundColor: Colors.orange.shade600),  
-                    );
-                  }else{
-                    selectedSeatIds.add(seat.id);
-                  }
+                  selectedSeatIds.add(seat.id);
                 }
               });
             },
@@ -271,7 +231,7 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
         margin: const EdgeInsets.symmetric(horizontal: 4),
         decoration: BoxDecoration(
           color: isBooked
-              ? Colors.red
+              ? Colors.grey
               : isSelected
                   ? Colors.green
                   : Colors.blue,
@@ -292,7 +252,7 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
         SizedBox(width: 10),
         _LegendBox(color: Colors.green, label: 'Dipilih'),
         SizedBox(width: 10),
-        _LegendBox(color: Colors.red, label: 'Terisi'),
+        _LegendBox(color: Colors.grey, label: 'Terisi'),
       ],
     );
   }

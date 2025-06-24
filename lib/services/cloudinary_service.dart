@@ -15,12 +15,12 @@ class CloudinaryService {
     final fileSize = await imageFile.length();
 
     if (!allowedExtensions.contains(ext.replaceAll('.', ''))) {
-      print('❌ Tipe file tidak didukung: $ext');
+      print('Tipe file tidak didukung: $ext');
       return null;
     }
 
     if (fileSize > maxFileSize) {
-      print('❌ Ukuran file melebihi batas');
+      print('Ukuran file melebihi batas');
       return null;
     }
 

@@ -36,9 +36,6 @@ class BookingService {
         }),
       );
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return true;
       }
@@ -53,9 +50,6 @@ Future<List<Booking>?> getBookingsByUser(int userId) async {
   // print('Fetching bookings for userId: $userId');
 
   final response = await http.get(Uri.parse('$apiUrl/user/$userId'));
-
-  // print('Booking response status: ${response.statusCode}');
-  // print('Booking response body: ${response.body}');
 
   if (response.statusCode == 200) {
     final List<dynamic> data = jsonDecode(response.body);

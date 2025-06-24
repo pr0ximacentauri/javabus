@@ -21,14 +21,15 @@ class Payment {
 
   factory Payment.fromJson(Map<String, dynamic> json) {
     return Payment(
-      id: json['id_payment'],
-      orderId: json['id_order'],
-      bookingId: json['booking_id'],
-      grossAmount: json['gross_amount'],
-      paymentType: json['payment_type'],
-      paymentUrl: json['payment_url'],
-      transactionStatus: json['transaction_status'],
-      transactionTime: DateTime.parse(json['transaction_time']),
+      id: json['id'], 
+      orderId: json['orderId'],
+      bookingId: json['bookingId'],
+      grossAmount: json['grossAmount'],
+      paymentType: json['paymentType'],
+      paymentUrl: json['paymentUrl'],
+      transactionStatus: json['transactionStatus'],
+      transactionTime: DateTime.parse(json['transactionTime']),
     );
   }
+
 }

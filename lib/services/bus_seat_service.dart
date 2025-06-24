@@ -30,6 +30,17 @@ class BusSeatService {
     }
   }
 
+  Future<BusSeat?> getById(int id) async {
+    final response = await http.get(Uri.parse('$apiUrl/$id'));
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return BusSeat.fromJson(data);
+    } else {
+      return null;
+    }
+  }
+
   Future<bool> createBusSeat(String seatNumber, int busId) async {
     try{
       final token = await SessionHelper.getToken();

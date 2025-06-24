@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:javabus/models/ticket.dart';
+import 'package:javabus/models/bus_seat.dart';
 import 'package:javabus/viewmodels/payment_view_model.dart';
+import 'package:javabus/viewmodels/seat_selection_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -15,11 +17,27 @@ class TicketDetailScreen extends StatefulWidget {
 }
 
 class _TicketDetailScreenState extends State<TicketDetailScreen> {
+  BusSeat? seat;
+  bool isLoadingSeat = true;
+
   @override
   void initState() {
     super.initState();
+
     final paymentVM = Provider.of<PaymentViewModel>(context, listen: false);
+    final seatVM = Provider.of<SeatSelectionViewModel>(context, listen: false);
+
     paymentVM.fetchPaymentByBookingId(widget.ticket.bookingId);
+    _loadSeat(seatVM);
+  }
+
+  Future<void> _loadSeat(SeatSelectionViewModel seatVM) async {
+    final result = await seatVM.getBusSeatById(widget.ticket.seatId);
+    if (!mounted) return; 
+    setState(() {
+      seat = result;
+      isLoadingSeat = false;
+    });
   }
 
   @override
@@ -27,68 +45,340 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
     final ticket = widget.ticket;
 
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('Detail Tiket'),
+        title: const Text('Detail Tiket', style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.amber,
+        elevation: 0,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: ListView(
+      body: SingleChildScrollView(
+        child: Column(
           children: [
-            Center(
-              child: QrImageView(
-                data: ticket.qrCodeUrl.isNotEmpty ? ticket.qrCodeUrl : ticket.id.toString(),
-                version: QrVersions.auto,
-                size: 200,
+            // Ticket Card
+            Container(
+              margin: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    spreadRadius: 1,
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  // QR Code Section
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.amber.shade200),
+                          ),
+                          child: QrImageView(
+                            data: ticket.qrCodeUrl.isNotEmpty
+                                ? ticket.qrCodeUrl
+                                : ticket.id.toString(),
+                            version: QrVersions.auto,
+                            size: 180,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Consumer<PaymentViewModel>(
+                          builder: (context, paymentVM, _) {
+                            final payment = paymentVM.payment;
+                            return Text(
+                              payment?.orderId ?? 'Loading...',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey[600],
+                                letterSpacing: 1.2,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  // Divider with dashed effect
+                  Container(
+                    height: 1,
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                    child: CustomPaint(
+                      painter: DashedLinePainter(),
+                    ),
+                  ),
+                  
+                  // Trip Details Section
+                  Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        // Route
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    ticket.originCity,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    DateFormat('dd MMM yyyy').format(ticket.departureTime),
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: Icon(
+                                Icons.arrow_forward,
+                                color: Colors.amber,
+                                size: 24,
+                              ),
+                            ),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    ticket.destinationCity,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    DateFormat('HH:mm').format(ticket.departureTime),
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        
+                        const SizedBox(height: 24),
+                        
+                        // Trip Details Grid
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildDetailItem(
+                                'Bus',
+                                '${ticket.busName}\n${ticket.busClass}',
+                                Icons.directions_bus,
+                              ),
+                            ),
+                            Expanded(
+                              child: isLoadingSeat
+                                  ? _buildDetailItem(
+                                      'Kursi',
+                                      'Loading...',
+                                      Icons.event_seat,
+                                    )
+                                  : _buildDetailItem(
+                                      'Kursi',
+                                      seat?.seatNumber ?? 'N/A',
+                                      Icons.event_seat,
+                                    ),
+                            ),
+                          ],
+                        ),
+                        
+                        const SizedBox(height: 16),
+                        
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildDetailItem(
+                                'Harga',
+                                'Rp ${NumberFormat('#,###').format(ticket.ticketPrice)}',
+                                Icons.payment,
+                              ),
+                            ),
+                            Expanded(
+                              child: _buildDetailItem(
+                                'Status',
+                                ticket.ticketStatus,
+                                Icons.check_circle,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 20),
-            Text('ID Tiket: ${ticket.id}', style: const TextStyle(fontSize: 16)),
-            const SizedBox(height: 10),
-            Text(
-              'Keberangkatan: ${DateFormat('dd MMM yyyy, HH:mm').format(ticket.departureTime)}',
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 10),
-            Text('Asal: ${ticket.originCity} → Tujuan: ${ticket.destinationCity}', style: const TextStyle(fontSize: 16)),
-            const SizedBox(height: 10),
-            Text('Bus: ${ticket.busName} (${ticket.busClass})', style: const TextStyle(fontSize: 16)),
-            const SizedBox(height: 10),
-            Text('Harga: Rp ${NumberFormat('#,###').format(ticket.ticketPrice)}', style: const TextStyle(fontSize: 16)),
-            const SizedBox(height: 10),
-            Text('Status Tiket: ${ticket.ticketStatus}', style: const TextStyle(fontSize: 16)),
-            const SizedBox(height: 20),
-
+            
+            // Payment Info Card
             Consumer<PaymentViewModel>(
               builder: (context, paymentVM, _) {
                 final payment = paymentVM.payment;
                 if (payment == null) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
                 }
 
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Divider(thickness: 1),
-                    const SizedBox(height: 10),
-                    const Text('Detail Pembayaran', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 10),
-                    Text('Order ID: ${payment.orderId}', style: const TextStyle(fontSize: 16)),
-                    const SizedBox(height: 8),
-                    Text('Metode: ${payment.paymentType}', style: const TextStyle(fontSize: 16)),
-                    const SizedBox(height: 8),
-                    Text('Total Bayar: Rp ${NumberFormat('#,###').format(payment.grossAmount)}', style: const TextStyle(fontSize: 16)),
-                    const SizedBox(height: 8),
-                    Text('Status Pembayaran: ${payment.transactionStatus}', style: const TextStyle(fontSize: 16)),
-                    const SizedBox(height: 8),
-                    Text('Waktu Transaksi: ${DateFormat('dd MMM yyyy, HH:mm').format(payment.transactionTime)}', style: const TextStyle(fontSize: 16)),
-                  ],
+                return Container(
+                  margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.1),
+                        spreadRadius: 1,
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.receipt, color: Colors.amber, size: 20),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'Informasi Pembayaran',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        _buildPaymentRow('Metode Pembayaran', payment.paymentType),
+                        _buildPaymentRow('Status Pembayaran', payment.transactionStatus),
+                        _buildPaymentRow(
+                          'Waktu Transaksi', 
+                          DateFormat('dd MMM yyyy, HH:mm').format(payment.transactionTime)
+                        ),
+                      ],
+                    ),
+                  ),
                 );
               },
-            )
+            ),
           ],
         ),
       ),
     );
   }
+
+  Widget _buildDetailItem(String title, String value, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: Colors.amber.shade50,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.amber.shade100),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: Colors.amber.shade700, size: 20),
+          const SizedBox(height: 8),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPaymentRow(String title, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[600],
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class DashedLinePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.grey.shade300
+      ..strokeWidth = 1;
+
+    const dashWidth = 5;
+    const dashSpace = 5;
+    double startX = 0;
+
+    while (startX < size.width) {
+      canvas.drawLine(
+        Offset(startX, 0),
+        Offset(startX + dashWidth, 0),
+        paint,
+      );
+      startX += dashWidth + dashSpace;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

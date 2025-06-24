@@ -84,7 +84,7 @@ class BookingViewModel extends ChangeNotifier {
     }
   }
 
-    Future<bool> deleteBooking(int id)  async {
+  Future<bool> deleteBooking(int id)  async {
     final success = await _service.deleteBooking(id);
 
     if (success) {
