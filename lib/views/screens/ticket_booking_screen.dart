@@ -128,13 +128,6 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                   return;
                 }
 
-                // if (widget.departureTime.isBefore(DateTime.now().add(const Duration(hours: 1)))) {
-                //   ScaffoldMessenger.of(context).showSnackBar(
-                //     const SnackBar(content: Text('Pemesanan ditutup kurang dari 1 jam sebelum keberangkatan')),
-                //   );
-                //   return;
-                // }
-
                 final created = await bookingVM.createBooking("pending", userId, scheduleId);
                 if (!created) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -144,7 +137,7 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                 }
 
                 final booking = bookingVM.bookings.firstWhereOrNull(
-                  (b) => b.userId == userId && b.scheduleId == scheduleId && b.status == "pending",
+                  (b) => b.userId == userId && b.scheduleId == scheduleId && b.status == "lunas",
                 );
 
                 if (booking == null) {
@@ -175,15 +168,16 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                 final paymentUrl = paymentVM.paymentUrl;
                 if (paymentUrl != null) {
                   try {
+                    await bookingVM.updateBookingStatus(bookingId, 'lunas');
+
+                    await seatVM.loadBusSeats(widget.bus.id!, scheduleId);
+
                     await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => PaymentWebView(url: paymentUrl),
                       ),
                     );
-
-                    await bookingVM.updateBookingStatus(bookingId, 'lunas');
-                    await seatVM.loadBusSeats(widget.bus.id!, scheduleId);
 
                     final snapshotSuccess = await ticketVM.createSnapshot(bookingId);
 
@@ -205,7 +199,7 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                       ),
                     );
                   }
-                } else {
+                }else {
                   await bookingVM.deleteBooking(bookingId);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Gagal membuat pembayaran: ${paymentVM.errorMsg}')),

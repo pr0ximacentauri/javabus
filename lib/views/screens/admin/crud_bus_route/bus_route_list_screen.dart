@@ -83,7 +83,7 @@ class _BusRouteListScreenState extends State<BusRouteListScreen> {
                               if (value == 'edit') {
                                 _navigateToUpdate(route);
                               } else if (value == 'delete') {
-                                _delete(route.id);
+                                _delete(route.id!);
                               }
                             },
                             itemBuilder: (context) => [

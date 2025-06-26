@@ -109,7 +109,7 @@ class AccountContent extends StatelessWidget {
                     title: 'Pembatalan Tiket',
                     onTap: () {
                       final user = authVM.user!;
-                      final tickets = ticketVM.tickets.where((t) => t.ticketStatus == 'belum terpakai').toList();
+                      final tickets = ticketVM.tickets.where((t) => t.ticketStatus == 'belum digunakan').toList();
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => CancelTicketScreen(user: user, tickets: tickets))

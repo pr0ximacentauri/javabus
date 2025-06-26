@@ -75,7 +75,7 @@ class RouteService {
     try{
       final token = await SessionHelper.getToken();
       final response = await http.post(
-        Uri.parse('${apiUrl}/bulk'),
+        Uri.parse('$apiUrl/bulk'),
         headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
         body: jsonEncode([
           {
@@ -84,6 +84,9 @@ class RouteService {
           }
         ]),
       );
+
+      // print('Create status: ${response.statusCode}');
+      // print('Create body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return true;

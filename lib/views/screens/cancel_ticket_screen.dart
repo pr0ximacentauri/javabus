@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:javabus/models/ticket.dart';
 import 'package:javabus/models/user.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -23,34 +24,41 @@ class _CancelTicketScreenState extends State<CancelTicketScreen> {
   Ticket? selectedTicket;
   String reason = '';
 
-  Future<void> _sendToWhatsApp() async {
-    final adminPhone = '6282235244931';
-    final ticketInfo = selectedTicket != null
-        ? '''
-🚌 Tiket: ${selectedTicket!.originCity} → ${selectedTicket!.destinationCity}
-🕒 Keberangkatan: ${selectedTicket!.departureTime}
-🚍 Bus: ${selectedTicket!.busName} (${selectedTicket!.busClass})
-💰 Harga: Rp ${selectedTicket!.ticketPrice}
-'''
-        : '';
+Future<void> _sendToWhatsApp() async {
+  final adminPhone = '6282235244931';
+  final ticket = selectedTicket;
 
-    final text = Uri.encodeComponent(
-      'Halo Admin,\nSaya ${widget.user.fullName} ingin membatalkan tiket berikut:\n\n'
-      '$ticketInfo'
-      '📝 Alasan: $reason\n\n'
-      'Mohon dibantu proses pembatalannya. Terima kasih.'
-    );
+  if (ticket == null) return;
 
-    final url = 'https://wa.me/$adminPhone?text=$text';
+  final timeFormatted = DateFormat('dd MMM yyyy – HH:mm').format(ticket.departureTime);
 
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Gagal membuka WhatsApp')),
-      );
+  final message = '''
+    Halo Admin,
+    Saya ${widget.user.fullName} ingin membatalkan tiket berikut:
+
+    🚌 Tiket: ${ticket.originCity} → ${ticket.destinationCity}
+    🕒 Keberangkatan: $timeFormatted
+    🚍 Bus: ${ticket.busName} (${ticket.busClass})
+    💰 Harga: Rp ${ticket.ticketPrice}
+
+    📝 Alasan: $reason
+
+    Mohon dibantu proses pembatalannya. Terima kasih.
+    ''';
+
+      final encoded = Uri.encodeComponent(message);
+      final url = 'https://wa.me/$adminPhone?text=$encoded';
+
+      final uri = Uri.parse(url);
+
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Gagal membuka WhatsApp')),
+        );
+      }
     }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,10 +77,16 @@ class _CancelTicketScreenState extends State<CancelTicketScreen> {
               DropdownButtonFormField<Ticket>(
                 value: selectedTicket,
                 items: widget.tickets.map((ticket) {
+                  final timeFormatted = DateFormat('dd MMM yyyy – HH:mm').format(ticket.departureTime);
                   return DropdownMenuItem(
                     value: ticket,
-                    child: Text(
-                        '${ticket.originCity} → ${ticket.destinationCity} (${ticket.departureTime})'),
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.7, 
+                      child: Text(
+                        '${ticket.originCity} → ${ticket.destinationCity} ($timeFormatted)',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   );
                 }).toList(),
                 onChanged: (value) {

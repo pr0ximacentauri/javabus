@@ -53,7 +53,13 @@ class ScheduleService {
       final response = await http.post(Uri.parse(apiUrl),
         headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
         body: jsonEncode({
-          'departureTime': departureTime.toUtc().toIso8601String(),
+          'departureTime': DateTime.utc(
+              departureTime.year,
+              departureTime.month,
+              departureTime.day,
+              departureTime.hour,
+              departureTime.minute,
+            ).toIso8601String(),
           'ticketPrice': ticketPrice,
           'busId': busId,
           'routeId': routeId
@@ -77,7 +83,13 @@ class ScheduleService {
       final response = await http.put(Uri.parse('$apiUrl/$id'),
         headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
         body: jsonEncode({
-          'departureTime': departureTime.toUtc().toIso8601String(),
+          'departureTime': DateTime.utc(
+              departureTime.year,
+              departureTime.month,
+              departureTime.day,
+              departureTime.hour,
+              departureTime.minute,
+            ).toIso8601String(),
           'ticketPrice': ticketPrice,
           'busId': busId,
           'routeId': routeId

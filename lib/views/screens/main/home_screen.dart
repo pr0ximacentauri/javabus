@@ -366,7 +366,7 @@ class _HomeContentState extends State<HomeContent> {
                       colors: [Colors.amber.shade700, Colors.orange.shade600],
                       onTap: () {
                         final user = authVM.user!;
-                        final tickets = ticketVM.tickets.where((t) => t.ticketStatus == 'belum terpakai').toList();
+                        final tickets = ticketVM.tickets.where((t) => t.ticketStatus == 'belum digunakan').toList();
                         Navigator.push(
                           context,
                           MaterialPageRoute(

@@ -167,7 +167,7 @@ class _ConductorScreenState extends State<ConductorScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Hasil Scan: $scannedResult'),
+                  Text('Hasil Scan: Ticket ID $scannedResult'),
                   const SizedBox(height: 10),
                   ElevatedButton(
                     onPressed: () {

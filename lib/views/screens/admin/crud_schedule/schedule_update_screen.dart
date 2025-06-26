@@ -35,7 +35,15 @@ class _ScheduleUpdateScreenState extends State<ScheduleUpdateScreen> {
   Future<void> _pickDateTime() async {
     final now = DateTime.now();
     final firstDate = DateTime(now.year, now.month, now.day);
-    final initialDate = _selectedDateTime.isBefore(firstDate) ? firstDate : _selectedDateTime;
+
+    // Normalisasi _selectedDateTime ke jam 00:00 untuk perbandingan
+    final selectedDateOnly = _selectedDateTime != null
+        ? DateTime(_selectedDateTime!.year, _selectedDateTime!.month, _selectedDateTime!.day)
+        : null;
+
+    final initialDate = (selectedDateOnly == null || selectedDateOnly.isBefore(firstDate))
+        ? firstDate
+        : selectedDateOnly;
 
     final date = await showDatePicker(
       context: context,
@@ -45,17 +53,27 @@ class _ScheduleUpdateScreenState extends State<ScheduleUpdateScreen> {
     );
 
     if (date != null) {
+      final initialTime = TimeOfDay.fromDateTime(_selectedDateTime ?? now);
+
       final time = await showTimePicker(
         context: context,
-        initialTime: TimeOfDay.fromDateTime(_selectedDateTime),
+        initialTime: initialTime,
       );
+
       if (time != null) {
         setState(() {
-          _selectedDateTime = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+          _selectedDateTime = DateTime(
+            date.year,
+            date.month,
+            date.day,
+            time.hour,
+            time.minute,
+          );
         });
       }
     }
   }
+
 
   void _submit() async {
     if (_formKey.currentState!.validate()) {

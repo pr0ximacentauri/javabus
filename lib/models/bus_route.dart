@@ -1,10 +1,10 @@
 class BusRoute {
-  final int id;
+  final int? id;
   final int originCityId;
   final int destinationCityId;
 
   BusRoute({
-    required this.id,
+    this.id,
     required this.originCityId,
     required this.destinationCityId,
   });

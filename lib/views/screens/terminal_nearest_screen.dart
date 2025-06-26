@@ -40,8 +40,7 @@ class _TerminalNearestScreenState extends State<TerminalNearestScreen> {
 
     final terminalLocation = LatLng(nearestTerminal!.latitude, nearestTerminal!.longitude);
 
-    final url =
-        "http://router.project-osrm.org/route/v1/driving/${userLocation.longitude},${userLocation.latitude};${terminalLocation.longitude},${terminalLocation.latitude}?overview=full&geometries=geojson";
+    final url ="http://router.project-osrm.org/route/v1/driving/${userLocation.longitude},${userLocation.latitude};${terminalLocation.longitude},${terminalLocation.latitude}?overview=full&geometries=geojson";
 
     final response = await http.get(Uri.parse(url));
 

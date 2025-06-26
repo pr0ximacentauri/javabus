@@ -73,7 +73,7 @@ class _BusRouteUpdateScreenState extends State<BusRouteUpdateScreen> {
       });
 
       final success = await routeVM.updateBusRoute(
-        widget.busRoute.id,
+        widget.busRoute.id!,
         _selectedOrigin!.id,
         _selectedDestination!.id,
       );

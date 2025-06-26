@@ -141,7 +141,10 @@ Future<List<Ticket>?> getTicketsByBooking(int bookingId) async {
         body: jsonEncode(status),
       );
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
+      print('Status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
         return true;
       }
       return false;

@@ -53,7 +53,7 @@ class _CityUpdateScreenState extends State<CityUpdateScreen> {
       final success = await cityVM.updateCity(
         widget.city.id,
         _nameController.text.trim(),
-        _selectedProvince!.id,
+        _selectedProvince!.id!,
       );
 
       setState(() {
